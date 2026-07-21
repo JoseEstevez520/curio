@@ -221,6 +221,41 @@
     }
   }
 
+  /* Thinking — a soft side-to-side wobble while the assistant generates. Eyes
+     intact; only the body tilts. */
+  .curio-logo-thinking {
+    animation: curio-wobble 1.8s var(--ease-in-out) infinite;
+    will-change: transform;
+  }
+  @keyframes curio-wobble {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  /* Squish — a one-shot elastic squash-and-settle when the blob is clicked. */
+  .curio-logo-squish {
+    animation: curio-squish 450ms var(--ease-out);
+  }
+  @keyframes curio-squish {
+    0% {
+      transform: scale(1.18, 0.82);
+    }
+    35% {
+      transform: scale(0.88, 1.12);
+    }
+    65% {
+      transform: scale(1.06, 0.94);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
   /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
   .curio-popover {
     animation: curio-pop-in var(--dur-fast) var(--ease-out);
@@ -248,8 +283,10 @@
     opacity: 0.55;
     transform: none;
   }
-  /* The mascot holds still: no breathing, no blink squash, eyes at rest. */
-  .curio-logo-alive {
+  /* The mascot holds still: no breathing/wobble/squish, no blink squash. */
+  .curio-logo-alive,
+  .curio-logo-thinking,
+  .curio-logo-squish {
     animation: none;
   }
   .curio-logo.is-blinking .curio-eye {

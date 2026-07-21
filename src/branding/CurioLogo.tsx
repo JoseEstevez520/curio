@@ -8,6 +8,8 @@ interface CurioLogoProps {
   track?: boolean;
   /** Gentle idle breathing + the occasional blink. */
   alive?: boolean;
+  /** Reacts while the assistant is generating: a soft body wobble (eyes intact). */
+  thinking?: boolean;
   /** Purely ornamental: hide from assistive tech (use when a visible "Curio"
    *  label already sits next to it, so the name isn't announced twice). */
   decorative?: boolean;
@@ -19,10 +21,11 @@ interface CurioLogoProps {
 /**
  * Curio's mascot: a 3D blob rendered as a PNG (eyeless) with the eyes drawn on
  * top in CSS so they can track the cursor and blink independently. Proportions
- * are measured from the render — see logo/logo.md and logo/prototype.html.
+ * are measured from the render — see docs/logo/logo.md and docs/logo/prototype.html.
  *
- * Only transform/opacity animate, so everything rides the compositor. All motion
- * is gated behind the caller's `alive`/`track` flags and prefers-reduced-motion.
+ * Only transform/opacity animate, so everything rides the compositor. Idle motion
+ * is gated behind `alive`/`track`; `thinking` reacts to generation and a click
+ * squishes the blob. All of it honors prefers-reduced-motion.
  */
 
 // Eye centers as a percentage of the blob box.
@@ -41,6 +44,7 @@ export default function CurioLogo({
   size = 72,
   track = false,
   alive = false,
+  thinking = false,
   decorative = false,
   className,
   title = 'Curio',
@@ -48,6 +52,7 @@ export default function CurioLogo({
   const leftPupil = useRef<HTMLDivElement>(null);
   const rightPupil = useRef<HTMLDivElement>(null);
   const [blinking, setBlinking] = useState(false);
+  const [squishing, setSquishing] = useState(false);
 
   // Pupils follow the cursor: nudge each pupil toward the pointer, capped at a
   // small fraction of the blob so the gaze stays subtle. Throttled to one rAF.
@@ -123,7 +128,17 @@ export default function CurioLogo({
     marginTop: `${-pupil / 2}px`,
   });
 
-  const classes = ['curio-logo', alive && 'curio-logo-alive', blinking && 'is-blinking', className]
+  // One body animation at a time, by priority: a click squish wins, then thinking,
+  // then idle breathing. Keeping it exclusive avoids two `animation`s fighting.
+  const bodyAnim = squishing
+    ? 'curio-logo-squish'
+    : thinking
+      ? 'curio-logo-thinking'
+      : alive
+        ? 'curio-logo-alive'
+        : '';
+
+  const classes = ['curio-logo', bodyAnim, blinking && 'is-blinking', className]
     .filter(Boolean)
     .join(' ');
 
@@ -131,6 +146,12 @@ export default function CurioLogo({
     <div
       className={classes}
       style={{ width: `${size}px`, height: `${size}px` }}
+      onClick={() => {
+        if (!prefersReducedMotion()) setSquishing(true);
+      }}
+      onAnimationEnd={(e) => {
+        if (e.animationName === 'curio-squish') setSquishing(false);
+      }}
       {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': title })}
     >
       <img src={curioBody} alt="" aria-hidden="true" />

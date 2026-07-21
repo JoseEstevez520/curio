@@ -20,7 +20,7 @@ export default function ChatView() {
 
   return (
     <div className="flex h-screen flex-col bg-bg">
-      <Header models={models} showBrand={hasMessages} />
+      <Header models={models} showBrand={hasMessages} thinking={isStreaming} />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-2xl px-4 py-10">
           <OllamaBanner status={status} onRetry={() => void reload()} />

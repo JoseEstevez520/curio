@@ -9,10 +9,12 @@ interface HeaderProps {
   /** Show the mascot + wordmark. Hidden on the empty state, where the hero owns the
    *  brand; the mascot morphs up into this slot once the conversation starts. */
   showBrand: boolean;
+  /** The assistant is generating — the header mascot wobbles while true. */
+  thinking: boolean;
 }
 
 /** Slim, borderless top bar: the mascot + wordmark, and the model picker. */
-export default function Header({ models, showBrand }: HeaderProps) {
+export default function Header({ models, showBrand, thinking }: HeaderProps) {
   return (
     <header className="bg-bg px-4 py-3">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3">
@@ -24,7 +26,7 @@ export default function Header({ models, showBrand }: HeaderProps) {
               transition={MASCOT_MORPH}
               style={{ width: 30, height: 30 }}
             >
-              <CurioLogo size={30} decorative />
+              <CurioLogo size={30} thinking={thinking} decorative />
             </motion.div>
             {/* The wordmark isn't morphed (scaling text reads badly); it just fades in
                 once the mascot has settled. */}
