@@ -16,9 +16,12 @@
     background: transparent;
     border: 0;
     margin: 0;
-    padding: 0 1px;
+    /* No padding/border-radius at rest: horizontal padding split the text selection
+       into rounded per-word boxes with gaps at the spaces. Flush inline boxes let a
+       multi-word selection paint as one continuous band. The open-word pill supplies
+       its own padding + radius below. */
+    padding: 0;
     cursor: inherit;
-    border-radius: var(--radius-xs);
     -webkit-appearance: none;
     appearance: none;
     transition: color var(--dur-fast) var(--ease-out);

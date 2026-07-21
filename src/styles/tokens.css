@@ -37,8 +37,13 @@
   --color-accent-subtle: #eff4ff; /* accent-tinted fill (selection, active word bg) */
   --color-accent-fg: #ffffff; /* text on accent */
 
-  /* Selection */
-  --color-selection: #dbeafe;
+  /* Curio brand blue — sampled from the mascot. Used for the text selection wash. */
+  --color-curio: #2e9bf7;
+
+  /* Selection — a Curio-blue wash: enough character to read as one solid block,
+     still light enough to keep the text underneath legible. Derived from the brand
+     color so it always matches the logo. */
+  --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);
 
   /* Focus ring (rgba for layered ring) */
   --focus-ring: rgba(59, 130, 246, 0.45);
@@ -140,8 +145,11 @@
     --color-accent-subtle: #16233d; /* accent-tinted fill */
     --color-accent-fg: #0a0a0a;
 
-    /* Selection */
-    --color-selection: #1e3a5f;
+    /* Curio brand blue — a touch brighter so it carries on the dark canvas. */
+    --color-curio: #4aa8ff;
+
+    /* Selection — slightly stronger mix so the wash still reads on black. */
+    --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
 
     /* Focus ring */
     --focus-ring: rgba(96, 165, 250, 0.5);
@@ -172,7 +180,8 @@
   --color-accent-subtle: #16233d;
   --color-accent-fg: #0a0a0a;
 
-  --color-selection: #1e3a5f;
+  --color-curio: #4aa8ff;
+  --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
 
   --focus-ring: rgba(96, 165, 250, 0.5);
 
@@ -200,7 +209,8 @@
   --color-accent-subtle: #eff4ff;
   --color-accent-fg: #ffffff;
 
-  --color-selection: #dbeafe;
+  --color-curio: #2e9bf7;
+  --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);
 
   --focus-ring: rgba(59, 130, 246, 0.45);
 
@@ -233,7 +243,7 @@ body {
    boxes), so even mid-drag a phrase reads as a single unit while reading/copying stay
    unhindered (§8). */
 ::selection {
-  background-color: var(--color-accent-subtle);
+  background-color: var(--color-selection);
   color: var(--color-fg);
 }
 
@@ -241,7 +251,7 @@ body {
    stays under a selected phrase while its description popover is open. Set/cleared from
    SelectionPopover; unsupported browsers simply render nothing here. */
 ::highlight(curio-selection) {
-  background-color: var(--color-accent-subtle);
+  background-color: var(--color-selection);
   color: var(--color-fg);
 }
 
