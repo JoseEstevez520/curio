@@ -1,13 +1,6 @@
+/* @import must precede all other statements, so tokens load before Tailwind. */
+@import './tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Design tokens (color scale, spacing, type scale, radii — no shadows) arrive in
-   a dedicated slice per docs/DESIGN.md. This file just wires Tailwind for now. */
-:root {
-  color-scheme: light dark;
-}
-
-body {
-  margin: 0;
-}
