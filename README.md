@@ -27,6 +27,28 @@ Abre un chat nuevo y escribe **`start`**. A partir de ahí, se arranca todo desd
 - [`docs/AGENTS.md`](docs/AGENTS.md) — el equipo de agentes.
 - [`EXPERIMENTS.md`](EXPERIMENTS.md) · [`CHANGELOG.md`](CHANGELOG.md) — dónde vamos.
 
+## Ejecutar en local
+
+Requisitos: **Node 18+** y **[Ollama](https://ollama.com)** corriendo en local (sin API keys).
+
+1. **Arranca Ollama** y descarga un modelo pequeño:
+   ```bash
+   ollama serve                 # deja el daemon en http://localhost:11434
+   ollama pull llama3.2:3b      # o qwen2.5:3b-instruct; en equipos flojos, qwen2.5:1.5b
+   ```
+2. **Instala dependencias y levanta la app:**
+   ```bash
+   npm install
+   npm run dev                  # http://localhost:5173
+   ```
+
+El frontend habla con Ollama a través del proxy `/ollama` del dev server de Vite, así que
+**no hay que configurar CORS ni `OLLAMA_ORIGINS`**. Si Ollama no está corriendo, la app lo
+avisará (banner de onboarding, en un slice posterior).
+
+Scripts útiles: `npm run build` (producción), `npm run typecheck`, `npm run lint`,
+`npm run format`.
+
 ## Cómo se trabaja
 
 Por **slices pequeños**, con **muchos commits**, en **versiones** (tags `vX.Y`), y con **varios
