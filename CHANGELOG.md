@@ -3,6 +3,31 @@
 Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Keep a Changelog.
 
 ## [Unreleased]
+
+## [v1.0] — 2026-07-21 — Chat "poquito → más" + UI generativa
+El chat, bien hecho: clic → popover pequeño (el *vistazo*); **"Ver más"** → **modal** donde vive la
+**UI generativa**. El modelo elige un componente de un catálogo fijo y lo **rellena en JSON validado
+con Zod**, con fallback fiable a texto. Todo local vía Ollama, monocromo y sin sombras.
+
+### Added (v1 — el núcleo)
+- **Modal "Ver más"** desde el popover, con **morph tipo iOS** (Framer `layoutId`): la tarjeta
+  pequeña **crece** hasta el modal (curva decelerada, sin rebote) y **encoge** de vuelta al cerrar.
+  Velo plano (un atenuado, no una sombra); el objeto morfa y el texto entra con un fundido. Cierre
+  por Escape o clic en el velo. Respeta `prefers-reduced-motion`.
+- **Catálogo de componentes** (Zod): `plain-text`, `definition-card`, `fact-table`, `timeline`,
+  `comparison`, `steps`, con un **envelope discriminado** `{ type, confidence, data }` y utilidades
+  **Zod→JSON Schema** para el `format` de Ollama.
+- **Renderer JSON→componente**: `switch` type-safe sobre el envelope (sin `any`) + `coerce` que
+  valida con Zod cualquier salida del modelo y **nunca crashea** (cae a texto plano ante fallo).
+- **Cinco componentes** de UI generativa (monocromos, sin sombras, sin cajas anidadas): DefinitionCard,
+  FactTable, Timeline, Comparison, Steps.
+- **Pipeline generativo de dos etapas** contra Ollama con **salida estructurada** (`format` = JSON
+  Schema, grammar-constrained): 1) elegir tipo del catálogo; 2) rellenar solo el esquema elegido.
+  Perezoso (solo al abrir el modal), cacheado por (mensaje, término), en el **idioma del texto**.
+- **Skeleton** monocromo mientras genera (shimmer sutil, se apaga con `prefers-reduced-motion`).
+- **Tests** (Vitest): 26 tests de validación del catálogo (válido/ inválido/ parcial/ basura,
+  límites de cada esquema, y que las utilidades JSON Schema no emiten `$schema`).
+
 ### Docs
 - **`VISION.md`** nuevo — la estrella polar (compañero de investigación local, document-first tipo
   Obsidian, escritorio con Tauri, dos capas de datos: sesiones + vault Markdown).
@@ -53,7 +78,7 @@ Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Kee
 - **Velocidad:** modelo mantenido caliente (`keep_alive`), respuesta acotada (`num_predict`) y
   streaming → descripción en ~2-3 s en caliente.
 
-- Siguiente: v1 (UI generativa — catálogo de componentes).
+- Siguiente: v2 (entidades + prefetch) y modo lectura de artículos.
 
 ## [v0.0] — 2026-07-21 — Descripción en texto plano al clic
 El bucle central funciona de punta a punta, todo en local vía Ollama (sin API keys).

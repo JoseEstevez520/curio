@@ -40,7 +40,7 @@ una palabra → descripción en contexto (texto plano), estilo monocromo.
 
 ---
 
-## 🔜 v1 — El chat, bien hecho: "poquito → más" + UI generativa  *(el núcleo — SIGUIENTE)*
+## ✅ v1 — El chat, bien hecho: "poquito → más" + UI generativa  *(hecho — tag `v1.0`)*
 
 **Meta:** clavar la experiencia principal dentro del chat. Clic → popover pequeño (el *vistazo*);
 **"ver más"** → **modal** (con velo plano, sin sombras) donde vive el contenido rico. El modal es la
@@ -57,7 +57,7 @@ validado con Zod**, con fallback a texto.
   `feat: Steps/List`  *(un componente por slice; paralelizable, uno por agente)*
 - [x] `feat: skeleton del componente mientras genera`
 - [x] `test: validación de esquema (válido, inválido, parcial)`
-- [ ] `chore: tag v1.0` + `CHANGELOG`
+- [x] `chore: tag v1.0` + `CHANGELOG`
 
 **Hecho cuando:** clicar/"ver más" muestra un componente renderizado la mayoría de las veces, con
 fallback fiable; añadir un componente nuevo es un slice pequeño; el JSON inválido nunca rompe la UI.
