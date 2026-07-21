@@ -24,9 +24,11 @@ interface DescribeModalProps {
  * `SURFACE_LAYOUT_ID` with the popover, so opening it reads as the small card GROWING into
  * place — a smooth iOS-style morph, never a pop (DESIGN §9).
  *
- * The OBJECT (the card) morphs; the TEXT enters with a clean fade on top, so no text is
- * ever scaled between two sizes (DESIGN §9.3, UI-PREFERENCES §3). The flat scrim behind
- * lives in SelectionPopover so it can fade independently of the morph.
+ * The OBJECT (the card) morphs; the TEXT enters with a clean fade on top. Structurally they
+ * are SIBLINGS, not parent/child — the content is never a descendant of the `layoutId`
+ * surface, so it never inherits the surface's scale transform and is never seen stretched
+ * (DESIGN §9.3, UI-PREFERENCES §3). The flat scrim behind lives in SelectionPopover so it can
+ * fade independently of the morph.
  */
 const FOCUSABLE = 'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])';
 
@@ -90,24 +92,35 @@ export default function DescribeModal({
       {/* Centering layer: transparent and click-through; only the card catches clicks,
           so a click anywhere outside it lands on the scrim behind and closes. */}
       <div className="curio-modal-center">
-        <motion.div
-          ref={cardRef}
-          layoutId={SURFACE_LAYOUT_ID}
-          transition={MODAL_MORPH}
-          className="curio-modal-card"
-          // 16 === --radius-xl (the shared morph surface radius); inline so Framer can keep
-          // the corners crisp while the box morphs between popover and modal.
-          style={{ borderRadius: 16 }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="curio-modal-title"
-        >
-          {/* Content is not part of the morph — it fades in on top while the box travels. */}
+        {/* The shell is the modal's real, final-size box (sized by the content in flow). It
+            never animates — so nothing painted inside is ever subject to a transform. */}
+        <div className="curio-modal-shell">
+          {/* Surface: the ONLY thing that morphs (layoutId). Purely decorative — a flat rect
+              + hairline, no children — so Framer's non-uniform scale during the grow/shrink can
+              distort IT freely without anything containing text warping. It fills the shell,
+              behind the content. */}
           <motion.div
+            layoutId={SURFACE_LAYOUT_ID}
+            transition={MODAL_MORPH}
+            className="curio-modal-surface"
+            // 16 === --radius-xl; inline so Framer corrects the radius (keeps corners circular)
+            // while the surface scales non-uniformly between the two sizes.
+            style={{ borderRadius: 16 }}
+            aria-hidden="true"
+          />
+          {/* Content: a SIBLING of the surface, never its descendant, so it never inherits the
+              scale transform — it only fades in, always at its natural (final) size. The text is
+              therefore never stretched, only revealed as the surface grows behind it (DESIGN
+              §9.3). Holds the dialog semantics and the focusable elements. */}
+          <motion.div
+            ref={cardRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={CONTENT_FADE}
-            className="flex min-h-0 flex-col"
+            className="curio-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="curio-modal-title"
           >
             <header className="flex items-start justify-between gap-3 border-b border-border px-5 py-3">
               <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
@@ -136,7 +149,7 @@ export default function DescribeModal({
               )}
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </FloatingPortal>
   );

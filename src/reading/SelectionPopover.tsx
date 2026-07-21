@@ -127,19 +127,26 @@ export default function SelectionPopover() {
               layoutId={SURFACE_LAYOUT_ID}
               transition={MODAL_MORPH}
               className={POPOVER_CLASS}
+              // Same Framer-managed radius as the modal (16 === --radius-xl) so the corners
+              // stay crisp when shrinking back too (a Tailwind class isn't read by Framer).
+              style={{ borderRadius: 16 }}
             >
-              <DescriptionBody entry={entry} />
-              {/* "Ver más" only once the gloss is ready — showing it over the loading dots
-                  (nothing to expand yet) reads as broken. Hidden while loading and on error. */}
-              {entry?.status === 'done' && (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
-                >
-                  Ver más
-                </button>
-              )}
+              {/* Counter-scale the popover content during the morph BACK (modal → popover),
+                  same as the modal's content, so it never stretches while the box shrinks. */}
+              <motion.div layout="position" transition={{ layout: MODAL_MORPH }}>
+                <DescriptionBody entry={entry} />
+                {/* "Ver más" only once the gloss is ready — showing it over the loading dots
+                    (nothing to expand yet) reads as broken. Hidden while loading and on error. */}
+                {entry?.status === 'done' && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(true)}
+                    className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
+                  >
+                    Ver más
+                  </button>
+                )}
+              </motion.div>
             </motion.div>
           )}
         </div>
