@@ -1,4 +1,14 @@
-import { useFloating, offset, flip, shift, autoUpdate, FloatingPortal } from '@floating-ui/react';
+import {
+  useFloating,
+  offset,
+  flip,
+  shift,
+  autoUpdate,
+  useDismiss,
+  useRole,
+  useInteractions,
+  FloatingPortal,
+} from '@floating-ui/react';
 import { useChatStore } from '../app/store';
 import Popover from './Popover';
 
@@ -16,12 +26,22 @@ export default function WordSpan({ messageId, index, term, context }: WordSpanPr
   const setOpenKey = useChatStore((s) => s.setOpenKey);
   const isOpen = openKey === key;
 
-  const { refs, floatingStyles } = useFloating({
+  const {
+    refs,
+    floatingStyles,
+    context: fctx,
+  } = useFloating({
     open: isOpen,
+    onOpenChange: (open) => setOpenKey(open ? key : null),
     placement: 'bottom',
     middleware: [offset(6), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
+
+  // Dismiss on outside click and Escape.
+  const dismiss = useDismiss(fctx);
+  const role = useRole(fctx, { role: 'tooltip' });
+  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, role]);
 
   return (
     <>
@@ -31,6 +51,7 @@ export default function WordSpan({ messageId, index, term, context }: WordSpanPr
         className="entity"
         aria-expanded={isOpen}
         onClick={() => setOpenKey(isOpen ? null : key)}
+        {...getReferenceProps()}
       >
         {term}
       </button>
@@ -42,6 +63,8 @@ export default function WordSpan({ messageId, index, term, context }: WordSpanPr
             messageId={messageId}
             term={term}
             context={context}
+            onClose={() => setOpenKey(null)}
+            {...getFloatingProps()}
           />
         </FloatingPortal>
       )}
