@@ -52,11 +52,11 @@ validado con Zod**, con fallback a texto.
   modal con morph/blur (DESIGN §9), sin tocar JSON todavía.
 - [x] `feat: catálogo de componentes (tipos + esquemas Zod + envelope discriminado)`
 - [x] `feat: renderer JSON→componente con fallback a texto (nunca crashea)`
-- [ ] `feat: prompt "elige + rellena" con salida estructurada de Ollama (format = JSON Schema)`
+- [x] `feat: prompt "elige + rellena" con salida estructurada de Ollama (format = JSON Schema)`
 - [x] `feat: DefinitionCard` · `feat: FactTable` · `feat: Timeline` · `feat: Comparison` ·
   `feat: Steps/List`  *(un componente por slice; paralelizable, uno por agente)*
-- [ ] `feat: skeleton del componente mientras genera`
-- [ ] `test: validación de esquema (válido, inválido, parcial)`
+- [x] `feat: skeleton del componente mientras genera`
+- [x] `test: validación de esquema (válido, inválido, parcial)`
 - [ ] `chore: tag v1.0` + `CHANGELOG`
 
 **Hecho cuando:** clicar/"ver más" muestra un componente renderizado la mayoría de las veces, con
