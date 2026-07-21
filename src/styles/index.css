@@ -4,3 +4,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Clickable word — docs/DESIGN.md §6. Reads as prose at rest; invites on hover.
+     No shadows; the affordance is a hairline underline + color, never a box. */
+  .entity {
+    color: var(--color-fg);
+    text-decoration: underline dotted var(--color-border-strong);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    cursor: pointer;
+    border-radius: var(--radius-xs);
+    padding: 0 2px;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      text-decoration-color var(--dur-fast) var(--ease-out);
+  }
+  .entity:hover {
+    color: var(--color-accent);
+    text-decoration: underline solid var(--color-accent);
+    background: var(--color-accent-subtle);
+  }
+  .entity[aria-expanded='true'] {
+    color: var(--color-accent);
+    background: var(--color-accent-subtle);
+    text-decoration: underline solid var(--color-accent);
+  }
+}
