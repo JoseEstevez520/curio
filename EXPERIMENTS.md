@@ -23,4 +23,18 @@ tandas sean comparables.
 
 -->
 
-_(Aún sin experimentos. El primero llegará durante v0/v1.)_
+## 2026-07-21 — PoC de escritorio con Tauri
+- **Rama:** `exp/tauri` (empujada a `origin`; **no** se funde a `main`).
+- **Hipótesis:** el núcleo web (salida estática `dist/`) se puede envolver en Tauri sin
+  reescribirlo, y Tauri aporta disco (vault Markdown) + base local (sesiones), las dos capas de la
+  VISIÓN.
+- **Montaje / eval:** andamiaje Tauri v2 en `src-tauri/` (`tauri.conf.json` con
+  `frontendDist=../dist`; comandos Rust `vault::{list,read,write}_note` y
+  `sessions::{load,save}`). Detalle completo en `docs/experiments/tauri-poc.md`.
+- **Números:** N/A (cala de diseño, no de rendimiento).
+- **Veredicto:** encaje **limpio y de bajo riesgo** — el web se reutiliza tal cual; las dos capas
+  caben en comandos pequeños. **No compilado/ejecutado aquí** (sin toolchain de Rust ni WebView2):
+  los `.rs` son andamiaje sin verificar. Punto abierto decidido: en producción, acceso a Ollama vía
+  **proxy en Rust** (no `OLLAMA_ORIGINS`), coherente con la web.
+- **Qué se funde:** solo esta conclusión + `docs/experiments/tauri-poc.md`. El código Tauri se
+  queda en `exp/tauri` hasta que toque el escritorio (después de v2/v3 en web, regla del ROADMAP).
