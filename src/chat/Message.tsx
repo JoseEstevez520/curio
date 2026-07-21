@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { Message as MessageModel } from '../app/store';
 import { tokenize } from '../reading/tokenize';
+import { contextWindow } from '../lookup/contextWindow';
 import WordSpan from '../reading/WordSpan';
 
 interface MessageProps {
@@ -14,7 +15,13 @@ function InteractiveText({ messageId, content }: { messageId: string; content: s
     <>
       {tokens.map((tok, i) =>
         tok.clickable ? (
-          <WordSpan key={i} messageId={messageId} index={i} term={tok.text} />
+          <WordSpan
+            key={i}
+            messageId={messageId}
+            index={i}
+            term={tok.text}
+            context={contextWindow(tokens, i)}
+          />
         ) : (
           <span key={i}>{tok.text}</span>
         ),
