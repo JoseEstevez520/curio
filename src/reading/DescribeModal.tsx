@@ -28,6 +28,8 @@ interface DescribeModalProps {
  * ever scaled between two sizes (DESIGN §9.3, UI-PREFERENCES §3). The flat scrim behind
  * lives in SelectionPopover so it can fade independently of the morph.
  */
+const FOCUSABLE = 'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])';
+
 export default function DescribeModal({
   title,
   messageId,
@@ -35,14 +37,16 @@ export default function DescribeModal({
   glossText,
   onClose,
 }: DescribeModalProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<Element | null>(null);
 
   // The modal being mounted means it's open; generate the rich component now (lazy).
   const gen = useGenerative(true, messageId, title, context, glossText);
 
-  // Escape closes; focus moves to the close button on open and returns to the trigger
-  // on close (DESIGN §8). Capture phase so Escape reaches us before anything else.
+  // Escape closes; focus moves to the close button on open and returns to the trigger on
+  // close; Tab is trapped inside the dialog (DESIGN §8). Capture phase so Escape/Tab reach
+  // us first. `onClose` is memoized by the caller, so this runs once per open, not per token.
   useEffect(() => {
     returnFocus.current = document.activeElement;
     closeRef.current?.focus();
@@ -50,6 +54,28 @@ export default function DescribeModal({
       if (e.key === 'Escape') {
         e.stopPropagation();
         onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      // Focus trap: keep Tab / Shift+Tab cycling within the card, never out to the page.
+      const card = cardRef.current;
+      if (!card) return;
+      const items = Array.from(card.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null,
+      );
+      if (items.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !card.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !card.contains(active))) {
+        e.preventDefault();
+        first.focus();
       }
     };
     document.addEventListener('keydown', onKey, true);
@@ -65,13 +91,16 @@ export default function DescribeModal({
           so a click anywhere outside it lands on the scrim behind and closes. */}
       <div className="curio-modal-center">
         <motion.div
+          ref={cardRef}
           layoutId={SURFACE_LAYOUT_ID}
           transition={MODAL_MORPH}
           className="curio-modal-card"
+          // 16 === --radius-xl (the shared morph surface radius); inline so Framer can keep
+          // the corners crisp while the box morphs between popover and modal.
           style={{ borderRadius: 16 }}
           role="dialog"
           aria-modal="true"
-          aria-label={title}
+          aria-labelledby="curio-modal-title"
         >
           {/* Content is not part of the morph — it fades in on top while the box travels. */}
           <motion.div
@@ -81,7 +110,9 @@ export default function DescribeModal({
             className="flex min-h-0 flex-col"
           >
             <header className="flex items-start justify-between gap-3 border-b border-border px-5 py-3">
-              <h2 className="text-lg font-semibold leading-snug text-fg">{title}</h2>
+              <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
+                {title}
+              </h2>
               <button
                 ref={closeRef}
                 onClick={onClose}
@@ -95,7 +126,9 @@ export default function DescribeModal({
               {!gen || gen.status === 'loading' ? (
                 <GenerativeSkeleton />
               ) : gen.status === 'error' ? (
-                <p className="text-fg-muted">{gen.error}</p>
+                <p role="alert" className="text-fg-muted">
+                  {gen.error}
+                </p>
               ) : gen.envelope ? (
                 <CatalogRenderer envelope={gen.envelope} />
               ) : (

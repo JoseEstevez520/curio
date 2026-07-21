@@ -45,6 +45,7 @@ export default function ArticleView() {
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={10}
+        aria-label="Texto a leer"
         placeholder="Pega aquí el texto…"
         className="mt-6 w-full resize-y rounded-2xl border border-border bg-bg-subtle px-4 py-3 text-base leading-relaxed text-fg outline-none transition-colors duration-fast placeholder:text-fg-faint focus:border-border-strong"
       />
