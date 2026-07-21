@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useChatStore } from '../app/store';
-import { withViewTransition } from '../app/viewTransition';
+import { MASCOT_MORPH } from '../app/motion';
 import { useSendMessage } from './useChat';
 import { useModels } from './useModels';
 import CurioLogo from '../branding/CurioLogo';
@@ -17,20 +17,6 @@ export default function ChatView() {
   const send = useSendMessage();
   const hasMessages = messages.length > 0;
 
-  // Sending the first message flips the empty state into a conversation. Wrap that
-  // one flip in a View Transition so the hero mascot + wordmark morph up into the
-  // header (shared-element transition); later sends update plainly.
-  const handleSend = useCallback(
-    (text: string) => {
-      if (hasMessages) {
-        void send(text);
-      } else {
-        withViewTransition(() => void send(text));
-      }
-    },
-    [hasMessages, send],
-  );
-
   return (
     <div className="flex h-screen flex-col bg-bg">
       <Header models={models} showBrand={hasMessages} />
@@ -39,8 +25,17 @@ export default function ChatView() {
           <OllamaBanner status={status} onRetry={() => void reload()} />
           {!hasMessages ? (
             <div className="text-fg-muted">
-              <CurioLogo size={72} alive track decorative className="vt-mascot mb-4" />
-              <h1 className="vt-wordmark text-2xl font-bold tracking-tight text-fg">Curio</h1>
+              {/* Same layoutId as the header mascot: sending the first message flips to
+                  the conversation and Framer morphs this logo up into the header slot. */}
+              <motion.div
+                layoutId="curio-mascot"
+                transition={MASCOT_MORPH}
+                className="mb-4"
+                style={{ width: 72, height: 72 }}
+              >
+                <CurioLogo size={72} alive track decorative />
+              </motion.div>
+              <h1 className="text-2xl font-bold tracking-tight text-fg">Curio</h1>
               <p className="mt-2 text-base">
                 Ask something below. In a reply, hover or click any word to see it explained inline.
               </p>
@@ -50,7 +45,7 @@ export default function ChatView() {
           )}
         </div>
       </div>
-      <Composer onSend={handleSend} disabled={isStreaming} />
+      <Composer onSend={send} disabled={isStreaming} />
       <SelectionPopover />
     </div>
   );

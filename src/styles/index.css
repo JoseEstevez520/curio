@@ -191,16 +191,6 @@
     }
   }
 
-  /* Shared-element morph tags: the same mascot and wordmark exist in the hero
-     (empty state) and the header, one at a time. Matching view-transition-names
-     let the browser morph position + size between them when the state flips. */
-  .vt-mascot {
-    view-transition-name: curio-mascot;
-  }
-  .vt-wordmark {
-    view-transition-name: curio-wordmark;
-  }
-
   /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
   .curio-popover {
     animation: curio-pop-in var(--dur-fast) var(--ease-out);
@@ -235,22 +225,4 @@
   .curio-logo.is-blinking .curio-eye {
     transform: none;
   }
-  /* No morph either (belt-and-suspenders — the JS also skips the transition). */
-  ::view-transition-group(curio-mascot),
-  ::view-transition-group(curio-wordmark),
-  ::view-transition-old(curio-mascot),
-  ::view-transition-new(curio-mascot),
-  ::view-transition-old(curio-wordmark),
-  ::view-transition-new(curio-wordmark) {
-    animation: none !important;
-  }
-}
-
-/* Shared-element morph timing (mascot + wordmark between hero and header). Quick
-   and decelerating, like iOS. These pseudo-elements attach to :root, so they live
-   outside @layer components. */
-::view-transition-group(curio-mascot),
-::view-transition-group(curio-wordmark) {
-  animation-duration: 460ms;
-  animation-timing-function: var(--ease-out);
 }
