@@ -34,6 +34,27 @@ gente curiosa que quiere entender lo que lee en el momento.
 - **Local, sin API key** — no hace falta clave de API: se puede usar **Ollama** o similar para
   correr los modelos en local.
 
+## Más allá del texto plano: UI generativa
+
+La descripción no tiene por qué ser siempre un párrafo. Según lo que clicas, la respuesta
+**toma la forma adecuada**: el modelo no escribe HTML libre, sino que **elige un componente de
+un catálogo fijo y lo rellena** (devuelve JSON estructurado). Ejemplos: ficha de definición,
+línea de tiempo para una fecha/evento, mapa para un lugar, ficha de persona, diagrama de un
+concepto, tabla comparativa, gráfico, bloque de código.
+
+Analogía: no es un diccionario, es un becario que te monta la chuleta perfecta para esa palabra
+concreta, al vuelo. Esto es fiable con modelos pequeños locales porque solo devuelven JSON, no
+interfaz a mano. Detalle en `docs/ARCHITECTURE.md`.
+
+## Versiones
+
+- **v0** — descripción en **texto plano** al clic/hover (el bucle completo funcionando).
+- **v1** — **UI generativa**: componentes del catálogo en vez de texto.
+- **v2** — mejor **detección de entidades** y prompting de modelos pequeños.
+- **v3+** — más allá del chat (texto pegado, selección), pulido y accesibilidad.
+
+Detalle y slices en `docs/ROADMAP.md`.
+
 ## Plan de arranque
 
 Primero, un **POC / prototipo** para probar cosas y ver qué funciona:
