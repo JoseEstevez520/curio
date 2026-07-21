@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Clip path using the blob shape for inner shadow and highlight -->
+    <clipPath id="blob-clip">
+      <use href="#blob-shape"/>
+    </clipPath>
+
+    <!-- The organic blob path, wider than tall, soft irregular edges -->
+    <path id="blob-shape"
+      d="M200,80
+         C260,72 310,88 340,120
+         C370,152 378,190 374,225
+         C370,260 352,290 325,310
+         C298,330 265,340 200,342
+         C135,340 102,330 75,310
+         C48,290 30,260 26,225
+         C22,190 30,152 60,120
+         C90,88 140,72 200,80Z"/>
+  </defs>
+
+  <!-- Main blob body -->
+  <use href="#blob-shape" id="blob-body" fill="#42A5F5"/>
+
+  <!-- Inner shadow at the bottom (clipped to blob) -->
+  <g id="inner-shadow" clip-path="url(#blob-clip)">
+    <ellipse cx="200" cy="360" rx="200" ry="100" fill="rgba(0,0,0,0.15)"/>
+  </g>
+
+  <!-- Top highlight (clipped to blob) -->
+  <g id="highlight" clip-path="url(#blob-clip)">
+    <ellipse cx="200" cy="95" rx="140" ry="60" fill="rgba(255,255,255,0.18)"/>
+  </g>
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <circle id="eye-left" cx="165" cy="220" r="18" fill="#1A1A2E"/>
+    <circle id="eye-left-highlight" cx="158" cy="212" r="6" fill="#FFFFFF"/>
+
+    <!-- Right eye -->
+    <circle id="eye-right" cx="235" cy="220" r="18" fill="#1A1A2E"/>
+    <circle id="eye-right-highlight" cx="228" cy="212" r="6" fill="#FFFFFF"/>
+  </g>
+</svg>

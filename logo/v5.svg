@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" id="curio-blob-v5">
+  <defs>
+    <!-- Blob clip path - organic amorphous shape, wider than tall, flat bottom -->
+    <clipPath id="blob-clip">
+      <path id="blob-shape" d="
+        M 80,240
+        C 60,220 45,195 50,165
+        C 55,135 70,115 95,100
+        C 120,85 150,75 185,72
+        C 210,70 240,72 270,78
+        C 300,84 325,95 342,112
+        C 358,128 365,150 360,175
+        C 355,200 348,222 335,238
+        C 320,256 298,268 272,276
+        C 245,284 215,288 185,288
+        C 155,288 128,284 105,274
+        C 88,266 78,254 80,240
+        Z
+      "/>
+    </clipPath>
+
+    <!-- Base dark blue gradient -->
+    <radialGradient id="grad-base" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#1976D2"/>
+      <stop offset="100%" stop-color="#0D47A1"/>
+    </radialGradient>
+
+    <!-- Layer 1: Main body light from upper-left -->
+    <radialGradient id="grad-light-main" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#42A5F5" stop-opacity="0.9"/>
+      <stop offset="45%" stop-color="#42A5F5" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#42A5F5" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Layer 2: Secondary fill mid-tone -->
+    <radialGradient id="grad-mid" cx="55%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#64B5F6" stop-opacity="0.75"/>
+      <stop offset="40%" stop-color="#64B5F6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#64B5F6" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Layer 3: Soft highlight upper area -->
+    <radialGradient id="grad-highlight" cx="38%" cy="25%" r="40%">
+      <stop offset="0%" stop-color="#90CAF9" stop-opacity="0.85"/>
+      <stop offset="35%" stop-color="#90CAF9" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#90CAF9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Layer 4: Specular hot spot -->
+    <radialGradient id="grad-specular" cx="32%" cy="20%" r="22%">
+      <stop offset="0%" stop-color="#E3F2FD" stop-opacity="0.9"/>
+      <stop offset="30%" stop-color="#BBDEFB" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#BBDEFB" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Layer 5: Rim/bounce light from bottom-right -->
+    <radialGradient id="grad-rim" cx="75%" cy="80%" r="35%">
+      <stop offset="0%" stop-color="#64B5F6" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#42A5F5" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#1565C0" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Shadow beneath blob -->
+    <radialGradient id="grad-shadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0D47A1" stop-opacity="0.3"/>
+      <stop offset="70%" stop-color="#0D47A1" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0D47A1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Ground shadow -->
+  <ellipse id="ground-shadow" cx="200" cy="310" rx="120" ry="18" fill="url(#grad-shadow)"/>
+
+  <!-- Blob body group, clipped to organic shape -->
+  <g id="blob-body" clip-path="url(#blob-clip)">
+    <!-- Blob outline shape for reference -->
+    <use href="#blob-shape" fill="none" stroke="none"/>
+
+    <!-- Layer 0: Base dark blue fill -->
+    <rect id="layer-base" x="0" y="0" width="400" height="400" fill="url(#grad-base)"/>
+
+    <!-- Layer 1: Main diffuse light - large ellipse upper-left -->
+    <ellipse id="layer-light-main" cx="160" cy="140" rx="180" ry="150" fill="url(#grad-light-main)"/>
+
+    <!-- Layer 2: Mid-tone fill - center -->
+    <ellipse id="layer-mid" cx="210" cy="165" rx="155" ry="130" fill="url(#grad-mid)"/>
+
+    <!-- Layer 3: Soft highlight - upper area -->
+    <ellipse id="layer-highlight" cx="165" cy="120" rx="120" ry="100" fill="url(#grad-highlight)"/>
+
+    <!-- Layer 4: Specular hot spot - tight, bright -->
+    <ellipse id="layer-specular" cx="148" cy="108" rx="65" ry="50" fill="url(#grad-specular)"/>
+
+    <!-- Layer 5: Rim/bounce light - bottom-right edge -->
+    <ellipse id="layer-rim" cx="290" cy="255" rx="100" ry="70" fill="url(#grad-rim)"/>
+  </g>
+
+  <!-- Blob outline for definition -->
+  <path id="blob-outline" d="
+    M 80,240
+    C 60,220 45,195 50,165
+    C 55,135 70,115 95,100
+    C 120,85 150,75 185,72
+    C 210,70 240,72 270,78
+    C 300,84 325,95 342,112
+    C 358,128 365,150 360,175
+    C 355,200 348,222 335,238
+    C 320,256 298,268 272,276
+    C 245,284 215,288 185,288
+    C 155,288 128,284 105,274
+    C 88,266 78,254 80,240
+    Z
+  " fill="none" stroke="#1565C0" stroke-width="1.5" stroke-opacity="0.3"/>
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <g id="eye-left">
+      <circle cx="168" cy="200" r="14" fill="#0D1B2A"/>
+      <circle cx="163" cy="194" r="4.5" fill="#FFFFFF"/>
+      <circle cx="172" cy="202" r="2" fill="#FFFFFF" opacity="0.5"/>
+    </g>
+    <!-- Right eye -->
+    <g id="eye-right">
+      <circle cx="232" cy="200" r="14" fill="#0D1B2A"/>
+      <circle cx="227" cy="194" r="4.5" fill="#FFFFFF"/>
+      <circle cx="236" cy="202" r="2" fill="#FFFFFF" opacity="0.5"/>
+    </g>
+  </g>
+</svg>

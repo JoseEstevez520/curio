@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="blob" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64D2FF"/>
+      <stop offset="100%" stop-color="#0091EA"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Blob body -->
+  <path d="M200,280 C120,280 60,250 55,210 C50,170 70,140 100,125 C130,110 160,105 200,105 C240,105 270,110 300,125 C330,140 350,170 345,210 C340,250 280,280 200,280Z" fill="url(#blob)"/>
+
+  <!-- Top shine -->
+  <ellipse cx="190" cy="140" rx="60" ry="18" fill="white" opacity="0.35"/>
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <circle cx="170" cy="190" r="14" fill="#1A1A2E"/>
+    <circle cx="230" cy="190" r="14" fill="#1A1A2E"/>
+    <circle cx="176" cy="183" r="5" fill="white"/>
+    <circle cx="236" cy="183" r="5" fill="white"/>
+  </g>
+</svg>

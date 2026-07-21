@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curio - Catalogo de Animaciones v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0e1015;
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+    header h1 { font-size: 1.8rem; color: #fff; }
+    header p { color: #666; margin-top: 6px; font-size: 0.9rem; }
+
+    .showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 28px;
+      padding: 30px 40px 80px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .demo {
+      background: #16181f;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #252830;
+    }
+
+    .demo-header {
+      padding: 16px 20px 0;
+    }
+    .demo-header h2 { font-size: 1rem; color: #fff; }
+    .demo-header p { font-size: 0.78rem; color: #666; margin-top: 4px; }
+    .demo-header .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-idle { background: #1b3a2a; color: #4caf50; }
+    .tag-interaction { background: #1a2a3d; color: #42a5f5; }
+    .tag-feedback { background: #3d2a1a; color: #ff9800; }
+    .tag-fun { background: #3a1a3d; color: #ce93d8; }
+
+    .stage {
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ============ CURIO BASE ============ */
+    .curio {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+    .curio img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+    .curio .eye {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* NO overflow hidden - pupils must move freely */
+    }
+    .curio .eye-l { top: 54%; left: 37%; transform: translate(-50%,-50%); }
+    .curio .eye-r { top: 54%; left: 62%; transform: translate(-50%,-50%); }
+    .curio .pupil {
+      width: 17px;
+      height: 17px;
+      background: radial-gradient(circle at 38% 35%, #333 0%, #111 60%, #000 100%);
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .curio .pupil::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.4));
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+    }
+
+    /* ============ 1. IDLE / BREATHING ============ */
+    .anim-breathe .curio {
+      animation: breathe 4s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.03) translateY(-4px); }
+    }
+
+    /* ============ 2. BLINK ============ */
+    .anim-blink .eye.blinking .pupil {
+      animation: blink-anim 0.15s ease-in-out;
+    }
+    @keyframes blink-anim {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.05); }
+    }
+
+    /* ============ 3. SLEEP ============ */
+    .anim-sleep .curio {
+      animation: sleep-bob 3s ease-in-out infinite;
+    }
+    .anim-sleep .pupil {
+      transform: scaleY(0.08) !important;
+    }
+    .anim-sleep .zzz {
+      position: absolute;
+      font-weight: 700;
+      color: #90CAF9;
+      opacity: 0;
+      animation: zzz-float 2.5s ease-out infinite;
+      text-shadow: 0 0 4px rgba(144, 202, 249, 0.3);
+    }
+    .anim-sleep .zzz:nth-child(1) {
+      font-size: 0.7rem;
+      top: 42%;
+      left: 76%;
+      animation-delay: 0s;
+    }
+    .anim-sleep .zzz:nth-child(2) {
+      font-size: 0.95rem;
+      top: 22%;
+      left: 82%;
+      animation-delay: 0.8s;
+    }
+    .anim-sleep .zzz:nth-child(3) {
+      font-size: 1.2rem;
+      top: 2%;
+      left: 88%;
+      animation-delay: 1.6s;
+    }
+    @keyframes sleep-bob {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(-3deg) translateY(3px); }
+    }
+    @keyframes zzz-float {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.7); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translate(20px, -35px) scale(1.1); }
+    }
+
+    /* ============ 4. WAKE UP ============ */
+    .anim-wakeup .curio.sleeping { animation: sleep-bob 3s ease-in-out infinite; }
+    .anim-wakeup .curio.sleeping .pupil { transform: scaleY(0.08); transition: transform 0.3s; }
+    .anim-wakeup .curio.awake .pupil {
+      transform: scaleY(1);
+      transition: transform 0.15s;
+    }
+    @keyframes wake-bounce {
+      0% { transform: scale(1) rotate(-3deg); }
+      30% { transform: scale(1.15, 0.85); }
+      50% { transform: scale(0.92, 1.08) translateY(-10px); }
+      70% { transform: scale(1.03, 0.97); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* ============ 5. THINKING ============ */
+    .anim-thinking .curio {
+      animation: think-wobble 2s ease-in-out infinite;
+    }
+    /* Eyes stay normal - no deformation */
+    .anim-thinking .dots {
+      position: absolute;
+      bottom: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+    }
+    .anim-thinking .dot {
+      width: 6px;
+      height: 6px;
+      background: #90CAF9;
+      border-radius: 50%;
+      animation: dot-pulse 1.4s ease-in-out infinite;
+    }
+    .anim-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+    .anim-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes think-wobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(3deg); }
+      75% { transform: rotate(-3deg); }
+    }
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ============ 6. MONOCLE ============ */
+    .anim-monocle .monocle-group {
+      position: absolute;
+      top: 60%;
+      left: 62%;
+      transform: translate(-50%, -50%);
+      animation: monocle-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      opacity: 0;
+    }
+    .anim-monocle .monocle-group .monocle-d {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #d4af37;
+      border-radius: 50%;
+    }
+    .anim-monocle .monocle-group .handle-d {
+      width: 2.5px;
+      height: 22px;
+      background: linear-gradient(to bottom, #d4af37, #b8962e);
+      margin-left: 16px;
+      transform: rotate(20deg);
+      transform-origin: top;
+      border-radius: 1px;
+    }
+    .anim-monocle .monocle-group .monocle-shine {
+      display: none;
+    }
+    @keyframes monocle-in {
+      0% { opacity: 0; transform: translate(-50%, -70%) scale(0.3); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes shine-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+    .anim-monocle .curio {
+      animation: monocle-lean 0.4s ease-out forwards;
+    }
+    @keyframes monocle-lean {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(3deg); }
+    }
+
+    /* ============ 7. MONOCLE DROP ============ */
+    .anim-monocle-drop .monocle-group {
+      position: absolute;
+      top: 60%;
+      left: 62%;
+      transform: translate(-50%, -50%);
+      animation: monocle-fall 0.8s cubic-bezier(0.55,0,1,0.45) 0.3s forwards;
+    }
+    .anim-monocle-drop .monocle-group .monocle-d {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #d4af37;
+      border-radius: 50%;
+    }
+    .anim-monocle-drop .monocle-group .handle-d {
+      width: 2.5px;
+      height: 22px;
+      background: linear-gradient(to bottom, #d4af37, #b8962e);
+      margin-left: 16px;
+      transform: rotate(20deg);
+      transform-origin: top;
+      border-radius: 1px;
+    }
+    @keyframes monocle-fall {
+      0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-50%, 80px) rotate(45deg); opacity: 0; }
+    }
+    .anim-monocle-drop .curio {
+      animation: sad-shrink 0.5s ease-out forwards;
+    }
+    @keyframes sad-shrink {
+      0% { transform: scale(1) rotate(3deg); }
+      50% { transform: scale(0.92); }
+      100% { transform: scale(0.95) rotate(0deg); }
+    }
+
+    /* ============ 7b. MONOCLE SEARCHING ============ */
+    .anim-monocle-search .monocle-group {
+      position: absolute;
+      top: 60%;
+      left: 62%;
+      transform: translate(-50%, -50%);
+      animation: search-monocle 2.5s ease-in-out infinite;
+    }
+    .anim-monocle-search .monocle-group .monocle-d {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #d4af37;
+      border-radius: 50%;
+    }
+    .anim-monocle-search .monocle-group .handle-d {
+      width: 2.5px;
+      height: 22px;
+      background: linear-gradient(to bottom, #d4af37, #b8962e);
+      margin-left: 16px;
+      transform: rotate(20deg);
+      transform-origin: top;
+      border-radius: 1px;
+    }
+    .anim-monocle-search .curio {
+      transform: rotate(3deg);
+      animation: search-look 2.5s ease-in-out infinite;
+    }
+    .anim-monocle-search .pupil {
+      animation: search-eyes 2.5s ease-in-out infinite;
+    }
+    @keyframes search-look {
+      0%, 100% { transform: rotate(3deg) translateX(0); }
+      30% { transform: rotate(5deg) translateX(3px); }
+      70% { transform: rotate(1deg) translateX(-3px); }
+    }
+    @keyframes search-eyes {
+      0%, 100% { transform: translateX(2px); }
+      30% { transform: translateX(4px) translateY(1px); }
+      50% { transform: translateX(-2px); }
+      70% { transform: translateX(-4px) translateY(-1px); }
+    }
+    @keyframes search-monocle {
+      0%, 100% { transform: translate(calc(-50% + 2px), -50%); }
+      30% { transform: translate(calc(-50% + 4px), calc(-50% + 1px)); }
+      50% { transform: translate(calc(-50% - 2px), -50%); }
+      70% { transform: translate(calc(-50% - 4px), calc(-50% - 1px)); }
+    }
+
+    /* ============ 8. EUREKA / SPARKLE ============ */
+    /* Eyes stay completely normal - only sparkles + bounce */
+    .anim-eureka .curio {
+      animation: eureka-bounce 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .anim-eureka .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      animation: sparkle-pop 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    .anim-eureka .sparkle::before, .anim-eureka .sparkle::after {
+      content: '';
+      position: absolute;
+      background: #FFD54F;
+      border-radius: 1px;
+    }
+    .anim-eureka .sparkle::before {
+      width: 2px; height: 8px; left: 3px; top: 0;
+    }
+    .anim-eureka .sparkle::after {
+      width: 8px; height: 2px; top: 3px; left: 0;
+    }
+    .anim-eureka .sparkle:nth-child(1) { top: 2%; left: 40%; animation-delay: 0s; }
+    .anim-eureka .sparkle:nth-child(2) { top: 30%; right: 3%; animation-delay: 0.15s; }
+    .anim-eureka .sparkle:nth-child(3) { bottom: 5%; left: 42%; animation-delay: 0.3s; }
+    .anim-eureka .sparkle:nth-child(4) { top: 30%; left: 3%; animation-delay: 0.2s; }
+    @keyframes sparkle-pop {
+      0% { transform: scale(0) rotate(0deg); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: scale(1.5) rotate(45deg); opacity: 0; }
+    }
+    @keyframes eureka-bounce {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.12) translateY(-8px); }
+      70% { transform: scale(0.96); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============ 9. HAPPY ============ */
+    /* Eyes stay normal - just wiggle the body */
+    .anim-happy .curio {
+      animation: happy-wiggle 0.6s ease-in-out 2;
+    }
+    @keyframes happy-wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(4deg) scale(1.03); }
+      75% { transform: rotate(-4deg) scale(1.03); }
+    }
+
+    /* ============ 10. SQUISH ON CLICK ============ */
+    .anim-squish .curio {
+      animation: squish-click 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes squish-click {
+      0% { transform: scale(1,1); }
+      25% { transform: scale(1.18, 0.82); }
+      45% { transform: scale(0.88, 1.12); }
+      65% { transform: scale(1.06, 0.94); }
+      100% { transform: scale(1,1); }
+    }
+
+    /* ============ 11. ERROR / DIZZY ============ */
+    .anim-error .curio {
+      animation: error-shake 0.5s ease-in-out 2;
+    }
+    .anim-error .pupil {
+      background: none !important;
+    }
+    .anim-error .pupil::before {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      animation: spiral-spin 1s linear infinite;
+      border: 2px solid transparent;
+      border-top-color: #111;
+      border-right-color: #111;
+      border-radius: 50%;
+    }
+    .anim-error .pupil::after {
+      width: 6px !important;
+      height: 6px !important;
+      border: 2px solid transparent;
+      border-bottom-color: #111;
+      border-left-color: #111;
+      border-radius: 50%;
+      background: none !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%,-50%);
+      animation: spiral-spin 0.7s linear infinite reverse;
+    }
+    @keyframes error-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    @keyframes spiral-spin {
+      to { transform: translate(-50%,-50%) rotate(360deg); }
+    }
+    .anim-error .error-text {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: #ef5350;
+      font-weight: 600;
+      opacity: 0;
+      animation: error-fade 2s ease 0.5s forwards;
+    }
+    @keyframes error-fade {
+      0% { opacity: 0; transform: translateX(-50%) translateY(5px); }
+      30% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 1; }
+    }
+
+    /* ============ 12. LOOK DOWN (reading input) ============ */
+    .anim-lookdown .pupil {
+      transform: translate(3px, 4px) !important;
+      transition: transform 0.4s ease;
+    }
+    .anim-lookdown .curio {
+      animation: lean-down 0.5s ease-out forwards;
+    }
+    @keyframes lean-down {
+      0% { transform: rotate(0deg) translateY(0); }
+      100% { transform: rotate(-2deg) translateY(5px); }
+    }
+    .anim-lookdown .input-mock {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 65%;
+      height: 28px;
+      background: #252830;
+      border-radius: 14px;
+      border: 1px solid #3a3d47;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+    .anim-lookdown .cursor-blink {
+      width: 1.5px;
+      height: 14px;
+      background: #42A5F5;
+      animation: cursor-blink 1s step-end infinite;
+    }
+    @keyframes cursor-blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* ============ 13. SCANNING CHAT (vertical) ============ */
+    .anim-shifty .pupil {
+      animation: scan-look 2s ease-in-out infinite;
+    }
+    @keyframes scan-look {
+      0%, 100% { transform: translate(2px, -3px); }
+      50% { transform: translate(2px, 3px); }
+    }
+    .anim-shifty .curio {
+      animation: scan-lean 2.5s ease-in-out infinite;
+    }
+    @keyframes scan-lean {
+      0%, 100% { transform: rotate(0deg); }
+      30% { transform: rotate(1deg); }
+      70% { transform: rotate(-1deg); }
+    }
+
+    /* ============ 14. PEEK FROM TOP ============ */
+    .anim-peek {
+      align-items: flex-start;
+      padding-top: 0;
+    }
+    .anim-peek .curio {
+      transform: translateY(-65%);
+      animation: peek-in 2s ease-in-out infinite alternate;
+    }
+    @keyframes peek-in {
+      0% { transform: translateY(-65%); }
+      40%, 100% { transform: translateY(-15%); }
+    }
+    .anim-peek .pupil {
+      transform: translateY(4px) !important;
+    }
+
+    /* ============ 15. EYE TRACKING (interactive) ============ */
+    .anim-tracking .stage-info {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: #555;
+    }
+
+    /* ============ REPLAY BUTTON ============ */
+    .replay-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      background: #252830;
+      border: 1px solid #3a3d47;
+      border-radius: 50%;
+      color: #888;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+    .replay-btn:hover { background: #3a3d47; color: #fff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Curio - Catalogo de Animaciones v2</h1>
+  <p>Mueve el raton sobre "Eye Tracking". Pulsa replay para repetir animaciones.</p>
+</header>
+
+<div class="showcase">
+
+  <!-- 0. FLOW DEMO -->
+  <div class="demo" style="grid-column: 1 / -1;">
+    <div class="demo-header">
+      <h2>Flujo completo: Inspeccionar referencia</h2>
+      <p>Idle → Monoculo aparece → Buscando → Eureka! / Se cae → Idle (en bucle, alterna exito y fallo)</p>
+      <span class="tag tag-interaction">Flujo</span>
+    </div>
+    <div class="stage" id="flow-stage" style="height: 350px;">
+      <div class="curio" id="flow-curio" style="width: 200px; height: 200px;">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil" id="flow-pl"></div></div>
+        <div class="eye eye-r"><div class="pupil" id="flow-pr"></div></div>
+        <div class="monocle-group" id="flow-monocle" style="position:absolute;top:60%;left:62%;transform:translate(-50%,-50%);opacity:0;">
+          <div class="monocle-d" style="width:36px;height:36px;border:3px solid #d4af37;border-radius:50%;"></div>
+          <div class="handle-d" style="width:2.5px;height:26px;background:linear-gradient(to bottom,#d4af37,#b8962e);margin-left:19px;transform:rotate(20deg);transform-origin:top;border-radius:1px;"></div>
+        </div>
+      </div>
+      <div id="flow-sparkles" style="position:absolute;pointer-events:none;"></div>
+      <div id="flow-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:#555;transition:opacity 0.3s;">Idle</div>
+    </div>
+  </div>
+
+  <!-- FLOW: SLEEP/WAKE -->
+  <div class="demo" style="grid-column: 1 / -1;">
+    <div class="demo-header">
+      <h2>Flujo: Dormir y despertar</h2>
+      <p>Idle → Se adormece → Dormido + Zzz → Se despierta con bounce → Idle</p>
+      <span class="tag tag-idle">Flujo</span>
+    </div>
+    <div class="stage" id="sleep-stage" style="height: 350px;">
+      <div class="curio" id="sleep-curio" style="width: 200px; height: 200px;">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil" id="sleep-pl"></div></div>
+        <div class="eye eye-r"><div class="pupil" id="sleep-pr"></div></div>
+      </div>
+      <div id="sleep-zzz" style="position:absolute;pointer-events:none;"></div>
+      <div id="sleep-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:#555;">Idle</div>
+    </div>
+  </div>
+
+  <!-- FLOW: THINKING -->
+  <div class="demo" style="grid-column: 1 / -1;">
+    <div class="demo-header">
+      <h2>Flujo: Pensando</h2>
+      <p>Idle → Pensando (wobble + dots) → Resultado (happy/error, alterna) → Idle</p>
+      <span class="tag tag-interaction">Flujo</span>
+    </div>
+    <div class="stage" id="think-stage" style="height: 350px;">
+      <div class="curio" id="think-curio" style="width: 200px; height: 200px;">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil" id="think-pl"></div></div>
+        <div class="eye eye-r"><div class="pupil" id="think-pr"></div></div>
+      </div>
+      <div id="think-dots" style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);display:flex;gap:6px;opacity:0;">
+        <div style="width:7px;height:7px;background:#90CAF9;border-radius:50%;"></div>
+        <div style="width:7px;height:7px;background:#90CAF9;border-radius:50%;"></div>
+        <div style="width:7px;height:7px;background:#90CAF9;border-radius:50%;"></div>
+      </div>
+      <div id="think-sparkles" style="position:absolute;pointer-events:none;"></div>
+      <div id="think-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:#555;">Idle</div>
+    </div>
+  </div>
+
+  <!-- FLOW: INTERACTION (look down, peek, squish) -->
+  <div class="demo" style="grid-column: 1 / -1;">
+    <div class="demo-header">
+      <h2>Flujo: Interaccion</h2>
+      <p>Idle → Mira abajo-derecha (usuario escribe) → Escaneo vertical (lee chat) → Peek desde arriba → Squish → Idle</p>
+      <span class="tag tag-fun">Flujo</span>
+    </div>
+    <div class="stage" id="interact-stage" style="height: 350px;">
+      <div class="curio" id="interact-curio" style="width: 200px; height: 200px;">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil" id="interact-pl"></div></div>
+        <div class="eye eye-r"><div class="pupil" id="interact-pr"></div></div>
+      </div>
+      <div id="interact-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:#555;">Idle</div>
+    </div>
+  </div>
+
+  <!-- 1. IDLE / BREATHING -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Idle / Respiracion</h2>
+      <p>Estado por defecto. Escala suave como si respirara.</p>
+      <span class="tag tag-idle">Idle</span>
+    </div>
+    <div class="stage anim-breathe">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. BLINK -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Parpadeo</h2>
+      <p>Parpadeo aleatorio cada 2-5 segundos.</p>
+      <span class="tag tag-idle">Idle</span>
+    </div>
+    <div class="stage anim-blink" id="blink-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l" id="blink-el"><div class="pupil"></div></div>
+        <div class="eye eye-r" id="blink-er"><div class="pupil"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. SLEEP -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Dormido</h2>
+      <p>Tras inactividad. Ojos cerrados + Zzz al estilo emoji.</p>
+      <span class="tag tag-idle">Idle</span>
+    </div>
+    <div class="stage anim-sleep">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+        <span class="zzz">z</span>
+        <span class="zzz">z</span>
+        <span class="zzz">Z</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. WAKE UP -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Despertar</h2>
+      <p>De dormido a despierto con bounce de sorpresa.</p>
+      <span class="tag tag-idle">Idle</span>
+    </div>
+    <div class="stage anim-wakeup" id="wakeup-stage">
+      <div class="curio sleeping" id="wakeup-curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <button class="replay-btn" onclick="replayWakeup()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 5. THINKING -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Pensando</h2>
+      <p>IA generando respuesta. Wobble lateral + puntos.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-thinking">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MONOCLE -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Monoculo (Inspeccionar)</h2>
+      <p>Click en palabra para ver referencia. Monoculo sobre ojo derecho.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-monocle" id="monocle-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+        <div class="monocle-group">
+          <div class="monocle-d"></div>
+          <div class="handle-d"></div>
+          <div class="monocle-shine"></div>
+        </div>
+      </div>
+      <button class="replay-btn" onclick="replayMonocle()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 7. MONOCLE DROP -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Monoculo cae (Sin resultados)</h2>
+      <p>No se encontraron referencias. El monoculo cae.</p>
+      <span class="tag tag-feedback">Feedback</span>
+    </div>
+    <div class="stage anim-monocle-drop" id="monocle-drop-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+        <div class="monocle-group">
+          <div class="monocle-d"></div>
+          <div class="handle-d"></div>
+        </div>
+      </div>
+      <button class="replay-btn" onclick="replayMonocleDrop()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 7b. MONOCLE SEARCHING -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Monoculo buscando</h2>
+      <p>Con monoculo puesto, ojos buscando de lado a lado.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-monocle-search" id="monocle-search-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+        <div class="monocle-group">
+          <div class="monocle-d"></div>
+          <div class="handle-d"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. EUREKA -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Eureka! (Referencia encontrada)</h2>
+      <p>Bounce + sparkles. Ojos intactos.</p>
+      <span class="tag tag-feedback">Feedback</span>
+    </div>
+    <div class="stage anim-eureka" id="eureka-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <div class="sparkle"></div>
+      <div class="sparkle"></div>
+      <div class="sparkle"></div>
+      <div class="sparkle"></div>
+      <button class="replay-btn" onclick="replayEureka()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 9. HAPPY -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Contento</h2>
+      <p>Wiggle de celebracion. Ojos intactos.</p>
+      <span class="tag tag-feedback">Feedback</span>
+    </div>
+    <div class="stage anim-happy" id="happy-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <button class="replay-btn" onclick="replayHappy()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 10. SQUISH -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Squish (Click en Curio)</h2>
+      <p>Se aplasta elasticamente al hacer clic.</p>
+      <span class="tag tag-fun">Fun</span>
+    </div>
+    <div class="stage anim-squish" id="squish-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <button class="replay-btn" onclick="replaySquish()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 11. ERROR -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Error / Dizzy</h2>
+      <p>Ojos en espiral + temblor.</p>
+      <span class="tag tag-feedback">Feedback</span>
+    </div>
+    <div class="stage anim-error" id="error-stage">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <div class="error-text">Oops...</div>
+      <button class="replay-btn" onclick="replayError()">&#8635;</button>
+    </div>
+  </div>
+
+  <!-- 12. LOOK DOWN -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Mirando abajo-derecha (Escribiendo)</h2>
+      <p>Ojos miran al input. Se inclina hacia abajo-derecha.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-lookdown">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+      <div class="input-mock"><div class="cursor-blink"></div></div>
+    </div>
+  </div>
+
+  <!-- 13. SHIFTY EYES -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Escaneando chat (vertical)</h2>
+      <p>Ojos recorren el chat arriba y abajo.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-shifty">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. PEEK -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Peek (Asomarse desde arriba)</h2>
+      <p>Se asoma desde arriba del viewport.</p>
+      <span class="tag tag-fun">Fun</span>
+    </div>
+    <div class="stage anim-peek">
+      <div class="curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l"><div class="pupil"></div></div>
+        <div class="eye eye-r"><div class="pupil"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. EYE TRACKING (interactive) -->
+  <div class="demo">
+    <div class="demo-header">
+      <h2>Eye Tracking (Interactivo)</h2>
+      <p>Mueve el raton sobre esta tarjeta.</p>
+      <span class="tag tag-interaction">Interaccion</span>
+    </div>
+    <div class="stage anim-tracking" id="tracking-stage">
+      <div class="curio" id="tracking-curio">
+        <img src="curionuevo.png" alt="">
+        <div class="eye eye-l" id="tr-el"><div class="pupil" id="tr-pl"></div></div>
+        <div class="eye eye-r" id="tr-er"><div class="pupil" id="tr-pr"></div></div>
+      </div>
+      <span class="stage-info">Mueve el raton aqui</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // --- Blink loop ---
+  const blinkEL = document.getElementById('blink-el');
+  const blinkER = document.getElementById('blink-er');
+  (function blinkLoop() {
+    setTimeout(() => {
+      blinkEL.classList.add('blinking');
+      blinkER.classList.add('blinking');
+      setTimeout(() => {
+        blinkEL.classList.remove('blinking');
+        blinkER.classList.remove('blinking');
+      }, 150);
+      blinkLoop();
+    }, 2000 + Math.random() * 3000);
+  })();
+
+  // --- Wake up replay ---
+  function replayWakeup() {
+    const c = document.getElementById('wakeup-curio');
+    c.className = 'curio sleeping';
+    setTimeout(() => {
+      c.className = 'curio awake';
+      c.style.animation = 'none';
+      c.offsetHeight;
+      c.style.animation = 'wake-bounce 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+      setTimeout(() => { c.className = 'curio sleeping'; }, 2500);
+    }, 1500);
+  }
+  replayWakeup();
+
+  // --- Generic replay ---
+  function replayAnim(stageId, animClass) {
+    const stage = document.getElementById(stageId);
+    stage.classList.remove(animClass);
+    void stage.offsetHeight;
+    stage.classList.add(animClass);
+  }
+
+  function replayMonocle() { replayAnim('monocle-stage', 'anim-monocle'); }
+  function replayMonocleDrop() { replayAnim('monocle-drop-stage', 'anim-monocle-drop'); }
+  function replayEureka() { replayAnim('eureka-stage', 'anim-eureka'); }
+  function replayHappy() { replayAnim('happy-stage', 'anim-happy'); }
+  function replaySquish() { replayAnim('squish-stage', 'anim-squish'); }
+  function replayError() { replayAnim('error-stage', 'anim-error'); }
+
+  // --- Eye tracking (interactive card) ---
+  const trackingStage = document.getElementById('tracking-stage');
+  const trPL = document.getElementById('tr-pl');
+  const trPR = document.getElementById('tr-pr');
+  const trEL = document.getElementById('tr-el');
+  const trER = document.getElementById('tr-er');
+
+  trackingStage.addEventListener('mousemove', e => {
+    trackEye(trPL, trEL, e.clientX, e.clientY);
+    trackEye(trPR, trER, e.clientX, e.clientY);
+  });
+
+  function trackEye(pupil, eye, mx, my) {
+    const r = eye.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = mx - cx;
+    const dy = my - cy;
+    const d = Math.sqrt(dx * dx + dy * dy) || 1;
+    const ratio = Math.min(d, 200) / 200;
+    const moveX = (dx / d) * 5 * ratio;
+    const moveY = (dy / d) * 5 * ratio;
+    pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    pupil.style.transition = 'transform 0.06s ease-out';
+  }
+
+  // ========== FLOW DEMO (Web Animations API) ==========
+  const fc = document.getElementById('flow-curio');
+  const fm = document.getElementById('flow-monocle');
+  const fpl = document.getElementById('flow-pl');
+  const fpr = document.getElementById('flow-pr');
+  const fSpk = document.getElementById('flow-sparkles');
+  const fLbl = document.getElementById('flow-label');
+
+  // Track all running animations so we can cleanly transition
+  let activeAnims = [];
+  let flowRound = 0;
+
+  function cancelAll() {
+    activeAnims.forEach(a => {
+      try { a.commitStyles(); } catch(e) {}
+      a.cancel();
+    });
+    activeAnims = [];
+  }
+
+  // Snapshot current transform of an element
+  function currentTransform(el) {
+    const t = getComputedStyle(el).transform;
+    return (!t || t === 'none') ? 'none' : t;
+  }
+
+  // Helper: animate FROM current state, returns Animation
+  function animFrom(el, to, opts) {
+    const from = currentTransform(el);
+    const keyframes = [
+      { transform: from },
+      ...(Array.isArray(to) ? to : [{ transform: to }])
+    ];
+    const a = el.animate(keyframes, {
+      duration: 350,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      fill: 'forwards',
+      ...opts
+    });
+    activeAnims.push(a);
+    return a;
+  }
+
+  // Helper: looping animation
+  function animLoop(el, keyframes, opts) {
+    const a = el.animate(keyframes, {
+      iterations: Infinity,
+      easing: 'ease-in-out',
+      ...opts
+    });
+    activeAnims.push(a);
+    return a;
+  }
+
+  // Blink helper for flow
+  function flowBlink() {
+    const blink = (p) => {
+      const a = p.animate([
+        { transform: 'scaleY(1)' },
+        { transform: 'scaleY(0.05)' },
+        { transform: 'scaleY(1)' }
+      ], { duration: 150, easing: 'ease-in-out' });
+      activeAnims.push(a);
+    };
+    blink(fpl);
+    blink(fpr);
+  }
+
+  // Sparkles helper
+  function spawnSparkles() {
+    fSpk.innerHTML = '';
+    const positions = [
+      {top:'2%',left:'40%'}, {top:'20%',right:'3%'},
+      {bottom:'5%',left:'42%'}, {top:'20%',left:'3%'},
+      {top:'5%',right:'25%'}, {bottom:'10%',right:'20%'}
+    ];
+    positions.forEach((pos, i) => {
+      const s = document.createElement('div');
+      s.style.cssText = `position:absolute;width:10px;height:10px;opacity:0;`;
+      Object.assign(s.style, pos);
+      s.innerHTML = `<span style="position:absolute;width:2px;height:10px;left:4px;top:0;background:#FFD54F;border-radius:1px;"></span><span style="position:absolute;width:10px;height:2px;top:4px;left:0;background:#FFD54F;border-radius:1px;"></span>`;
+      fSpk.appendChild(s);
+      const a = s.animate([
+        { transform: 'scale(0) rotate(0deg)', opacity: 0 },
+        { transform: 'scale(1.2) rotate(25deg)', opacity: 1, offset: 0.3 },
+        { transform: 'scale(1.5) rotate(45deg)', opacity: 0 }
+      ], { duration: 800, delay: i * 100, easing: 'ease-out', fill: 'forwards' });
+      activeAnims.push(a);
+    });
+  }
+
+  // ===== STATES =====
+
+  function stateIdle() {
+    cancelAll();
+    fSpk.innerHTML = '';
+    fm.style.opacity = '0';
+    fLbl.textContent = 'Idle - respirando';
+
+    // Breathe: smooth from current position
+    animLoop(fc, [
+      { transform: 'scale(1) translateY(0)' },
+      { transform: 'scale(1.03) translateY(-4px)' },
+      { transform: 'scale(1) translateY(0)' }
+    ], { duration: 4000 });
+
+    // Eyes back to center smoothly
+    animFrom(fpl, 'translateX(0) translateY(0)', { duration: 300 });
+    animFrom(fpr, 'translateX(0) translateY(0)', { duration: 300 });
+
+    // Blink during idle
+    setTimeout(() => flowBlink(), 1000);
+    setTimeout(() => flowBlink(), 2200);
+  }
+
+  function stateMonocleAppear() {
+    cancelAll();
+    fLbl.textContent = 'Monoculo aparece';
+
+    // Anticipation: slight lean LEFT first, then lean RIGHT with overshoot
+    const bodyAnim = fc.animate([
+      { transform: currentTransform(fc) },
+      { transform: 'rotate(-2deg) scale(0.98)', offset: 0.2 },  // anticipation
+      { transform: 'rotate(4deg) scale(1.02)', offset: 0.7 },   // overshoot
+      { transform: 'rotate(3deg) scale(1)' }                      // settle
+    ], {
+      duration: 500,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      fill: 'forwards'
+    });
+    activeAnims.push(bodyAnim);
+
+    // Monocle: spring in from below
+    fm.style.opacity = '1';
+    const monocleAnim = fm.animate([
+      { transform: 'translate(-50%, 20%) scale(0.3)', opacity: 0 },
+      { transform: 'translate(-50%, -58%) scale(1.1)', opacity: 1, offset: 0.6 },  // overshoot up
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 }                    // settle
+    ], {
+      duration: 500,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      fill: 'forwards'
+    });
+    activeAnims.push(monocleAnim);
+  }
+
+  function stateSearching() {
+    // DON'T cancelAll - keep monocle and body lean, just add search motion on top
+    // Cancel only eye and body anims, preserve monocle
+    const monocleAnims = activeAnims.filter(a => a._target === fm);
+    activeAnims.forEach(a => {
+      if (a._target !== fm) {
+        try { a.commitStyles(); } catch(e) {}
+        a.cancel();
+      }
+    });
+    activeAnims = [...monocleAnims];
+
+    fLbl.textContent = 'Buscando referencia...';
+
+    // Body sways gently, keeping the lean
+    animLoop(fc, [
+      { transform: 'rotate(3deg) translateX(0)' },
+      { transform: 'rotate(5deg) translateX(3px)' },
+      { transform: 'rotate(3deg) translateX(0)' },
+      { transform: 'rotate(1deg) translateX(-3px)' },
+      { transform: 'rotate(3deg) translateX(0)' }
+    ], { duration: 2500 });
+
+    // Eyes scan with slight vertical variation
+    const eyeSearch = [
+      { transform: 'translate(2px, 0)' },
+      { transform: 'translate(4px, 1px)' },
+      { transform: 'translate(-2px, 0)' },
+      { transform: 'translate(-4px, -1px)' },
+      { transform: 'translate(2px, 0)' }
+    ];
+    animLoop(fpl, eyeSearch, { duration: 2500 });
+    animLoop(fpr, eyeSearch, { duration: 2500 });
+
+    // Monocle follows right eye movement
+    animLoop(fm, [
+      { transform: 'translate(calc(-50% + 2px), -50%)' },
+      { transform: 'translate(calc(-50% + 4px), calc(-50% + 1px))' },
+      { transform: 'translate(calc(-50% - 2px), -50%)' },
+      { transform: 'translate(calc(-50% - 4px), calc(-50% - 1px))' },
+      { transform: 'translate(calc(-50% + 2px), -50%)' }
+    ], { duration: 2500 });
+  }
+
+  function stateEureka() {
+    cancelAll();
+    fLbl.textContent = 'Eureka! Referencia encontrada';
+
+    // Body: from leaned position, bounce up with spring
+    const bodyAnim = fc.animate([
+      { transform: 'rotate(3deg) scale(1)' },
+      { transform: 'rotate(0deg) scale(1.12) translateY(-8px)', offset: 0.35 },
+      { transform: 'rotate(-1deg) scale(0.96) translateY(2px)', offset: 0.65 },
+      { transform: 'rotate(0deg) scale(1.02) translateY(-1px)', offset: 0.85 },
+      { transform: 'rotate(0deg) scale(1) translateY(0)' }
+    ], {
+      duration: 600,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      fill: 'forwards'
+    });
+    activeAnims.push(bodyAnim);
+
+    // Eyes back to center
+    animFrom(fpl, 'translate(0, 0)', { duration: 200 });
+    animFrom(fpr, 'translate(0, 0)', { duration: 200 });
+
+    // Monocle: stays but settles with body
+    const mAnim = fm.animate([
+      { transform: 'translate(-50%, -50%) scale(1)' },
+      { transform: 'translate(-50%, -55%) scale(1.05)', offset: 0.35 },
+      { transform: 'translate(-50%, -50%) scale(1)' }
+    ], {
+      duration: 600,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      fill: 'forwards'
+    });
+    activeAnims.push(mAnim);
+
+    spawnSparkles();
+  }
+
+  function stateMonocleFall() {
+    cancelAll();
+    fLbl.textContent = 'Sin resultados...';
+
+    // Body: deflate from leaned position with follow-through
+    const bodyAnim = fc.animate([
+      { transform: 'rotate(3deg) scale(1)' },
+      { transform: 'rotate(1deg) scale(0.92)', offset: 0.5 },
+      { transform: 'rotate(-1deg) scale(0.94)', offset: 0.8 },
+      { transform: 'rotate(0deg) scale(0.95)' }
+    ], {
+      duration: 600,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      fill: 'forwards'
+    });
+    activeAnims.push(bodyAnim);
+
+    // Eyes: slight downward look (sad)
+    animFrom(fpl, 'translate(0, 2px)', { duration: 400 });
+    animFrom(fpr, 'translate(0, 2px)', { duration: 400 });
+
+    // Monocle falls with gravity + rotation
+    fm.style.opacity = '1';
+    const mFall = fm.animate([
+      { transform: 'translate(-50%, -50%) rotate(0deg)', opacity: 1 },
+      { transform: 'translate(-50%, -30%) rotate(5deg)', opacity: 1, offset: 0.15 },  // slight lift
+      { transform: 'translate(-55%, 80px) rotate(55deg)', opacity: 0 }
+    ], {
+      duration: 900,
+      easing: 'cubic-bezier(0.55, 0, 1, 0.45)',  // accelerating (gravity)
+      fill: 'forwards'
+    });
+    activeAnims.push(mFall);
+  }
+
+  function stateRecoverToIdle() {
+    cancelAll();
+    fSpk.innerHTML = '';
+    fm.style.opacity = '0';
+    fLbl.textContent = 'Volviendo a idle...';
+
+    // Smooth transition back to neutral from whatever position
+    animFrom(fc, 'scale(1) translateY(0) rotate(0deg)', {
+      duration: 500,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    });
+    animFrom(fpl, 'translate(0, 0)', { duration: 400 });
+    animFrom(fpr, 'translate(0, 0)', { duration: 400 });
+  }
+
+  // Tag animations with their target for selective cancellation
+  const origAnimate = Element.prototype.animate;
+  Element.prototype.animate = function(...args) {
+    const anim = origAnimate.apply(this, args);
+    anim._target = this;
+    return anim;
+  };
+
+  // ===== FLOW SEQUENCE =====
+  async function runFlow() {
+    while (true) {
+      const isSuccess = flowRound % 2 === 0;
+      flowRound++;
+
+      // 1. Idle (3s)
+      stateIdle();
+      await delay(3000);
+
+      // 2. Monocle appears (hold 1s)
+      stateMonocleAppear();
+      await delay(1000);
+
+      // 3. Searching (3.5s)
+      stateSearching();
+      await delay(3500);
+
+      // 4. Result (hold 2s)
+      if (isSuccess) {
+        stateEureka();
+      } else {
+        stateMonocleFall();
+      }
+      await delay(2000);
+
+      // 5. Recover to idle (0.8s transition)
+      stateRecoverToIdle();
+      await delay(800);
+    }
+  }
+
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  runFlow();
+
+  // ========== SLEEP/WAKE FLOW ==========
+  (async function sleepFlow() {
+    const c = document.getElementById('sleep-curio');
+    const pl = document.getElementById('sleep-pl');
+    const pr = document.getElementById('sleep-pr');
+    const zCont = document.getElementById('sleep-zzz');
+    const lbl = document.getElementById('sleep-label');
+    let anims = [];
+
+    function kill() {
+      anims.forEach(a => { try { a.commitStyles(); } catch(e) {} a.cancel(); });
+      anims = [];
+    }
+    function go(el, kf, opts) {
+      const a = el.animate(kf, { duration: 400, fill: 'forwards', easing: 'cubic-bezier(0.25,0.46,0.45,0.94)', ...opts });
+      anims.push(a); return a;
+    }
+    function loop(el, kf, opts) {
+      const a = el.animate(kf, { iterations: Infinity, easing: 'ease-in-out', ...opts });
+      anims.push(a); return a;
+    }
+
+    let zzzInterval = null;
+    function startZzz() {
+      zCont.innerHTML = '';
+      let idx = 0;
+      const sizes = ['0.8rem', '1rem', '1.3rem'];
+      zzzInterval = setInterval(() => {
+        const z = document.createElement('span');
+        z.textContent = idx % 3 === 2 ? 'Z' : 'z';
+        z.style.cssText = `position:absolute;top:28%;left:78%;font-weight:700;color:#90CAF9;font-size:${sizes[idx%3]};opacity:0;pointer-events:none;`;
+        zCont.appendChild(z);
+        const a = z.animate([
+          { transform: 'translate(0,0) scale(0.7)', opacity: 0 },
+          { opacity: 1, offset: 0.15 },
+          { transform: `translate(${15+idx%3*8}px, -40px) scale(1.1)`, opacity: 0 }
+        ], { duration: 2200, easing: 'ease-out', fill: 'forwards' });
+        a.onfinish = () => z.remove();
+        idx++;
+      }, 800);
+    }
+    function stopZzz() {
+      if (zzzInterval) { clearInterval(zzzInterval); zzzInterval = null; }
+      zCont.innerHTML = '';
+    }
+
+    while (true) {
+      // 1. Idle (3s)
+      kill(); stopZzz();
+      lbl.textContent = 'Idle - respirando';
+      loop(c, [
+        { transform: 'scale(1) translateY(0)' },
+        { transform: 'scale(1.03) translateY(-4px)' },
+        { transform: 'scale(1) translateY(0)' }
+      ], { duration: 4000 });
+      go(pl, [{ transform: 'scaleY(1)' }], { duration: 300 });
+      go(pr, [{ transform: 'scaleY(1)' }], { duration: 300 });
+      // blink
+      await delay(1500);
+      go(pl, [{ transform: 'scaleY(1)' },{ transform: 'scaleY(0.05)' },{ transform: 'scaleY(1)' }], { duration: 150 });
+      go(pr, [{ transform: 'scaleY(1)' },{ transform: 'scaleY(0.05)' },{ transform: 'scaleY(1)' }], { duration: 150 });
+      await delay(1500);
+
+      // 2. Falling asleep - blink and stay closed
+      lbl.textContent = 'Cayendo dormido...';
+      kill();
+      // Body leans slightly
+      go(c, [
+        { transform: 'scale(1) translateY(0) rotate(0deg)' },
+        { transform: 'scale(0.99) translateY(1px) rotate(-1deg)' }
+      ], { duration: 600, easing: 'ease-in-out' });
+      // Quick blink that stays closed
+      go(pl, [{ transform: 'scaleY(1)' },{ transform: 'scaleY(0.05)' }], { duration: 150 });
+      go(pr, [{ transform: 'scaleY(1)' },{ transform: 'scaleY(0.05)' }], { duration: 150 });
+      await delay(300);
+
+      // 3. Asleep (4s)
+      lbl.textContent = 'Dormido';
+      // Gentle sleeping bob
+      loop(c, [
+        { transform: 'rotate(0deg) translateY(0)' },
+        { transform: 'rotate(-3deg) translateY(3px)' },
+        { transform: 'rotate(0deg) translateY(0)' }
+      ], { duration: 3000 });
+      startZzz();
+      await delay(4000);
+
+      // 4. Wake up (1.5s) - startled
+      lbl.textContent = 'Despertando!';
+      kill(); stopZzz();
+      // Anticipation: squash down slightly
+      const wakeAnim = c.animate([
+        { transform: 'rotate(-3deg) translateY(3px) scale(1)' },          // from sleeping pose
+        { transform: 'rotate(0deg) translateY(2px) scale(1.05, 0.9)', offset: 0.15 },  // squash (anticipation)
+        { transform: 'rotate(2deg) translateY(-12px) scale(0.92, 1.1)', offset: 0.4 },  // spring up
+        { transform: 'rotate(-1deg) translateY(2px) scale(1.04, 0.96)', offset: 0.65 }, // overshoot down
+        { transform: 'rotate(0deg) translateY(-2px) scale(0.98, 1.02)', offset: 0.82 }, // small bounce
+        { transform: 'rotate(0deg) translateY(0) scale(1)' }                             // settle
+      ], { duration: 700, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'forwards' });
+      anims.push(wakeAnim);
+      // Eyes snap open wide then settle
+      go(pl, [
+        { transform: 'scaleY(0.05)' },
+        { transform: 'scaleY(1.15)', offset: 0.3 },  // wide open (surprised)
+        { transform: 'scaleY(1)' }
+      ], { duration: 500, easing: 'cubic-bezier(0.34,1.56,0.64,1)' });
+      go(pr, [
+        { transform: 'scaleY(0.05)' },
+        { transform: 'scaleY(1.15)', offset: 0.3 },
+        { transform: 'scaleY(1)' }
+      ], { duration: 500, easing: 'cubic-bezier(0.34,1.56,0.64,1)' });
+      await delay(1500);
+
+      // 5. Back to idle smoothly
+      lbl.textContent = 'Volviendo a idle...';
+      kill();
+      go(c, [{ transform: getComputedStyle(c).transform }, { transform: 'scale(1) translateY(0) rotate(0deg)' }], { duration: 500 });
+      await delay(800);
+    }
+  })();
+
+  // ========== THINKING FLOW ==========
+  (async function thinkFlow() {
+    const c = document.getElementById('think-curio');
+    const pl = document.getElementById('think-pl');
+    const pr = document.getElementById('think-pr');
+    const dots = document.getElementById('think-dots');
+    const spk = document.getElementById('think-sparkles');
+    const lbl = document.getElementById('think-label');
+    let anims = [];
+    let round = 0;
+
+    function kill() {
+      anims.forEach(a => { try { a.commitStyles(); } catch(e) {} a.cancel(); });
+      anims = [];
+    }
+    function go(el, kf, opts) {
+      const a = el.animate(kf, { duration: 400, fill: 'forwards', easing: 'cubic-bezier(0.25,0.46,0.45,0.94)', ...opts });
+      anims.push(a); return a;
+    }
+    function loop(el, kf, opts) {
+      const a = el.animate(kf, { iterations: Infinity, easing: 'ease-in-out', ...opts });
+      anims.push(a); return a;
+    }
+
+    function showDots() {
+      dots.style.opacity = '1';
+      const children = dots.children;
+      for (let i = 0; i < children.length; i++) {
+        const a = children[i].animate([
+          { transform: 'scale(0.6)', opacity: 0.3 },
+          { transform: 'scale(1.2)', opacity: 1 },
+          { transform: 'scale(0.6)', opacity: 0.3 }
+        ], { duration: 1400, iterations: Infinity, easing: 'ease-in-out', delay: i * 200 });
+        anims.push(a);
+      }
+    }
+    function hideDots() {
+      go(dots, [{ opacity: getComputedStyle(dots).opacity }, { opacity: '0' }], { duration: 300 });
+    }
+
+    function doSparkles() {
+      spk.innerHTML = '';
+      [{top:'2%',left:'40%'},{top:'20%',right:'3%'},{bottom:'5%',left:'42%'},{top:'20%',left:'3%'},{top:'5%',right:'25%'}].forEach((pos, i) => {
+        const s = document.createElement('div');
+        s.style.cssText = `position:absolute;width:10px;height:10px;opacity:0;`;
+        Object.assign(s.style, pos);
+        s.innerHTML = `<span style="position:absolute;width:2px;height:10px;left:4px;top:0;background:#FFD54F;border-radius:1px;"></span><span style="position:absolute;width:10px;height:2px;top:4px;left:0;background:#FFD54F;border-radius:1px;"></span>`;
+        spk.appendChild(s);
+        const a = s.animate([
+          { transform: 'scale(0) rotate(0)', opacity: 0 },
+          { transform: 'scale(1.2) rotate(25deg)', opacity: 1, offset: 0.3 },
+          { transform: 'scale(1.5) rotate(45deg)', opacity: 0 }
+        ], { duration: 800, delay: i * 100, easing: 'ease-out', fill: 'forwards' });
+        anims.push(a);
+      });
+    }
+
+    while (true) {
+      const isSuccess = round % 2 === 0;
+      round++;
+
+      // 1. Idle
+      kill(); spk.innerHTML = '';
+      lbl.textContent = 'Idle';
+      loop(c, [
+        { transform: 'scale(1) translateY(0)' },
+        { transform: 'scale(1.03) translateY(-4px)' },
+        { transform: 'scale(1) translateY(0)' }
+      ], { duration: 4000 });
+      go(pl, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      go(pr, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      await delay(2500);
+
+      // 2. Transition to thinking - anticipation: slight pause, then wobble
+      lbl.textContent = 'Empezando a pensar...';
+      kill();
+      // Body settles from breathing, slight squash before wobble
+      go(c, [
+        { transform: getComputedStyle(c).transform },
+        { transform: 'scale(1.02, 0.98)', offset: 0.4 },  // slight squash
+        { transform: 'rotate(2deg) scale(1)' }              // start of wobble position
+      ], { duration: 400 });
+      await delay(500);
+
+      // 3. Full thinking state
+      lbl.textContent = 'Pensando...';
+      kill();
+      loop(c, [
+        { transform: 'rotate(2deg)' },
+        { transform: 'rotate(-2deg)' },
+        { transform: 'rotate(2deg)' }
+      ], { duration: 2000 });
+      showDots();
+      await delay(3500);
+
+      // 4. Result
+      kill();
+      hideDots();
+      await delay(300);
+
+      if (isSuccess) {
+        // Happy result
+        lbl.textContent = 'Contento!';
+        kill();
+        // Bounce with wiggle
+        const bodyA = c.animate([
+          { transform: 'rotate(0deg) scale(1)' },
+          { transform: 'rotate(0deg) scale(1.08) translateY(-6px)', offset: 0.25 },
+          { transform: 'rotate(4deg) scale(1.03)', offset: 0.45 },
+          { transform: 'rotate(-4deg) scale(1.03)', offset: 0.65 },
+          { transform: 'rotate(2deg) scale(1.01)', offset: 0.8 },
+          { transform: 'rotate(0deg) scale(1)' }
+        ], { duration: 800, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'forwards' });
+        anims.push(bodyA);
+        doSparkles();
+        await delay(2000);
+      } else {
+        // Error
+        lbl.textContent = 'Error!';
+        kill();
+        // Anticipation: freeze, then shake
+        go(c, [{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }], { duration: 150 });
+        await delay(150);
+        // Shake
+        const shake = c.animate([
+          { transform: 'translateX(0) scale(0.97)' },
+          { transform: 'translateX(-6px)' },
+          { transform: 'translateX(6px)' },
+          { transform: 'translateX(-4px)' },
+          { transform: 'translateX(4px)' },
+          { transform: 'translateX(-2px)' },
+          { transform: 'translateX(0)' }
+        ], { duration: 500, easing: 'cubic-bezier(0.25,0.46,0.45,0.94)', fill: 'forwards' });
+        anims.push(shake);
+        // Spiral eyes
+        pl.style.background = 'none';
+        pr.style.background = 'none';
+        const spiralL = pl.animate([{ transform: 'rotate(0deg)' },{ transform: 'rotate(720deg)' }], { duration: 2000, iterations: Infinity, easing: 'linear' });
+        const spiralR = pr.animate([{ transform: 'rotate(0deg)' },{ transform: 'rotate(-720deg)' }], { duration: 1500, iterations: Infinity, easing: 'linear' });
+        anims.push(spiralL, spiralR);
+        await delay(2000);
+        pl.style.background = '';
+        pr.style.background = '';
+      }
+
+      // 5. Recover
+      lbl.textContent = 'Volviendo a idle...';
+      kill(); spk.innerHTML = '';
+      go(c, [{ transform: getComputedStyle(c).transform }, { transform: 'scale(1) translateY(0) rotate(0deg)' }], { duration: 500 });
+      go(pl, [{ transform: 'translate(0,0) rotate(0deg) scaleY(1)' }], { duration: 400 });
+      go(pr, [{ transform: 'translate(0,0) rotate(0deg) scaleY(1)' }], { duration: 400 });
+      await delay(800);
+    }
+  })();
+
+  // ========== INTERACTION FLOW ==========
+  (async function interactFlow() {
+    const c = document.getElementById('interact-curio');
+    const pl = document.getElementById('interact-pl');
+    const pr = document.getElementById('interact-pr');
+    const lbl = document.getElementById('interact-label');
+    let anims = [];
+
+    function kill() {
+      anims.forEach(a => { try { a.commitStyles(); } catch(e) {} a.cancel(); });
+      anims = [];
+    }
+    function go(el, kf, opts) {
+      const a = el.animate(kf, { duration: 400, fill: 'forwards', easing: 'cubic-bezier(0.25,0.46,0.45,0.94)', ...opts });
+      anims.push(a); return a;
+    }
+    function loop(el, kf, opts) {
+      const a = el.animate(kf, { iterations: Infinity, easing: 'ease-in-out', ...opts });
+      anims.push(a); return a;
+    }
+
+    while (true) {
+      // 1. Idle
+      kill();
+      lbl.textContent = 'Idle';
+      loop(c, [
+        { transform: 'scale(1) translateY(0)' },
+        { transform: 'scale(1.03) translateY(-4px)' },
+        { transform: 'scale(1) translateY(0)' }
+      ], { duration: 4000 });
+      go(pl, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      go(pr, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      await delay(2500);
+
+      // 2. Look down-right - user starts typing (input is far below-right)
+      lbl.textContent = 'Mirando abajo-derecha - usuario escribe';
+      kill();
+      // Body leans down-right slightly
+      go(c, [
+        { transform: getComputedStyle(c).transform },
+        { transform: 'rotate(-2deg) translateY(5px) scale(1)' }
+      ], { duration: 500 });
+      // Eyes look down and to the right
+      go(pl, [{ transform: getComputedStyle(pl).transform }, { transform: 'translate(3px, 4px)' }], { duration: 400 });
+      go(pr, [{ transform: getComputedStyle(pr).transform }, { transform: 'translate(3px, 4px)' }], { duration: 400 });
+      await delay(3000);
+
+      // 3. Scanning chat - reading vertically (eyes move up-down)
+      lbl.textContent = 'Leyendo el chat (escaneo vertical)';
+      kill();
+      // Body straightens
+      go(c, [
+        { transform: 'rotate(-2deg) translateY(5px)' },
+        { transform: 'rotate(0deg) translateY(0) scale(1)' }
+      ], { duration: 400 });
+      await delay(400);
+      kill();
+      // Eyes scan vertically (up and down the chat)
+      loop(c, [
+        { transform: 'rotate(0deg)' },
+        { transform: 'rotate(1deg)' },
+        { transform: 'rotate(-1deg)' },
+        { transform: 'rotate(0deg)' }
+      ], { duration: 2500 });
+      loop(pl, [
+        { transform: 'translate(2px, -3px)' },
+        { transform: 'translate(2px, 3px)' },
+        { transform: 'translate(2px, -3px)' }
+      ], { duration: 2000 });
+      loop(pr, [
+        { transform: 'translate(2px, -3px)' },
+        { transform: 'translate(2px, 3px)' },
+        { transform: 'translate(2px, -3px)' }
+      ], { duration: 2000 });
+      await delay(3000);
+
+      // 4. Peek from top - slides up then peeks down
+      lbl.textContent = 'Peek desde arriba';
+      kill();
+      // Slide up out of view
+      go(c, [
+        { transform: 'translateY(0)' },
+        { transform: 'translateY(-140px)' }
+      ], { duration: 500, easing: 'cubic-bezier(0.55,0,1,0.45)' });
+      // Eyes look down (toward where it'll peek)
+      go(pl, [{ transform: 'translateY(4px)' }], { duration: 300, delay: 200 });
+      go(pr, [{ transform: 'translateY(4px)' }], { duration: 300, delay: 200 });
+      await delay(800);
+
+      // Peek back down
+      kill();
+      go(c, [
+        { transform: 'translateY(-140px)' },
+        { transform: 'translateY(-50px)', offset: 0.5 },   // peek just eyes
+        { transform: 'translateY(-50px)', offset: 0.7 },   // hold peek
+        { transform: 'translateY(-20px)' }                   // come down more
+      ], { duration: 1200, easing: 'cubic-bezier(0.25,0.46,0.45,0.94)' });
+      go(pl, [{ transform: 'translateY(4px)' }], { duration: 200 });
+      go(pr, [{ transform: 'translateY(4px)' }], { duration: 200 });
+      await delay(2000);
+
+      // 5. Come fully back + squish
+      lbl.textContent = 'Squish!';
+      kill();
+      // Slide back to center
+      go(c, [
+        { transform: getComputedStyle(c).transform },
+        { transform: 'translateY(0) scale(1)' }
+      ], { duration: 400, easing: 'cubic-bezier(0.34,1.56,0.64,1)' });
+      go(pl, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      go(pr, [{ transform: 'translate(0,0)' }], { duration: 300 });
+      await delay(500);
+
+      // Squish!
+      kill();
+      const squish = c.animate([
+        { transform: 'scale(1, 1)' },
+        { transform: 'scale(1.18, 0.82)', offset: 0.2 },
+        { transform: 'scale(0.88, 1.12)', offset: 0.4 },
+        { transform: 'scale(1.06, 0.94)', offset: 0.6 },
+        { transform: 'scale(0.98, 1.02)', offset: 0.8 },
+        { transform: 'scale(1, 1)' }
+      ], { duration: 600, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'forwards' });
+      anims.push(squish);
+      await delay(1500);
+
+      // 6. Recover to idle
+      lbl.textContent = 'Volviendo a idle...';
+      kill();
+      go(c, [{ transform: getComputedStyle(c).transform }, { transform: 'scale(1) translateY(0) translateX(0) rotate(0deg)' }], { duration: 500 });
+      go(pl, [{ transform: 'translate(0,0)' }], { duration: 400 });
+      go(pr, [{ transform: 'translate(0,0)' }], { duration: 400 });
+      await delay(800);
+    }
+  })();
+</script>
+
+</body>
+</html>

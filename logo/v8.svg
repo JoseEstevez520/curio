@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" id="curio-blob-v8">
+  <title>Curio Blob - High Fidelity Traced Style</title>
+  <defs>
+    <!-- Primary radial gradient: light cyan-blue top to deeper blue bottom -->
+    <radialGradient id="v8-grad-body" cx="44%" cy="32%" r="58%" fx="40%" fy="28%">
+      <stop offset="0%" stop-color="#8ED6FF"/>
+      <stop offset="22%" stop-color="#6EC8FC"/>
+      <stop offset="48%" stop-color="#3DA5F4"/>
+      <stop offset="72%" stop-color="#2B8DE8"/>
+      <stop offset="100%" stop-color="#1A78C2"/>
+    </radialGradient>
+
+    <!-- Subsurface scattering / ambient light gradient -->
+    <radialGradient id="v8-grad-ambient" cx="55%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#4DB8F7" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#2196F3" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#1565C0" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Upper specular highlight gradient -->
+    <radialGradient id="v8-grad-spec-upper" cx="38%" cy="22%" r="36%" fx="36%" fy="18%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.50"/>
+      <stop offset="25%" stop-color="#E0F2FF" stop-opacity="0.35"/>
+      <stop offset="55%" stop-color="#B3E0FC" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#90CAF9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Secondary specular - tighter hot spot -->
+    <radialGradient id="v8-grad-spec-hot" cx="34%" cy="16%" r="18%" fx="32%" fy="14%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.60"/>
+      <stop offset="40%" stop-color="#E8F5FF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#BBDEFB" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Bottom shadow gradient for 3D depth -->
+    <radialGradient id="v8-grad-shadow-bottom" cx="52%" cy="88%" r="42%">
+      <stop offset="0%" stop-color="#0D5AA7" stop-opacity="0.55"/>
+      <stop offset="50%" stop-color="#1565C0" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1976D2" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Left-side rim darkening -->
+    <radialGradient id="v8-grad-rim-left" cx="8%" cy="55%" r="35%">
+      <stop offset="0%" stop-color="#0D47A1" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#1565C0" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#1976D2" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Right-side rim light (bounce light) -->
+    <radialGradient id="v8-grad-rim-right" cx="85%" cy="65%" r="30%">
+      <stop offset="0%" stop-color="#64B5F6" stop-opacity="0.30"/>
+      <stop offset="50%" stop-color="#42A5F5" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#2196F3" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Ground shadow gradient -->
+    <radialGradient id="v8-grad-ground" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0D47A1" stop-opacity="0.22"/>
+      <stop offset="65%" stop-color="#0D47A1" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0D47A1" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Clip path for all lighting overlays -->
+    <clipPath id="v8-body-clip">
+      <use href="#v8-body-path"/>
+    </clipPath>
+  </defs>
+
+  <!-- Ground shadow beneath the blob -->
+  <ellipse id="v8-ground-shadow" cx="202" cy="322" rx="115" ry="16" fill="url(#v8-grad-ground)"/>
+
+  <!-- ===== BODY ===== -->
+  <g id="body">
+    <!-- Primary blob shape - organic, slightly asymmetric, many control points -->
+    <!-- The blob sits slightly left of center, is wider than tall, with a gently
+         irregular silhouette that avoids perfect symmetry. The top-left bulges
+         slightly more, and the bottom-right tucks in a bit. -->
+    <path id="v8-body-path" d="
+      M 102,248
+      C 96,244 88,236 82,225
+      C 74,210 68,195 66,178
+      C 64,162 65,148 70,135
+      C 75,122 82,112 92,103
+      C 102,94 114,88 128,83
+      C 142,78 156,75 172,73
+      C 186,71 198,70 212,70
+      C 226,70 240,72 254,75
+      C 268,78 280,82 292,88
+      C 304,94 314,102 322,112
+      C 330,122 336,133 340,146
+      C 344,159 346,172 345,186
+      C 344,200 341,213 336,225
+      C 331,237 324,247 314,255
+      C 304,263 293,269 280,274
+      C 267,279 253,282 238,284
+      C 223,286 208,287 193,287
+      C 178,287 163,286 149,283
+      C 135,280 122,275 112,268
+      C 106,263 102,256 102,248
+      Z
+    " fill="url(#v8-grad-body)"/>
+
+    <!-- All lighting overlays clipped to body shape -->
+    <g clip-path="url(#v8-body-clip)">
+      <!-- Ambient fill layer -->
+      <ellipse cx="215" cy="200" rx="165" ry="135" fill="url(#v8-grad-ambient)"/>
+
+      <!-- Bottom shadow for 3D curvature -->
+      <ellipse cx="205" cy="290" rx="155" ry="80" fill="url(#v8-grad-shadow-bottom)"/>
+
+      <!-- Left rim darkening -->
+      <ellipse cx="60" cy="185" rx="100" ry="110" fill="url(#v8-grad-rim-left)"/>
+
+      <!-- Right bounce/rim light -->
+      <ellipse cx="340" cy="220" rx="85" ry="80" fill="url(#v8-grad-rim-right)"/>
+
+      <!-- Broad upper specular highlight -->
+      <ellipse cx="175" cy="118" rx="110" ry="72" fill="url(#v8-grad-spec-upper)"
+        transform="rotate(-8, 175, 118)"/>
+
+      <!-- Tight specular hot spot -->
+      <ellipse cx="162" cy="105" rx="58" ry="38" fill="url(#v8-grad-spec-hot)"
+        transform="rotate(-12, 162, 105)"/>
+
+      <!-- Very small bright glint -->
+      <ellipse cx="155" cy="98" rx="22" ry="12" fill="#FFFFFF" opacity="0.18"
+        transform="rotate(-15, 155, 98)"/>
+    </g>
+
+    <!-- Subtle edge definition (very thin, low opacity) -->
+    <path d="
+      M 102,248
+      C 96,244 88,236 82,225
+      C 74,210 68,195 66,178
+      C 64,162 65,148 70,135
+      C 75,122 82,112 92,103
+      C 102,94 114,88 128,83
+      C 142,78 156,75 172,73
+      C 186,71 198,70 212,70
+      C 226,70 240,72 254,75
+      C 268,78 280,82 292,88
+      C 304,94 314,102 322,112
+      C 330,122 336,133 340,146
+      C 344,159 346,172 345,186
+      C 344,200 341,213 336,225
+      C 331,237 324,247 314,255
+      C 304,263 293,269 280,274
+      C 267,279 253,282 238,284
+      C 223,286 208,287 193,287
+      C 178,287 163,286 149,283
+      C 135,280 122,275 112,268
+      C 106,263 102,256 102,248
+      Z
+    " fill="none" stroke="#1260A8" stroke-width="1.2" stroke-opacity="0.18"/>
+  </g>
+
+  <!-- ===== EYES ===== -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <g id="v8-eye-left">
+      <!-- Subtle shadow behind eye -->
+      <circle cx="172" cy="202" r="16" fill="#0A3D7A" opacity="0.12"/>
+      <!-- Main iris -->
+      <circle cx="170" cy="200" r="15" fill="#111111"/>
+      <!-- Very dark outer ring for depth -->
+      <circle cx="170" cy="200" r="15" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.3"/>
+      <!-- Primary specular highlight (upper-left) -->
+      <circle cx="164" cy="192" r="5" fill="#FFFFFF" opacity="0.95"/>
+      <!-- Secondary smaller highlight (lower-right) -->
+      <circle cx="175" cy="205" r="2.2" fill="#FFFFFF" opacity="0.40"/>
+    </g>
+
+    <!-- Right eye -->
+    <g id="v8-eye-right">
+      <!-- Subtle shadow behind eye -->
+      <circle cx="234" cy="202" r="16" fill="#0A3D7A" opacity="0.12"/>
+      <!-- Main iris -->
+      <circle cx="232" cy="200" r="15" fill="#111111"/>
+      <!-- Very dark outer ring for depth -->
+      <circle cx="232" cy="200" r="15" fill="none" stroke="#000000" stroke-width="1" stroke-opacity="0.3"/>
+      <!-- Primary specular highlight (upper-left) -->
+      <circle cx="226" cy="192" r="5" fill="#FFFFFF" opacity="0.95"/>
+      <!-- Secondary smaller highlight (lower-right) -->
+      <circle cx="237" cy="205" r="2.2" fill="#FFFFFF" opacity="0.40"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Base blob gradient: dark blue core to medium blue edges -->
+    <radialGradient id="blobGradient" cx="50%" cy="55%" r="50%" fx="45%" fy="60%">
+      <stop offset="0%" stop-color="#1565C0"/>
+      <stop offset="40%" stop-color="#1E88E5"/>
+      <stop offset="75%" stop-color="#1976D2"/>
+      <stop offset="100%" stop-color="#0D47A1"/>
+    </radialGradient>
+
+    <!-- Rim light gradient -->
+    <radialGradient id="rimGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#42A5F5" stop-opacity="0"/>
+      <stop offset="90%" stop-color="#64B5F6" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#90CAF9" stop-opacity="0.7"/>
+    </radialGradient>
+
+    <!-- Glossy top reflection gradient -->
+    <radialGradient id="glossReflection" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Specular highlight gradient -->
+    <radialGradient id="specularHighlight" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Bottom shadow gradient -->
+    <radialGradient id="bottomShadow" cx="50%" cy="100%" r="60%">
+      <stop offset="0%" stop-color="#0D47A1" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0D47A1" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Eye white highlight gradient -->
+    <radialGradient id="eyeHighlight" cx="35%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Clip path for the main blob shape -->
+    <clipPath id="blobClip">
+      <path d="M 85,220
+               C 70,175 75,135 105,105
+               C 135,75 170,62 200,58
+               C 230,54 270,60 300,82
+               C 330,104 340,135 338,170
+               C 336,205 330,240 310,268
+               C 290,296 260,310 225,318
+               C 190,326 155,320 125,300
+               C 95,280 82,255 85,220 Z"/>
+    </clipPath>
+
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dx="0" dy="6" result="offsetBlur"/>
+      <feFlood flood-color="#0D47A1" flood-opacity="0.25" result="color"/>
+      <feComposite in="color" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle inner glow for glass depth -->
+    <filter id="innerGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feOffset dx="0" dy="0"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Ground shadow -->
+  <ellipse id="groundShadow" cx="200" cy="355" rx="110" ry="18" fill="#0D47A1" opacity="0.12"/>
+
+  <!-- Rim light blob (slightly larger, behind main blob) -->
+  <path id="rimLight"
+        d="M 80,222
+           C 64,174 70,132 101,100
+           C 132,68 167,55 198,51
+           C 229,47 271,53 303,76
+           C 335,99 346,132 344,168
+           C 342,204 336,244 314,274
+           C 292,304 262,318 226,326
+           C 190,334 152,328 120,306
+           C 88,284 77,258 80,222 Z"
+        fill="url(#rimGradient)" opacity="0.6"/>
+
+  <!-- Main blob body -->
+  <path id="blobBody"
+        d="M 85,220
+           C 70,175 75,135 105,105
+           C 135,75 170,62 200,58
+           C 230,54 270,60 300,82
+           C 330,104 340,135 338,170
+           C 336,205 330,240 310,268
+           C 290,296 260,310 225,318
+           C 190,326 155,320 125,300
+           C 95,280 82,255 85,220 Z"
+        fill="url(#blobGradient)"
+        filter="url(#dropShadow)"/>
+
+  <!-- Bottom darkening for 3D depth -->
+  <path id="bottomDepth"
+        d="M 85,220
+           C 70,175 75,135 105,105
+           C 135,75 170,62 200,58
+           C 230,54 270,60 300,82
+           C 330,104 340,135 338,170
+           C 336,205 330,240 310,268
+           C 290,296 260,310 225,318
+           C 190,326 155,320 125,300
+           C 95,280 82,255 85,220 Z"
+        fill="url(#bottomShadow)" opacity="0.5"/>
+
+  <!-- Large glass reflection (upper portion, clipped to blob) -->
+  <g clip-path="url(#blobClip)">
+    <ellipse id="glassReflectionLarge"
+             cx="195" cy="135"
+             rx="120" ry="80"
+             fill="url(#glossReflection)"
+             opacity="0.4"/>
+
+    <!-- Secondary mid-body reflection -->
+    <ellipse id="midReflection"
+             cx="210" cy="165"
+             rx="90" ry="55"
+             fill="white"
+             opacity="0.08"
+             transform="rotate(-8, 210, 165)"/>
+  </g>
+
+  <!-- Primary specular highlight (bright spot near top) -->
+  <ellipse id="specularHighlightSpot"
+           cx="185" cy="105"
+           rx="52" ry="30"
+           fill="url(#specularHighlight)"
+           opacity="0.6"
+           transform="rotate(-15, 185, 105)"
+           clip-path="url(#blobClip)"/>
+
+  <!-- Tiny sharp specular dot -->
+  <ellipse id="specularDot"
+           cx="175" cy="95"
+           rx="14" ry="8"
+           fill="white"
+           opacity="0.7"
+           transform="rotate(-15, 175, 95)"
+           clip-path="url(#blobClip)"/>
+
+  <!-- Edge highlight (left side catch light) -->
+  <path id="edgeCatchLight"
+        d="M 95,160 C 88,140 92,120 105,108 C 112,101 120,98 125,100
+           C 118,108 110,125 108,150 C 106,165 107,178 100,175 Z"
+        fill="white" opacity="0.2"
+        clip-path="url(#blobClip)"/>
+
+  <!-- Eyes group - slightly transparent to appear behind glass -->
+  <g id="eyes" opacity="0.88">
+    <!-- Left eye -->
+    <g id="leftEye">
+      <!-- Eye shadow -->
+      <ellipse cx="168" cy="198" rx="22" ry="24" fill="#0a2e5c" opacity="0.15"/>
+      <!-- Main eye -->
+      <ellipse cx="168" cy="195" rx="19" ry="21" fill="#111111"/>
+      <!-- Primary highlight -->
+      <ellipse cx="161" cy="186" rx="7" ry="8" fill="white" opacity="0.92"/>
+      <!-- Secondary small highlight -->
+      <ellipse cx="174" cy="200" rx="3.5" ry="4" fill="white" opacity="0.5"/>
+    </g>
+
+    <!-- Right eye -->
+    <g id="rightEye">
+      <!-- Eye shadow -->
+      <ellipse cx="237" cy="198" rx="22" ry="24" fill="#0a2e5c" opacity="0.15"/>
+      <!-- Main eye -->
+      <ellipse cx="237" cy="195" rx="19" ry="21" fill="#111111"/>
+      <!-- Primary highlight -->
+      <ellipse cx="230" cy="186" rx="7" ry="8" fill="white" opacity="0.92"/>
+      <!-- Secondary small highlight -->
+      <ellipse cx="243" cy="200" rx="3.5" ry="4" fill="white" opacity="0.5"/>
+    </g>
+  </g>
+
+  <!-- Glass overlay on eyes (makes them look behind glass) -->
+  <g clip-path="url(#blobClip)">
+    <!-- Subtle reflection passing over the eye area -->
+    <ellipse id="eyeGlassOverlay"
+             cx="200" cy="190"
+             rx="85" ry="40"
+             fill="white"
+             opacity="0.06"
+             transform="rotate(-3, 200, 190)"/>
+  </g>
+
+  <!-- Final top gloss pass for extra glass feel -->
+  <path id="topGlossEdge"
+        d="M 130,95 C 150,72 180,63 200,60
+           C 220,57 255,62 280,75
+           C 265,68 235,62 205,63
+           C 175,64 148,74 130,95 Z"
+        fill="white" opacity="0.35"/>
+</svg>

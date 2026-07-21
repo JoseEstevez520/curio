@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" id="curio-blob-v2">
+  <defs>
+    <!-- Base shadow gradient: darker at bottom, medium blue at top -->
+    <radialGradient id="grad-base" cx="50%" cy="40%" r="60%" fx="50%" fy="35%">
+      <stop offset="0%" stop-color="#4a9edf"/>
+      <stop offset="60%" stop-color="#3178b5"/>
+      <stop offset="100%" stop-color="#1a5a8a"/>
+    </radialGradient>
+
+    <!-- Highlight gradient: bright top-light fading to transparent -->
+    <radialGradient id="grad-highlight" cx="48%" cy="30%" r="55%" fx="45%" fy="25%">
+      <stop offset="0%" stop-color="#b8e4ff" stop-opacity="0.85"/>
+      <stop offset="35%" stop-color="#7ec8f0" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#5ab0e0" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#3a90c0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base blob: dark shadow layer -->
+  <path id="blob-base"
+    d="M 200,68
+       C 260,62  320,85  348,130
+       C 376,175  378,218  368,258
+       C 358,298  330,328  290,342
+       C 250,356  210,358  170,348
+       C 130,338  88,318   62,280
+       C 36,242   34,198   44,158
+       C 54,118   80,88   120,74
+       C 160,60   180,70   200,68
+       Z"
+    fill="url(#grad-base)"
+  />
+
+  <!-- Highlight blob: slightly smaller, offset upward and left for 3D -->
+  <path id="blob-highlight"
+    d="M 198,76
+       C 254,70  314,92   340,134
+       C 366,176  366,216  358,252
+       C 350,288  324,316  286,330
+       C 248,344  212,346  174,338
+       C 136,330  96,312   72,278
+       C 48,244   46,204   54,166
+       C 62,128   86,98   124,84
+       C 162,70   178,78   198,76
+       Z"
+    fill="url(#grad-highlight)"
+  />
+
+  <!-- Subtle bottom shadow for grounding -->
+  <ellipse id="blob-shadow" cx="200" cy="348" rx="100" ry="10" fill="#1a5a8a" opacity="0.18"/>
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <circle id="eye-left" cx="165" cy="220" r="16" fill="#1a1a2e"/>
+    <circle id="eye-left-highlight" cx="159" cy="212" r="5.5" fill="#ffffff"/>
+
+    <!-- Right eye -->
+    <circle id="eye-right" cx="235" cy="220" r="16" fill="#1a1a2e"/>
+    <circle id="eye-right-highlight" cx="229" cy="212" r="5.5" fill="#ffffff"/>
+  </g>
+</svg>

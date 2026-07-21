@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curio - Logo Interactivo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #e8f4fd 0%, #c5dff0 40%, #a3c4d9 100%);
+      overflow: hidden;
+      cursor: default;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      background: rgba(100, 180, 255, 0.15);
+      pointer-events: none;
+      animation: float-particle linear infinite;
+    }
+
+    @keyframes float-particle {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    .logo-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      cursor: pointer;
+      /* Breathing animation */
+      animation: breathe 4s ease-in-out infinite;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .logo-container:hover {
+      transform: scale(1.08);
+    }
+
+    .logo-container:active {
+      animation: squish 0.5s ease-out forwards, breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1) translateY(0); }
+      30% { transform: scale(1.02) translateY(-4px); }
+      60% { transform: scale(0.98) translateY(2px); }
+    }
+
+    @keyframes squish {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.15, 0.85); }
+      50% { transform: scale(0.9, 1.1); }
+      70% { transform: scale(1.05, 0.95); }
+      100% { transform: scale(1, 1); }
+    }
+
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(50, 130, 220, 0.3));
+      transition: filter 0.3s ease;
+    }
+
+    .logo-container:hover .logo-img {
+      filter: drop-shadow(0 25px 50px rgba(50, 130, 220, 0.45));
+    }
+
+    /* Eye overlay - positioned over the original eyes */
+    .eyes-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .eye {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Left eye */
+    .eye.left {
+      top: 55.5%;
+      left: 34.5%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Right eye */
+    .eye.right {
+      top: 55.5%;
+      left: 60%;
+      transform: translate(-50%, -50%);
+    }
+
+    .pupil {
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle at 35% 35%, #333 0%, #111 50%, #000 100%);
+      border-radius: 50%;
+      position: relative;
+      transition: transform 0.08s ease-out;
+    }
+
+    .pupil::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 100%);
+      border-radius: 50%;
+      top: 8px;
+      left: 10px;
+      transition: all 0.1s ease-out;
+    }
+
+    /* Blink animation */
+    .eye.blink .pupil {
+      transform: scaleY(0.05) !important;
+      transition: transform 0.08s ease-in;
+    }
+
+    /* Surprised expression */
+    .eye.surprised .pupil {
+      transform: scale(0.7) !important;
+    }
+
+    /* Shadow under the blob */
+    .shadow {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 20px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: shadow-breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes shadow-breathe {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.6; }
+      30% { transform: translateX(-50%) scale(0.95); opacity: 0.5; }
+      60% { transform: translateX(-50%) scale(1.05); opacity: 0.65; }
+    }
+
+    /* Greeting text */
+    .greeting {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1rem;
+      color: rgba(60, 120, 180, 0.7);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fade-in 2s ease 1s forwards;
+    }
+
+    @keyframes fade-in {
+      to { opacity: 1; }
+    }
+
+    /* Entry animation */
+    .logo-container.entering {
+      animation: drop-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes drop-in {
+      0% { transform: scale(0.3) translateY(-200px); opacity: 0; }
+      60% { transform: scale(1.1) translateY(10px); opacity: 1; }
+      80% { transform: scale(0.95) translateY(-5px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    /* Click ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(100, 180, 255, 0.5);
+      animation: ripple-out 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-out {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 300px; height: 300px; opacity: 0; margin-top: -150px; margin-left: -150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container entering" id="logoContainer">
+    <img src="curio.png" alt="Curio Logo" class="logo-img" draggable="false">
+    <div class="eyes-overlay">
+      <div class="eye left" id="eyeLeft">
+        <div class="pupil" id="pupilLeft"></div>
+      </div>
+      <div class="eye right" id="eyeRight">
+        <div class="pupil" id="pupilRight"></div>
+      </div>
+    </div>
+    <div class="shadow"></div>
+  </div>
+
+  <p class="greeting">mueve el raton &bull; haz clic</p>
+
+  <script>
+    const container = document.getElementById('logoContainer');
+    const pupilLeft = document.getElementById('pupilLeft');
+    const pupilRight = document.getElementById('pupilRight');
+    const eyeLeft = document.getElementById('eyeLeft');
+    const eyeRight = document.getElementById('eyeRight');
+
+    // Remove entry animation class after it plays
+    setTimeout(() => {
+      container.classList.remove('entering');
+    }, 900);
+
+    // ---- Eye tracking ----
+    const MAX_PUPIL_MOVE = 6; // pixels the pupil can move from center
+
+    function movePupil(pupilEl, eyeEl, mouseX, mouseY) {
+      const rect = eyeEl.getBoundingClientRect();
+      const eyeCenterX = rect.left + rect.width / 2;
+      const eyeCenterY = rect.top + rect.height / 2;
+
+      const dx = mouseX - eyeCenterX;
+      const dy = mouseY - eyeCenterY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const clampedDist = Math.min(dist, 300); // max influence distance
+      const ratio = clampedDist / 300;
+
+      const moveX = (dx / (dist || 1)) * MAX_PUPIL_MOVE * ratio;
+      const moveY = (dy / (dist || 1)) * MAX_PUPIL_MOVE * ratio;
+
+      pupilEl.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      movePupil(pupilLeft, eyeLeft, e.clientX, e.clientY);
+      movePupil(pupilRight, eyeRight, e.clientX, e.clientY);
+    });
+
+    // ---- Blinking ----
+    function blink() {
+      eyeLeft.classList.add('blink');
+      eyeRight.classList.add('blink');
+      setTimeout(() => {
+        eyeLeft.classList.remove('blink');
+        eyeRight.classList.remove('blink');
+      }, 150);
+    }
+
+    // Random blink interval
+    function scheduleBlink() {
+      const delay = 2000 + Math.random() * 4000; // 2-6 seconds
+      setTimeout(() => {
+        blink();
+        scheduleBlink();
+      }, delay);
+    }
+    scheduleBlink();
+
+    // ---- Click interaction ----
+    container.addEventListener('click', (e) => {
+      // Squish animation
+      container.style.animation = 'none';
+      container.offsetHeight; // force reflow
+      container.style.animation = 'squish 0.5s ease-out, breathe 4s ease-in-out 0.5s infinite';
+
+      // Surprised eyes
+      eyeLeft.classList.add('surprised');
+      eyeRight.classList.add('surprised');
+      setTimeout(() => {
+        eyeLeft.classList.remove('surprised');
+        eyeRight.classList.remove('surprised');
+      }, 400);
+
+      // Ripple effect
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      const rect = container.getBoundingClientRect();
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      container.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 800);
+    });
+
+    // ---- Floating particles ----
+    function createParticle() {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 5 + Math.random() * 20;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = Math.random() * 5 + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 20000);
+    }
+
+    // Initial particles
+    for (let i = 0; i < 12; i++) {
+      setTimeout(createParticle, i * 300);
+    }
+    // Continuous particles
+    setInterval(createParticle, 2000);
+
+    // ---- Touch support ----
+    document.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      movePupil(pupilLeft, eyeLeft, touch.clientX, touch.clientY);
+      movePupil(pupilRight, eyeRight, touch.clientX, touch.clientY);
+    });
+  </script>
+</body>
+</html>

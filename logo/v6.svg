@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Radial gradient: light blue top-center to dark blue bottom -->
+    <radialGradient id="blobGradient" cx="50%" cy="35%" r="60%" fx="50%" fy="30%">
+      <stop offset="0%" stop-color="#B3E5FC" />
+      <stop offset="50%" stop-color="#29B6F6" />
+      <stop offset="100%" stop-color="#0277BD" />
+    </radialGradient>
+
+    <!-- Clip path that merges overlapping ellipses into a single blob shape -->
+    <clipPath id="blobClip">
+      <ellipse cx="200" cy="230" rx="145" ry="110" />
+      <ellipse cx="160" cy="210" rx="120" ry="105" />
+      <ellipse cx="240" cy="210" rx="120" ry="105" />
+      <ellipse cx="200" cy="195" rx="105" ry="85" />
+    </clipPath>
+  </defs>
+
+  <!-- Soft shadow beneath the blob -->
+  <ellipse id="shadow" cx="200" cy="340" rx="120" ry="18" fill="#000" opacity="0.10" />
+
+  <!-- Blob body: overlapping ellipses filled with gradient -->
+  <g id="blobBody">
+    <!-- Main wide ellipse -->
+    <ellipse cx="200" cy="230" rx="145" ry="110" fill="url(#blobGradient)" />
+    <!-- Left bulge -->
+    <ellipse cx="160" cy="210" rx="120" ry="105" fill="url(#blobGradient)" />
+    <!-- Right bulge -->
+    <ellipse cx="240" cy="210" rx="120" ry="105" fill="url(#blobGradient)" />
+    <!-- Top dome -->
+    <ellipse cx="200" cy="195" rx="105" ry="85" fill="url(#blobGradient)" />
+  </g>
+
+  <!-- Glossy highlight at the top -->
+  <ellipse id="glossHighlight" cx="195" cy="160" rx="75" ry="40" fill="#FFFFFF" opacity="0.45" />
+  <!-- Secondary softer highlight -->
+  <ellipse id="glossHighlightSoft" cx="185" cy="175" rx="50" ry="22" fill="#FFFFFF" opacity="0.25" />
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <g id="leftEye">
+      <ellipse cx="170" cy="230" rx="18" ry="20" fill="#1A1A1A" />
+      <!-- Primary highlight -->
+      <circle cx="176" cy="222" r="6" fill="#FFFFFF" />
+      <!-- Secondary small highlight -->
+      <circle cx="165" cy="235" r="3" fill="#FFFFFF" opacity="0.5" />
+    </g>
+    <!-- Right eye -->
+    <g id="rightEye">
+      <ellipse cx="230" cy="230" rx="18" ry="20" fill="#1A1A1A" />
+      <!-- Primary highlight -->
+      <circle cx="236" cy="222" r="6" fill="#FFFFFF" />
+      <!-- Secondary small highlight -->
+      <circle cx="225" cy="235" r="3" fill="#FFFFFF" opacity="0.5" />
+    </g>
+  </g>
+</svg>

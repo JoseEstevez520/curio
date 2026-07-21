@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" id="curio-blob-v7">
+  <title>Curio Blob - Painterly Layered Style</title>
+
+  <!-- Layer 1: Darkest base shadow shape -->
+  <path id="base-shadow"
+    d="M85,235 C70,200 68,170 80,145 C95,115 125,92 165,82 C200,74 240,72 275,80 C310,88 335,108 345,140 C355,172 350,205 338,235 C325,265 300,285 265,295 C230,305 190,308 155,300 C120,292 98,268 85,235Z"
+    fill="#1565C0" />
+
+  <!-- Layer 2: Dark mid-tone -->
+  <path id="layer-dark"
+    d="M92,230 C78,198 78,168 88,143 C102,114 130,94 168,86 C204,78 242,77 274,84 C308,92 330,112 340,142 C349,170 345,200 334,228 C322,256 298,275 264,285 C230,294 194,296 160,289 C126,282 104,260 92,230Z"
+    fill="#1976D2" />
+
+  <!-- Layer 3: Mid blue -->
+  <path id="layer-mid"
+    d="M98,224 C86,195 86,167 96,144 C108,118 134,100 170,92 C205,84 240,83 270,90 C302,98 322,116 332,144 C341,170 338,198 328,224 C317,250 295,267 262,276 C230,284 198,286 166,280 C134,274 112,252 98,224Z"
+    fill="#2196F3" />
+
+  <!-- Layer 4: Light-mid blue -->
+  <path id="layer-light-mid"
+    d="M108,218 C96,192 96,166 105,146 C116,123 138,107 172,100 C205,93 238,92 266,98 C296,106 314,122 323,148 C332,172 329,198 320,220 C310,244 290,258 260,266 C230,274 200,275 172,270 C142,264 120,244 108,218Z"
+    fill="#42A5F5" />
+
+  <!-- Layer 5: Light blue -->
+  <path id="layer-light"
+    d="M118,210 C108,188 108,166 115,150 C125,130 144,116 174,110 C204,104 234,103 260,108 C288,114 304,128 312,150 C320,172 318,194 310,214 C302,234 284,248 258,254 C232,260 206,261 180,256 C154,252 130,234 118,210Z"
+    fill="#64B5F6" />
+
+  <!-- Layer 6: Lightest blue highlight area -->
+  <path id="layer-highlight"
+    d="M132,198 C124,182 124,166 130,153 C138,138 152,127 176,122 C200,117 226,116 248,120 C272,126 284,138 290,155 C296,172 294,190 288,205 C282,220 268,230 248,234 C228,238 208,239 188,236 C166,232 142,218 132,198Z"
+    fill="#90CAF9" />
+
+  <!-- Layer 7: Near-white specular spot -->
+  <ellipse id="specular-spot"
+    cx="195" cy="155" rx="42" ry="26"
+    fill="#BBDEFB" opacity="0.7"
+    transform="rotate(-12, 195, 155)" />
+
+  <!-- Soft top specular glint -->
+  <ellipse id="specular-glint"
+    cx="185" cy="140" rx="22" ry="12"
+    fill="#E3F2FD" opacity="0.6"
+    transform="rotate(-15, 185, 140)" />
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <circle id="eye-left" cx="175" cy="200" r="14" fill="#1A1A1A" />
+    <circle id="eye-left-highlight" cx="170" cy="193" r="4.5" fill="white" />
+
+    <!-- Right eye -->
+    <circle id="eye-right" cx="235" cy="200" r="14" fill="#1A1A1A" />
+    <circle id="eye-right-highlight" cx="230" cy="193" r="4.5" fill="white" />
+  </g>
+</svg>
