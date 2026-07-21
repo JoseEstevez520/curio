@@ -12,6 +12,7 @@ venv/
 # Build
 dist/
 build/
+*.tsbuildinfo
 
 # Sistema
 .DS_Store
