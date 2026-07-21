@@ -33,7 +33,7 @@ A clean, monochrome, Linear-inspired chat UI. You read an LLM message, click or 
 **Slices (each = one commit)**
 - [x] `chore: scaffold app (framework, TypeScript, linting, prettier)`
 - [x] `chore: add README with local-run + Ollama prerequisites`
-- [ ] `feat: static chat layout (message list + composer), monochrome tokens`
+- [x] `feat: static chat layout (message list + composer), monochrome tokens`
 - [x] `feat: design tokens file (color scale, spacing, type scale, radii — no shadows)`
 - [x] `feat: Ollama client wrapper (list models, chat completion, streaming)`
 - [ ] `feat: send message → stream assistant reply into the message list`
