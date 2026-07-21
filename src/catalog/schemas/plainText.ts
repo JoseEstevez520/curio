@@ -1,0 +1,11 @@
+import { z } from 'zod';
+
+/**
+ * The safe default. Anything that doesn't fit a richer component falls back to this,
+ * so the renderer can ALWAYS show something — plain prose in the reader's language.
+ */
+export const plainTextData = z.object({
+  text: z.string(),
+});
+
+export type PlainTextData = z.infer<typeof plainTextData>;
