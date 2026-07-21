@@ -44,7 +44,7 @@ A clean, monochrome, Linear-inspired chat UI. You read an LLM message, click or 
 - [x] `feat: render plain-text description in the popover, with close/dismiss`
 - [x] `feat: cache descriptions per (term, message) to avoid recompute`
 - [x] `fix: handle Ollama-not-running / model-missing with a friendly banner`
-- [ ] `docs: quickstart GIF/screenshot in README`
+- [x] `docs: quickstart GIF/screenshot in README`
 - [ ] `chore: tag v0.0`
 
 **Success criteria**
