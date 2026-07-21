@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo/curio.png" alt="Curio" width="132" height="132" />
+
 # Curio
 
 **Lee, haz clic en una palabra y entiéndela ahí mismo — sin salir del texto.**
@@ -39,6 +41,7 @@ Todo corre en tu máquina a través de **Ollama** con modelos pequeños: **sin c
 - 🌐 **Responde en el idioma de la conversación**.
 - 🎛️ **Streaming del descriptor** con cierre por Escape o clic fuera; banner amable si Ollama no corre o no hay modelos.
 - 🎨 **Estilo monocromo tipo iOS/Linear, sin sombras** — jerarquía por espacio y filetes de 1px.
+- 🫧 **Mascota viva (Curio)** — respira, te sigue con la mirada y hace _morph_ del centro a la cabecera al escribir; se concentra mientras genera, hace _squish_ al pulsarla y saca el **monóculo** cuando busca un término.
 
 ## Cómo funciona
 
@@ -103,6 +106,7 @@ Detalle y slices en [`docs/ROADMAP.md`](docs/ROADMAP.md). Más contexto:
 - [`IDEA.md`](IDEA.md) — qué es Curio y por qué.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — stack, entidades, Ollama, UI generativa.
 - [`docs/DESIGN.md`](docs/DESIGN.md) — sistema de diseño (monocromo, Linear, sin sombras).
+- [`docs/logo/`](docs/logo/) — el taller de la mascota: spec de animaciones (`logo.md`) y prototipos.
 - [`docs/AGENTS.md`](docs/AGENTS.md) — el equipo de agentes.
 - [`CHANGELOG.md`](CHANGELOG.md) · [`EXPERIMENTS.md`](EXPERIMENTS.md) — histórico y pruebas.
 
