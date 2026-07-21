@@ -33,7 +33,7 @@ export function useSendMessage() {
 
     try {
       const messages = toChatMessages(history, CHAT_SYSTEM_PROMPT);
-      for await (const delta of chatStream({ model, messages })) {
+      for await (const delta of chatStream({ model, messages, keepAlive: '10m' })) {
         useChatStore.getState().appendToMessage(assistantId, delta);
       }
       useChatStore.getState().finishMessage(assistantId);

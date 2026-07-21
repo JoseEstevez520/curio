@@ -53,6 +53,10 @@ export interface ChatParams {
   messages: ChatMessage[];
   /** Sampling temperature (lower = more deterministic). */
   temperature?: number;
+  /** Cap on generated tokens (Ollama `num_predict`) — keeps short answers fast. */
+  numPredict?: number;
+  /** How long Ollama keeps the model loaded after the call, e.g. '10m'. Keeps it warm. */
+  keepAlive?: string;
   /** Constrain output to JSON / a JSON Schema (Ollama structured output). */
   format?: OllamaFormat;
   /** Abort signal to cancel the request (and stop the underlying stream). */

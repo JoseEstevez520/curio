@@ -68,7 +68,8 @@ interface ChatRequestBody {
   messages: ChatMessage[];
   stream: boolean;
   format?: OllamaFormat;
-  options?: { temperature?: number };
+  keep_alive?: string;
+  options?: { temperature?: number; num_predict?: number };
 }
 
 /** A single NDJSON chunk from `/api/chat` (fields we care about). */
@@ -86,8 +87,13 @@ function buildChatBody(params: ChatParams, stream: boolean): ChatRequestBody {
   if (params.format !== undefined) {
     body.format = params.format;
   }
-  if (params.temperature !== undefined) {
-    body.options = { temperature: params.temperature };
+  if (params.keepAlive !== undefined) {
+    body.keep_alive = params.keepAlive;
+  }
+  if (params.temperature !== undefined || params.numPredict !== undefined) {
+    body.options = {};
+    if (params.temperature !== undefined) body.options.temperature = params.temperature;
+    if (params.numPredict !== undefined) body.options.num_predict = params.numPredict;
   }
   return body;
 }

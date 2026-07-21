@@ -1,8 +1,18 @@
 import { useEffect } from 'react';
-import { useChatStore, descriptionKey, type DescriptionEntry } from '../app/store';
+import { useChatStore, descriptionKey, type DescriptionEntry, type Message } from '../app/store';
 import { chatStream } from '../ollama/client';
 import { buildDescribeMessages } from '../ollama/prompts';
 import { describeError } from '../chat/useChat';
+
+/** A little conversation context: the user turn that prompted this reply, trimmed. */
+function conversationContext(messages: Message[], messageId: string): string {
+  const idx = messages.findIndex((m) => m.id === messageId);
+  if (idx < 0) return '';
+  for (let i = idx - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return messages[i].content.slice(0, 400);
+  }
+  return '';
+}
 
 /**
  * Resolve the description for `term` (as used in `context`) within a message.
@@ -35,14 +45,17 @@ export function useDescribe(
 
     const controller = new AbortController();
     setDescription(key, { status: 'loading', text: '' });
+    const conversation = conversationContext(useChatStore.getState().messages, messageId);
 
     (async () => {
       try {
         let acc = '';
         for await (const delta of chatStream({
           model,
-          messages: buildDescribeMessages(term, context),
+          messages: buildDescribeMessages(term, context, conversation),
           temperature: 0.2,
+          numPredict: 120,
+          keepAlive: '10m',
           signal: controller.signal,
         })) {
           acc += delta;
