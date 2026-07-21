@@ -4,6 +4,15 @@ import type { Envelope } from '../catalog/schemas';
 
 export type Role = 'user' | 'assistant';
 
+/** The two reading surfaces: the chat, or a pasted article. Both use the same engine. */
+export type Mode = 'chat' | 'read';
+
+/** A pasted article being read. `id` changes each paste so its lookups never collide. */
+export interface Article {
+  id: string;
+  content: string;
+}
+
 export interface Message {
   id: string;
   role: Role;
@@ -52,6 +61,10 @@ export interface Selection {
 
 interface ChatState {
   messages: Message[];
+  /** Which reading surface is active: the chat or a pasted article. */
+  mode: Mode;
+  /** The article being read in `read` mode, or null before one is pasted. */
+  article: Article | null;
   /** Active Ollama model tag for chat replies, or null until one is chosen. */
   model: string | null;
   /** Model tag used by the (separate, fast) describer; falls back to `model`. */
@@ -67,6 +80,11 @@ interface ChatState {
 
   setModel: (model: string | null) => void;
   setDescribeModel: (model: string | null) => void;
+
+  /** Switch reading surface (closes any open description). */
+  setMode: (mode: Mode) => void;
+  /** Set (or clear, with null) the article being read; a new paste gets a fresh id. */
+  setArticle: (content: string | null) => void;
 
   addUserMessage: (content: string) => void;
   /** Create an empty assistant message and return its id, for streaming into. */
@@ -89,6 +107,8 @@ function newId(): string {
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
+  mode: 'chat',
+  article: null,
   model: null,
   describeModel: null,
   selection: null,
@@ -98,6 +118,15 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setModel: (model) => set({ model }),
   setDescribeModel: (describeModel) => set({ describeModel }),
+
+  // Switching surface always closes any open description.
+  setMode: (mode) => set({ mode, selection: null, expanded: false }),
+  setArticle: (content) =>
+    set({
+      article: content ? { id: newId(), content } : null,
+      selection: null,
+      expanded: false,
+    }),
 
   addUserMessage: (content) =>
     set((s) => ({ messages: [...s.messages, { id: newId(), role: 'user', content }] })),
