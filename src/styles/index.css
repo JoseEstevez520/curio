@@ -150,6 +150,8 @@
     position: absolute;
     transition: transform 90ms var(--ease-out);
   }
+  /* eyes reopen on the system decelerate curve; the blink squash below stays a
+     snappier ease-in so the shut reads as a quick flick. */
   .curio-logo.is-blinking .curio-eye {
     transform: scaleY(0.06);
     transition: transform 70ms ease-in;
@@ -157,11 +159,12 @@
   /* Pupil: a small dark sphere with a soft catch-light. Its transform carries the
      cursor tracking, independent of the socket's blink and the body's breathing. */
   .curio-pupil {
+    position: relative;
     width: 100%;
     height: 100%;
     border-radius: var(--radius-full);
     background: radial-gradient(circle at 38% 35%, #333 0%, #111 60%, #000 100%);
-    transition: transform 60ms ease-out;
+    transition: transform 60ms var(--ease-out);
   }
   .curio-pupil::after {
     content: '';

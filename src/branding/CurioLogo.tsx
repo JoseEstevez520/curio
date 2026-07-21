@@ -8,8 +8,11 @@ interface CurioLogoProps {
   track?: boolean;
   /** Gentle idle breathing + the occasional blink. */
   alive?: boolean;
+  /** Purely ornamental: hide from assistive tech (use when a visible "Curio"
+   *  label already sits next to it, so the name isn't announced twice). */
+  decorative?: boolean;
   className?: string;
-  /** Accessible name; the blob is Curio's mascot, so it labels the mark. */
+  /** Accessible name; used only when not decorative. */
   title?: string;
 }
 
@@ -38,6 +41,7 @@ export default function CurioLogo({
   size = 72,
   track = false,
   alive = false,
+  decorative = false,
   className,
   title = 'Curio',
 }: CurioLogoProps) {
@@ -51,28 +55,30 @@ export default function CurioLogo({
     if (!track || prefersReducedMotion()) return;
     const max = size * MOVE_RATIO;
     let frame = 0;
-    let px = 0;
-    let py = 0;
+    let mx = 0;
+    let my = 0;
 
+    // Read the pupil rect once per animation frame (not per event) so a burst of
+    // mousemove events triggers at most one layout read.
     const apply = () => {
       frame = 0;
-      const transform = `translate(${px}px, ${py}px)`;
-      if (leftPupil.current) leftPupil.current.style.transform = transform;
-      if (rightPupil.current) rightPupil.current.style.transform = transform;
-    };
-
-    const onMove = (e: MouseEvent) => {
       const el = leftPupil.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
+      const dx = mx - cx;
+      const dy = my - cy;
       const dist = Math.hypot(dx, dy) || 1;
       const ratio = Math.min(dist, 320) / 320;
-      px = (dx / dist) * max * ratio;
-      py = (dy / dist) * max * ratio;
+      const transform = `translate(${(dx / dist) * max * ratio}px, ${(dy / dist) * max * ratio}px)`;
+      if (leftPupil.current) leftPupil.current.style.transform = transform;
+      if (rightPupil.current) rightPupil.current.style.transform = transform;
+    };
+
+    const onMove = (e: MouseEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
@@ -125,8 +131,7 @@ export default function CurioLogo({
     <div
       className={classes}
       style={{ width: `${size}px`, height: `${size}px` }}
-      role="img"
-      aria-label={title}
+      {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': title })}
     >
       <img src={curioBody} alt="" aria-hidden="true" />
       <div className="curio-eye" style={eyeStyle(EYE_LEFT_X)}>

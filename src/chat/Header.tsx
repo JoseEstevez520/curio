@@ -12,7 +12,7 @@ export default function Header({ models }: HeaderProps) {
     <header className="bg-bg px-4 py-3">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <CurioLogo size={26} />
+          <CurioLogo size={26} decorative />
           <span className="text-sm font-semibold tracking-tight text-fg">Curio</span>
         </div>
         <ModelPicker models={models} />
