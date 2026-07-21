@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Entorno
+.env
+.env.*
+
+# Build
+dist/
+build/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Modelos / datos locales pesados
+*.gguf
+*.bin
