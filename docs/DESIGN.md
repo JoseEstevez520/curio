@@ -344,3 +344,43 @@ Subtle, fast, purposeful. Motion confirms an action; it never entertains.
 - **Hit targets:** interactive controls ≥ 24×24px (composer/panel buttons ≥ 40px on touch). Inline entities keep prose flow but get `padding: 0 2px` to enlarge the target slightly.
 - **Selection:** text remains selectable; `::selection` uses `--color-selection` so reading and copying are unhindered.
 - **Motion:** honor `prefers-reduced-motion` (§7). **Theme:** honor `prefers-color-scheme`, allow manual override via `data-theme`.
+
+---
+
+## 9. Movimiento y sensación (feel) — "todo fluye a un lugar"
+
+Curio debe sentirse como una **app nativa de iOS**, no como una web que carga pantallas: los
+elementos **se transforman unos en otros** y **viajan** hacia un sitio, en vez de aparecer y
+desaparecer. La profundidad la da el **movimiento + desenfoque**, nunca sombras (§5 sigue vigente:
+**sin sombras, sin cristal esmerilado, sin gradientes de color** — solo monocromo y filetes).
+
+Librería: **Framer Motion** (ya integrada). `layoutId` implementa transiciones de elemento
+compartido (FLIP) de forma declarativa.
+
+### Principios
+
+1. **Morph, no aparecer.** Cuando algo se convierte en otra cosa (mascota del hero ⇄ cabecera,
+   palabra → descripción, popover → modal "ver más"), **se transforma y viaja** con `layoutId`.
+   Nada de "boom": crece y se desplaza al sitio destino.
+2. **Un punto focal.** En cada pantalla hay **un lugar** al que las cosas convergen (la mascota en
+   el inicio; el sitio de la descripción al leer). El movimiento refuerza ese foco.
+3. **Blur, no fade.** Entradas/salidas con **`filter: blur()` + opacidad** (blur ~8–16px al entrar),
+   no solo opacidad. Da profundidad de campo.
+4. **Overshoot / spring, no `ease-in-out`.** Curvas que sobrepasan un pelín y vuelven, o springs de
+   Framer Motion. Nunca `linear` ni `ease-in-out`.
+5. **Timing dual.** Lo **decorativo** (color, estado, iconos) cambia al instante (~125ms). Lo
+   **estructural** (posición, tamaño, layout, radio) va lento y fluido (~400–700ms). No se mezclan.
+6. **Feedback físico sutil.** Botones que crecen un poco al hover y se "aplastan" al pulsar (spring).
+   Micro-interacciones casi imperceptibles, nunca exageradas.
+
+### Qué NO hacer (además de los anti-patrones de §5 y §7)
+
+- Nada de **sombras/elevación**, **glows**, **cristal esmerilado** ni **gradientes** (aunque las
+  apps de referencia los usen — Curio es plano y monocromo).
+- Nada de `animate-pulse`/`animate-bounce` en bucle infinito, ni delays largos (>300ms), ni
+  animaciones decorativas en la carga inicial.
+- Respetar **siempre** `prefers-reduced-motion`: sin blur/morph, transiciones casi instantáneas.
+
+> Nota de procedencia: los principios de movimiento se destilaron de un sistema de otro proyecto
+> (SkillNet); se tomó **solo el concepto de feel**, adaptándolo a la estética plana y monocroma de
+> Curio (se descartaron sombras, cristal y color de aquel sistema).

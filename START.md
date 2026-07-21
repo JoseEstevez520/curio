@@ -8,6 +8,7 @@ nada más.
 
 1. **Lee el contexto** (en este orden):
    - `CLAUDE.md` — reglas de trabajo (mandan sobre todo).
+   - `VISION.md` — el destino (compañero de investigación local, document-first, escritorio).
    - `IDEA.md` — qué es Curio y por qué.
    - `docs/ARCHITECTURE.md` — cómo se construye (stack, entidades, Ollama, generative UI).
    - `docs/DESIGN.md` — estilo (monocromo, tipo Linear, sin sombras).
@@ -16,6 +17,7 @@ nada más.
    - `EXPERIMENTS.md` y `CHANGELOG.md` — dónde vamos.
 
 2. **Comprueba el estado**:
+   - **`git pull` primero** (trae el logo y lo último de otras sesiones/ordenadores).
    - `git log --oneline -10` para ver por dónde va.
    - Busca en `docs/ROADMAP.md` la **versión actual** y el **primer slice sin marcar** `[ ]`.
 
@@ -46,5 +48,5 @@ nada más.
 
 ---
 
-**Estado actual:** obra escrita, sin código todavía. El primer slice de `docs/ROADMAP.md` (v0)
-es `chore: scaffold app`. Ahí empieza todo.
+**Estado actual:** **v0 hecho** (tag `v0.0`) y muy pulido. Lo siguiente es **v1** (chat + modal
+"ver más" + UI generativa). Coge el primer slice sin marcar `[ ]` de `docs/ROADMAP.md` y arranca.

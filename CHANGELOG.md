@@ -3,6 +3,15 @@
 Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Keep a Changelog.
 
 ## [Unreleased]
+### Docs
+- **`VISION.md`** nuevo — la estrella polar (compañero de investigación local, document-first tipo
+  Obsidian, escritorio con Tauri, dos capas de datos: sesiones + vault Markdown).
+- **`docs/ROADMAP.md`** reorganizado — v0 (hecho) → v1 chat "poquito→más" + UI generativa → v2
+  entidades/prefetch → v3 superficies/sesiones → horizonte escritorio. Con scope por slice.
+- **`docs/DESIGN.md §9`** — principios de movimiento ("todo fluye a un lugar", morph/blur/overshoot,
+  timing dual), adaptados a la estética plana y sin sombras de Curio.
+- `START.md` actualizado (lee `VISION.md`, `git pull` al arrancar, estado = v1 siguiente).
+
 ### Added
 - **Modelo dedicado y rápido para el descriptor:** el chat usa el modelo grande (p. ej.
   `llama3.2:3b`) y las descripciones un modelo pequeño (`llama3.2:1b`) para ir más rápidas —
