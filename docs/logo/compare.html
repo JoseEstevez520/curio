@@ -1,303 +1,322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Curio SVG - Comparar versiones</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f1117;
-      color: #e0e0e0;
-      padding: 30px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 1.6rem;
-      margin-bottom: 10px;
-      color: #fff;
-    }
-    .subtitle {
-      text-align: center;
-      color: #888;
-      margin-bottom: 30px;
-      font-size: 0.9rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .card {
-      background: #1a1d27;
-      border-radius: 16px;
-      padding: 20px;
-      border: 2px solid #2a2d37;
-      transition: border-color 0.3s, transform 0.2s;
-      cursor: pointer;
-      position: relative;
-    }
-    .card:hover {
-      border-color: #42A5F5;
-      transform: translateY(-4px);
-    }
-    .card.selected {
-      border-color: #4CAF50;
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-    }
-    .card.selected::after {
-      content: 'ELEGIDA';
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #4CAF50;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .card.reference {
-      border-color: #FF9800;
-    }
-    .card.reference::after {
-      content: 'ORIGINAL';
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #FF9800;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .card-desc {
-      font-size: 0.78rem;
-      color: #888;
-      margin-bottom: 16px;
-    }
-    .preview {
-      width: 100%;
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse at center, #e8f4fd, #c5dff0);
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
-    .preview img,
-    .preview object {
-      width: 80%;
-      height: 80%;
-      object-fit: contain;
-    }
-    .preview object {
-      pointer-events: none;
-    }
-    .actions {
-      margin-top: 14px;
-      display: flex;
-      gap: 8px;
-    }
-    .btn {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-select {
-      background: #2196F3;
-      color: #fff;
-    }
-    .btn-select:hover { background: #1976D2; }
-    .btn-open {
-      background: #2a2d37;
-      color: #ccc;
-    }
-    .btn-open:hover { background: #3a3d47; }
-
-    .comparison-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1a1d27;
-      border-top: 1px solid #2a2d37;
-      padding: 12px 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      z-index: 100;
-      font-size: 0.85rem;
-    }
-    .comparison-bar span {
-      color: #888;
-    }
-    .comparison-bar strong {
-      color: #4CAF50;
-    }
-
-    /* Side-by-side compare mode */
-    .compare-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      padding: 40px;
-    }
-    .compare-overlay.active { display: flex; }
-    .compare-overlay .preview {
-      width: 400px;
-      height: 400px;
-      border-radius: 16px;
-    }
-    .compare-overlay .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <h1>Curio SVG - Elige tu version</h1>
-  <p class="subtitle">Haz clic en "Elegir" para marcar tu favorita. Haz clic en "Abrir" para verla a pantalla completa.</p>
-
-  <div class="grid" id="grid"></div>
-
-  <div class="comparison-bar">
-    <span>Seleccionada:</span>
-    <strong id="selectedLabel">ninguna</strong>
-  </div>
-
-  <script>
-    const versions = [
-      {
-        id: 'original',
-        title: 'Original (PNG)',
-        desc: 'Imagen de referencia',
-        file: 'curio.png',
-        isImage: true,
-        isRef: true
-      },
-      {
-        id: 'v1',
-        title: 'V1 - Radial Gradient',
-        desc: 'Un path + radialGradient + inner shadow',
-        file: 'v1.svg'
-      },
-      {
-        id: 'v2',
-        title: 'V2 - Multi Gradient',
-        desc: 'Dos capas con gradientes para base y highlight',
-        file: 'v2.svg'
-      },
-      {
-        id: 'v3',
-        title: 'V3 - SVG Filters',
-        desc: 'Specular lighting + filtros para efecto 3D',
-        file: 'v3.svg'
-      },
-      {
-        id: 'v4',
-        title: 'V4 - Flat Moderno',
-        desc: 'Estilo flat con inner shadow sutil',
-        file: 'v4.svg'
-      },
-      {
-        id: 'v5',
-        title: 'V5 - Mesh Gradient',
-        desc: 'Multiples gradientes radiales superpuestos',
-        file: 'v5.svg'
-      },
-      {
-        id: 'v6',
-        title: 'V6 - Ellipse-Based',
-        desc: 'Cuerpo construido con elipses superpuestas',
-        file: 'v6.svg'
-      },
-      {
-        id: 'v7',
-        title: 'V7 - Painterly',
-        desc: 'Capas de color progresivas estilo pintura',
-        file: 'v7.svg'
-      },
-      {
-        id: 'v8',
-        title: 'V8 - VTracer / Detallado',
-        desc: 'Conversion automatica o manual detallado',
-        file: 'v8.svg'
-      },
-      {
-        id: 'v9',
-        title: 'V9 - Minimalista',
-        desc: 'Minimo de elementos posible',
-        file: 'v9.svg'
-      },
-      {
-        id: 'v10',
-        title: 'V10 - Glass / Glossy',
-        desc: 'Efecto cristal con reflejos prominentes',
-        file: 'v10.svg'
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Curio SVG - Comparar versiones</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    ];
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #0f1117;
+        color: #e0e0e0;
+        padding: 30px;
+      }
+      h1 {
+        text-align: center;
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+        color: #fff;
+      }
+      .subtitle {
+        text-align: center;
+        color: #888;
+        margin-bottom: 30px;
+        font-size: 0.9rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .card {
+        background: #1a1d27;
+        border-radius: 16px;
+        padding: 20px;
+        border: 2px solid #2a2d37;
+        transition:
+          border-color 0.3s,
+          transform 0.2s;
+        cursor: pointer;
+        position: relative;
+      }
+      .card:hover {
+        border-color: #42a5f5;
+        transform: translateY(-4px);
+      }
+      .card.selected {
+        border-color: #4caf50;
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+      }
+      .card.selected::after {
+        content: 'ELEGIDA';
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #4caf50;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .card.reference {
+        border-color: #ff9800;
+      }
+      .card.reference::after {
+        content: 'ORIGINAL';
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #ff9800;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .card-desc {
+        font-size: 0.78rem;
+        color: #888;
+        margin-bottom: 16px;
+      }
+      .preview {
+        width: 100%;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(ellipse at center, #e8f4fd, #c5dff0);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+      .preview img,
+      .preview object {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+      }
+      .preview object {
+        pointer-events: none;
+      }
+      .actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-select {
+        background: #2196f3;
+        color: #fff;
+      }
+      .btn-select:hover {
+        background: #1976d2;
+      }
+      .btn-open {
+        background: #2a2d37;
+        color: #ccc;
+      }
+      .btn-open:hover {
+        background: #3a3d47;
+      }
 
-    const grid = document.getElementById('grid');
-    const selectedLabel = document.getElementById('selectedLabel');
+      .comparison-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #1a1d27;
+        border-top: 1px solid #2a2d37;
+        padding: 12px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        z-index: 100;
+        font-size: 0.85rem;
+      }
+      .comparison-bar span {
+        color: #888;
+      }
+      .comparison-bar strong {
+        color: #4caf50;
+      }
 
-    versions.forEach(v => {
-      const card = document.createElement('div');
-      card.className = 'card' + (v.isRef ? ' reference' : '');
-      card.id = 'card-' + v.id;
+      /* Side-by-side compare mode */
+      .compare-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        padding: 40px;
+      }
+      .compare-overlay.active {
+        display: flex;
+      }
+      .compare-overlay .preview {
+        width: 400px;
+        height: 400px;
+        border-radius: 16px;
+      }
+      .compare-overlay .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Curio SVG - Elige tu version</h1>
+    <p class="subtitle">
+      Haz clic en "Elegir" para marcar tu favorita. Haz clic en "Abrir" para verla a pantalla
+      completa.
+    </p>
 
-      const preview = v.isImage
-        ? `<img src="${v.file}" alt="${v.title}">`
-        : `<object data="${v.file}" type="image/svg+xml">${v.title}</object>`;
+    <div class="grid" id="grid"></div>
 
-      card.innerHTML = `
+    <div class="comparison-bar">
+      <span>Seleccionada:</span>
+      <strong id="selectedLabel">ninguna</strong>
+    </div>
+
+    <script>
+      const versions = [
+        {
+          id: 'original',
+          title: 'Original (PNG)',
+          desc: 'Imagen de referencia',
+          file: 'curio.png',
+          isImage: true,
+          isRef: true,
+        },
+        {
+          id: 'v1',
+          title: 'V1 - Radial Gradient',
+          desc: 'Un path + radialGradient + inner shadow',
+          file: 'v1.svg',
+        },
+        {
+          id: 'v2',
+          title: 'V2 - Multi Gradient',
+          desc: 'Dos capas con gradientes para base y highlight',
+          file: 'v2.svg',
+        },
+        {
+          id: 'v3',
+          title: 'V3 - SVG Filters',
+          desc: 'Specular lighting + filtros para efecto 3D',
+          file: 'v3.svg',
+        },
+        {
+          id: 'v4',
+          title: 'V4 - Flat Moderno',
+          desc: 'Estilo flat con inner shadow sutil',
+          file: 'v4.svg',
+        },
+        {
+          id: 'v5',
+          title: 'V5 - Mesh Gradient',
+          desc: 'Multiples gradientes radiales superpuestos',
+          file: 'v5.svg',
+        },
+        {
+          id: 'v6',
+          title: 'V6 - Ellipse-Based',
+          desc: 'Cuerpo construido con elipses superpuestas',
+          file: 'v6.svg',
+        },
+        {
+          id: 'v7',
+          title: 'V7 - Painterly',
+          desc: 'Capas de color progresivas estilo pintura',
+          file: 'v7.svg',
+        },
+        {
+          id: 'v8',
+          title: 'V8 - VTracer / Detallado',
+          desc: 'Conversion automatica o manual detallado',
+          file: 'v8.svg',
+        },
+        {
+          id: 'v9',
+          title: 'V9 - Minimalista',
+          desc: 'Minimo de elementos posible',
+          file: 'v9.svg',
+        },
+        {
+          id: 'v10',
+          title: 'V10 - Glass / Glossy',
+          desc: 'Efecto cristal con reflejos prominentes',
+          file: 'v10.svg',
+        },
+      ];
+
+      const grid = document.getElementById('grid');
+      const selectedLabel = document.getElementById('selectedLabel');
+
+      versions.forEach((v) => {
+        const card = document.createElement('div');
+        card.className = 'card' + (v.isRef ? ' reference' : '');
+        card.id = 'card-' + v.id;
+
+        const preview = v.isImage
+          ? `<img src="${v.file}" alt="${v.title}">`
+          : `<object data="${v.file}" type="image/svg+xml">${v.title}</object>`;
+
+        card.innerHTML = `
         <div class="card-title">${v.title}</div>
         <div class="card-desc">${v.desc}</div>
         <div class="preview">${preview}</div>
-        ${!v.isRef ? `
+        ${
+          !v.isRef
+            ? `
         <div class="actions">
           <button class="btn btn-select" onclick="selectVersion('${v.id}', '${v.title}')">Elegir</button>
           <button class="btn btn-open" onclick="window.open('${v.file}', '_blank')">Abrir</button>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
       `;
-      grid.appendChild(card);
-    });
+        grid.appendChild(card);
+      });
 
-    function selectVersion(id, title) {
-      document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-      document.getElementById('card-' + id).classList.add('selected');
-      selectedLabel.textContent = title;
-    }
-  </script>
-</body>
+      function selectVersion(id, title) {
+        document.querySelectorAll('.card.selected').forEach((c) => c.classList.remove('selected'));
+        document.getElementById('card-' + id).classList.add('selected');
+        selectedLabel.textContent = title;
+      }
+    </script>
+  </body>
 </html>
