@@ -19,6 +19,10 @@ _Read a message, click any word, get its description inline — local-first, no 
 
 <br />
 
+![Curio — la mascota en acción: morph al escribir y monóculo al inspeccionar](docs/curio-mascot.gif)
+
+<br />
+
 ![Curio — interfaz de chat monocroma con selector de modelo](docs/screenshot.png)
 
 </div>
