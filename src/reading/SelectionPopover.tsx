@@ -39,7 +39,7 @@ export default function SelectionPopover() {
   // (which would yank focus back to the close button and lose the return target).
   const collapse = useCallback(() => setExpanded(false), [setExpanded]);
 
-  const { refs, floatingStyles, context } = useFloating({
+  const { refs, floatingStyles, context, isPositioned } = useFloating({
     open: true,
     onOpenChange: (open) => {
       if (!open) setSelection(null);
@@ -113,7 +113,15 @@ export default function SelectionPopover() {
           modal is open, so its position is always current for the morph back. The surface
           itself unmounts when expanded, so only ONE element ever carries the layoutId. */}
       <FloatingPortal>
-        <div ref={refs.setFloating} style={floatingStyles} className="z-50" {...getFloatingProps()}>
+        <div
+          ref={refs.setFloating}
+          // Hide until Floating UI has an actual computed position — otherwise the first
+          // frame (or a mis-timed re-anchor, e.g. after switching mode and back) can paint
+          // the popover at the viewport's top-left corner before it snaps to the word.
+          style={{ ...floatingStyles, visibility: isPositioned ? 'visible' : 'hidden' }}
+          className="z-50"
+          {...getFloatingProps()}
+        >
           {!expanded && (
             <motion.div
               layoutId={SURFACE_LAYOUT_ID}

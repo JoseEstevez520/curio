@@ -16,8 +16,14 @@ export const MASCOT_MORPH: Transition = { duration: 0.5, ease: [0.32, 0.72, 0, 1
  */
 export const MODAL_MORPH: Transition = { duration: 0.44, ease: [0.32, 0.72, 0, 1] };
 
-/** A clean, quick opacity fade for content entering on top of a morph (text, not object). */
-export const CONTENT_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1], delay: 0.08 };
+/**
+ * Fade for content entering on top of a morph (text, not object). The delay holds the text
+ * hidden until the box has almost finished growing — the morph curve decelerates, so by
+ * ~0.3s it's ~95% to its final size. Fading the text in only then means it never renders
+ * while the box is still being scaled, so it's never seen stretched (DESIGN §9.3: the object
+ * morphs, the text arrives after).
+ */
+export const CONTENT_FADE: Transition = { duration: 0.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 };
 
 /** The flat modal scrim fading in/out — same decelerating ease as the rest, no bounce. */
 export const SCRIM_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1] };
