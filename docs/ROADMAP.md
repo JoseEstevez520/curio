@@ -37,13 +37,13 @@ A clean, monochrome, Linear-inspired chat UI. You read an LLM message, click or 
 - [x] `feat: design tokens file (color scale, spacing, type scale, radii — no shadows)`
 - [x] `feat: Ollama client wrapper (list models, chat completion, streaming)`
 - [x] `feat: send message → stream assistant reply into the message list`
-- [ ] `feat: model picker sourced from locally installed Ollama models`
+- [x] `feat: model picker sourced from locally installed Ollama models`
 - [x] `feat: tokenize assistant message into hoverable/clickable spans`
 - [x] `feat: click a span → open inline description popover (loading state)`
 - [x] `feat: build the "describe term in context" prompt and call Ollama`
 - [x] `feat: render plain-text description in the popover, with close/dismiss`
 - [x] `feat: cache descriptions per (term, message) to avoid recompute`
-- [ ] `fix: handle Ollama-not-running / model-missing with a friendly banner`
+- [x] `fix: handle Ollama-not-running / model-missing with a friendly banner`
 - [ ] `docs: quickstart GIF/screenshot in README`
 - [ ] `chore: tag v0.0`
 
