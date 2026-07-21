@@ -1,16 +1,21 @@
 import { useChatStore } from '../app/store';
-import { useInitModels, useSendMessage } from './useChat';
+import { useSendMessage } from './useChat';
+import { useModels } from './useModels';
+import Header from './Header';
+import OllamaBanner from './OllamaBanner';
 import Message from './Message';
 import Composer from './Composer';
 
 export default function ChatView() {
   const messages = useChatStore((s) => s.messages);
   const isStreaming = useChatStore((s) => s.messages.some((m) => m.streaming));
-  useInitModels();
+  const { models, status, reload } = useModels();
   const send = useSendMessage();
 
   return (
     <div className="flex h-screen flex-col bg-bg">
+      <Header models={models} />
+      <OllamaBanner status={status} onRetry={() => void reload()} />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-measure px-6 py-12">
           {messages.length === 0 ? (

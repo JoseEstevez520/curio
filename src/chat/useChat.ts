@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
 import { chatStream, OllamaError } from '../ollama/client';
-import { listModels } from '../ollama/models';
 import { CHAT_SYSTEM_PROMPT } from '../ollama/prompts';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
@@ -13,22 +12,6 @@ export function describeError(e: unknown): string {
     return e.message;
   }
   return e instanceof Error ? e.message : 'Something went wrong.';
-}
-
-/** On mount, load installed models and auto-select the first if none is chosen. */
-export function useInitModels() {
-  useEffect(() => {
-    const controller = new AbortController();
-    listModels(controller.signal)
-      .then((models) => {
-        const { model, setModel } = useChatStore.getState();
-        if (!model && models.length > 0) setModel(models[0].name);
-      })
-      .catch(() => {
-        /* Ollama unreachable — the banner slice surfaces this. */
-      });
-    return () => controller.abort();
-  }, []);
 }
 
 /** Returns a `send` that posts a user message and streams the assistant reply. */
