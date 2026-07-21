@@ -36,7 +36,7 @@ A clean, monochrome, Linear-inspired chat UI. You read an LLM message, click or 
 - [x] `feat: static chat layout (message list + composer), monochrome tokens`
 - [x] `feat: design tokens file (color scale, spacing, type scale, radii — no shadows)`
 - [x] `feat: Ollama client wrapper (list models, chat completion, streaming)`
-- [ ] `feat: send message → stream assistant reply into the message list`
+- [x] `feat: send message → stream assistant reply into the message list`
 - [ ] `feat: model picker sourced from locally installed Ollama models`
 - [ ] `feat: tokenize assistant message into hoverable/clickable spans`
 - [ ] `feat: click a span → open inline description popover (loading state)`

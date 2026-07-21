@@ -1,10 +1,13 @@
 import { useChatStore } from '../app/store';
+import { useInitModels, useSendMessage } from './useChat';
 import Message from './Message';
 import Composer from './Composer';
 
 export default function ChatView() {
   const messages = useChatStore((s) => s.messages);
-  const addUserMessage = useChatStore((s) => s.addUserMessage);
+  const isStreaming = useChatStore((s) => s.messages.some((m) => m.streaming));
+  useInitModels();
+  const send = useSendMessage();
 
   return (
     <div className="flex h-screen flex-col bg-bg">
@@ -22,7 +25,7 @@ export default function ChatView() {
           )}
         </div>
       </div>
-      <Composer onSend={addUserMessage} />
+      <Composer onSend={send} disabled={isStreaming} />
     </div>
   );
 }
