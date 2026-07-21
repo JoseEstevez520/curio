@@ -1,135 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Curio - Prototipo Logo Interactivo</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Curio - Prototipo Logo Interactivo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f5f5f5;
-      overflow: hidden;
-    }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        overflow: hidden;
+      }
 
-    .logo {
-      position: relative;
-      width: 400px;
-      height: 400px;
-    }
+      .logo {
+        position: relative;
+        width: 400px;
+        height: 400px;
+      }
 
-    .logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-      user-select: none;
-    }
+      .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        user-select: none;
+      }
 
-    .eye {
-      position: absolute;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .eye {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .eye-left {
-      top: 54%;
-      left: 33%;
-      transform: translate(-50%, -50%);
-    }
+      .eye-left {
+        top: 54%;
+        left: 33%;
+        transform: translate(-50%, -50%);
+      }
 
-    .eye-right {
-      top: 54%;
-      left: 58.5%;
-      transform: translate(-50%, -50%);
-    }
+      .eye-right {
+        top: 54%;
+        left: 58.5%;
+        transform: translate(-50%, -50%);
+      }
 
-    .pupil {
-      width: 42px;
-      height: 42px;
-      background: radial-gradient(circle at 38% 35%, #333 0%, #111 60%, #000 100%);
-      border-radius: 50%;
-      position: relative;
-      transition: transform 0.06s ease-out;
-    }
+      .pupil {
+        width: 42px;
+        height: 42px;
+        background: radial-gradient(circle at 38% 35%, #333 0%, #111 60%, #000 100%);
+        border-radius: 50%;
+        position: relative;
+        transition: transform 0.06s ease-out;
+      }
 
-    .pupil::after {
-      content: '';
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.5));
-      border-radius: 50%;
-      top: 7px;
-      left: 8px;
-    }
+      .pupil::after {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.5));
+        border-radius: 50%;
+        top: 7px;
+        left: 8px;
+      }
 
-    /* Blink */
-    .eye.blink .pupil {
-      transform: scaleY(0.05) !important;
-      transition: transform 0.07s ease-in;
-    }
-  </style>
-</head>
-<body>
-  <div class="logo" id="logo">
-    <img src="curionuevo.png" alt="Curio">
-    <div class="eye eye-left" id="eyeL">
-      <div class="pupil" id="pupilL"></div>
+      /* Blink */
+      .eye.blink .pupil {
+        transform: scaleY(0.05) !important;
+        transition: transform 0.07s ease-in;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo" id="logo">
+      <img src="curionuevo.png" alt="Curio" />
+      <div class="eye eye-left" id="eyeL">
+        <div class="pupil" id="pupilL"></div>
+      </div>
+      <div class="eye eye-right" id="eyeR">
+        <div class="pupil" id="pupilR"></div>
+      </div>
     </div>
-    <div class="eye eye-right" id="eyeR">
-      <div class="pupil" id="pupilR"></div>
-    </div>
-  </div>
 
-  <script>
-    const pupilL = document.getElementById('pupilL');
-    const pupilR = document.getElementById('pupilR');
-    const eyeL = document.getElementById('eyeL');
-    const eyeR = document.getElementById('eyeR');
-    const MAX_MOVE = 7;
+    <script>
+      const pupilL = document.getElementById('pupilL');
+      const pupilR = document.getElementById('pupilR');
+      const eyeL = document.getElementById('eyeL');
+      const eyeR = document.getElementById('eyeR');
+      const MAX_MOVE = 7;
 
-    function track(pupil, eye, mx, my) {
-      const r = eye.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = mx - cx;
-      const dy = my - cy;
-      const d = Math.sqrt(dx * dx + dy * dy) || 1;
-      const ratio = Math.min(d, 300) / 300;
-      pupil.style.transform = `translate(${(dx/d)*MAX_MOVE*ratio}px, ${(dy/d)*MAX_MOVE*ratio}px)`;
-    }
+      function track(pupil, eye, mx, my) {
+        const r = eye.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = mx - cx;
+        const dy = my - cy;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        const ratio = Math.min(d, 300) / 300;
+        pupil.style.transform = `translate(${(dx / d) * MAX_MOVE * ratio}px, ${(dy / d) * MAX_MOVE * ratio}px)`;
+      }
 
-    document.addEventListener('mousemove', e => {
-      track(pupilL, eyeL, e.clientX, e.clientY);
-      track(pupilR, eyeR, e.clientX, e.clientY);
-    });
+      document.addEventListener('mousemove', (e) => {
+        track(pupilL, eyeL, e.clientX, e.clientY);
+        track(pupilR, eyeR, e.clientX, e.clientY);
+      });
 
-    document.addEventListener('touchmove', e => {
-      const t = e.touches[0];
-      track(pupilL, eyeL, t.clientX, t.clientY);
-      track(pupilR, eyeR, t.clientX, t.clientY);
-    });
+      document.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        track(pupilL, eyeL, t.clientX, t.clientY);
+        track(pupilR, eyeR, t.clientX, t.clientY);
+      });
 
-    function blink() {
-      eyeL.classList.add('blink');
-      eyeR.classList.add('blink');
-      setTimeout(() => {
-        eyeL.classList.remove('blink');
-        eyeR.classList.remove('blink');
-      }, 130);
-    }
+      function blink() {
+        eyeL.classList.add('blink');
+        eyeR.classList.add('blink');
+        setTimeout(() => {
+          eyeL.classList.remove('blink');
+          eyeR.classList.remove('blink');
+        }, 130);
+      }
 
-    (function loop() {
-      setTimeout(() => { blink(); loop(); }, 2500 + Math.random() * 3500);
-    })();
-  </script>
-</body>
+      (function loop() {
+        setTimeout(
+          () => {
+            blink();
+            loop();
+          },
+          2500 + Math.random() * 3500,
+        );
+      })();
+    </script>
+  </body>
 </html>
