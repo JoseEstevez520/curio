@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { ChatMessage } from '../ollama/types';
+import type { Envelope } from '../catalog/schemas';
 
 export type Role = 'user' | 'assistant';
 
@@ -22,6 +23,14 @@ export interface DescriptionEntry {
 
 export function descriptionKey(messageId: string, term: string): string {
   return `${messageId} ${term.trim().toLowerCase()}`;
+}
+
+/** A cached / in-flight generative-UI result for the modal, keyed like descriptions. */
+export interface GenerativeEntry {
+  status: 'loading' | 'done' | 'error';
+  /** The validated component envelope, once generation succeeds. */
+  envelope?: Envelope;
+  error?: string;
 }
 
 /**
@@ -53,6 +62,8 @@ interface ChatState {
   expanded: boolean;
   /** Description cache + in-flight state, keyed by descriptionKey(). */
   descriptions: Record<string, DescriptionEntry>;
+  /** Generative-UI (modal) cache + in-flight state, keyed by descriptionKey(). */
+  generatives: Record<string, GenerativeEntry>;
 
   setModel: (model: string | null) => void;
   setDescribeModel: (model: string | null) => void;
@@ -69,6 +80,7 @@ interface ChatState {
   setExpanded: (expanded: boolean) => void;
 
   setDescription: (key: string, entry: DescriptionEntry) => void;
+  setGenerative: (key: string, entry: GenerativeEntry) => void;
 }
 
 function newId(): string {
@@ -82,6 +94,7 @@ export const useChatStore = create<ChatState>((set) => ({
   selection: null,
   expanded: false,
   descriptions: {},
+  generatives: {},
 
   setModel: (model) => set({ model }),
   setDescribeModel: (describeModel) => set({ describeModel }),
@@ -119,6 +132,8 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setDescription: (key, entry) =>
     set((s) => ({ descriptions: { ...s.descriptions, [key]: entry } })),
+
+  setGenerative: (key, entry) => set((s) => ({ generatives: { ...s.generatives, [key]: entry } })),
 }));
 
 /** Build the message list to send to Ollama for the chat completion. */
