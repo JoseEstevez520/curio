@@ -316,6 +316,41 @@
     }
   }
 
+  /* "Ver más" modal — the roomy home for the full description / generative UI.
+     Flat scrim (a dim, never a shadow — §5) behind a hairline-framed card that MORPHS
+     from the popover via Framer's layoutId (§9). No shadow, no glow, no glass. */
+  .curio-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: var(--color-scrim);
+  }
+  .curio-modal-center {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+    /* Transparent + click-through: only the card catches clicks, so a click anywhere
+       outside it reaches the scrim behind and shrinks back to the popover. */
+    pointer-events: none;
+  }
+  .curio-modal-card {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 560px;
+    max-height: min(80vh, 640px);
+    overflow: hidden;
+    background: var(--color-bg);
+    border: var(--border-hairline);
+    /* border-radius is set inline (style prop) so Framer can keep the corners crisp
+       while the box morphs between the popover and the modal. */
+  }
+
   /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
   .curio-popover {
     animation: curio-pop-in var(--dur-fast) var(--ease-out);

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   useFloating,
   offset,
@@ -12,8 +13,10 @@ import {
   FloatingPortal,
 } from '@floating-ui/react';
 import { useChatStore } from '../app/store';
+import { MODAL_MORPH, SURFACE_LAYOUT_ID } from '../app/motion';
 import { useDescribe } from '../lookup/useDescribe';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
+import DescribeModal from './DescribeModal';
 
 /** Sticky composer height reserved at the bottom so the popover never opens over it. */
 const COMPOSER_HEIGHT = 80;
@@ -30,6 +33,8 @@ const MIN_HEIGHT = 96;
 export default function SelectionPopover() {
   const selection = useChatStore((s) => s.selection);
   const setSelection = useChatStore((s) => s.setSelection);
+  const expanded = useChatStore((s) => s.expanded);
+  const setExpanded = useChatStore((s) => s.setExpanded);
 
   const { refs, floatingStyles, context } = useFloating({
     open: true,
@@ -56,7 +61,9 @@ export default function SelectionPopover() {
     whileElementsMounted: autoUpdate,
   });
 
-  const dismiss = useDismiss(context);
+  // While the modal is open the popover must not self-dismiss: a click on the scrim should
+  // shrink back to the popover, not clear the whole selection.
+  const dismiss = useDismiss(context, { enabled: !expanded });
   const role = useRole(context, { role: 'tooltip' });
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
@@ -98,15 +105,53 @@ export default function SelectionPopover() {
   if (!selection) return null;
 
   return (
-    <FloatingPortal>
-      <div
-        ref={refs.setFloating}
-        style={floatingStyles}
-        className={POPOVER_CLASS}
-        {...getFloatingProps()}
-      >
-        <DescriptionBody entry={entry} />
-      </div>
-    </FloatingPortal>
+    <>
+      {/* Small popover (the "vistazo"). The floating wrapper stays mounted even while the
+          modal is open, so its position is always current for the morph back. The surface
+          itself unmounts when expanded, so only ONE element ever carries the layoutId. */}
+      <FloatingPortal>
+        <div ref={refs.setFloating} style={floatingStyles} className="z-50" {...getFloatingProps()}>
+          {!expanded && (
+            <motion.div
+              layoutId={SURFACE_LAYOUT_ID}
+              transition={MODAL_MORPH}
+              className={POPOVER_CLASS}
+            >
+              <DescriptionBody entry={entry} />
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
+              >
+                Ver más
+              </button>
+            </motion.div>
+          )}
+        </div>
+      </FloatingPortal>
+
+      {/* Flat scrim (a dim, never a shadow — DESIGN §5). Fades on its own so the card can
+          morph cleanly underneath. Clicking it shrinks back to the popover. */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            key="curio-scrim"
+            className="curio-scrim"
+            onClick={() => setExpanded(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24 }}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Modal card — mounted/unmounted instantly (not inside AnimatePresence) so the
+          layoutId is unique on every commit and the morph both ways stays clean. */}
+      {expanded && (
+        <DescribeModal title={selection.text} entry={entry} onClose={() => setExpanded(false)} />
+      )}
+    </>
   );
 }
