@@ -1,4 +1,5 @@
 import type { ChatMessage } from './types';
+import { CATALOG, type CatalogEntryMeta } from '../catalog/catalog';
 
 /** System prompt for the assistant chat replies (the reading surface). */
 export const CHAT_SYSTEM_PROMPT =
@@ -38,6 +39,75 @@ export function buildDescribeMessages(
       content:
         `${convo}SENTENCE: "${sentence}"\n\nTERM: ${term}\n\n` +
         'Explain the term briefly, in the language of the text above.',
+    },
+  ];
+}
+
+/** Shared "here is what the reader clicked" block for the two generative stages. */
+function termContextBlock(term: string, sentence: string, conversation?: string): string {
+  const convo = conversation?.trim()
+    ? `CONVERSATION SO FAR (context, do not describe this):\n"""${conversation.trim()}"""\n\n`
+    : '';
+  return `${convo}SENTENCE: "${sentence}"\n\nTERM: ${term}\n\n`;
+}
+
+/**
+ * Stage 1 of generative UI — CHOOSE a component. The model reads the term in context and
+ * the one-line description of each catalog type, then picks the single best fit. Its output
+ * is grammar-constrained to `{ type, confidence }` (see typeChoiceJsonSchema), so this is a
+ * cheap classification, not a generation.
+ */
+export function buildTypeChoiceMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  const menu = CATALOG.map((c) => `- ${c.type}: ${c.whenToUse}`).join('\n');
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's presenter. A reader clicked a term while reading. Choose the SINGLE " +
+        'best way to present its description, from this fixed catalog:\n' +
+        `${menu}\n\n` +
+        'Pick the type whose shape genuinely fits the term in its context; when nothing fits ' +
+        'clearly, choose "plain-text". Report your confidence 0-1. Choose only — do not write ' +
+        'the description yet.',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}Choose the best catalog type.`,
+    },
+  ];
+}
+
+/**
+ * Stage 2 of generative UI — FILL the chosen component. Only the selected component's schema
+ * is passed as `format` (see dataJsonSchema), so the model just populates a small, focused
+ * shape. As with the plain describer, it MUST answer in the language of the text.
+ */
+export function buildFillMessages(
+  term: string,
+  sentence: string,
+  meta: CatalogEntryMeta,
+  conversation?: string,
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content:
+        'You are Curio\'s describer, filling a "' +
+        meta.title +
+        '" card (' +
+        meta.whenToUse +
+        ') about the clicked term, using ONLY the given JSON schema. Be concise and factual. ' +
+        'Fill only fields you are confident about; leave optional fields out if unsure. ' +
+        'CRITICAL: write every text value in the SAME LANGUAGE as the sentence and conversation ' +
+        '(Spanish text → Spanish values). Do not translate the term; describe it.',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}Fill the schema to describe the term.`,
     },
   ];
 }

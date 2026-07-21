@@ -50,10 +50,10 @@ validado con Zod**, con fallback a texto.
 **Slices (orden pensado para de-riesgar — el JSON llega cuando el sitio ya existe):**
 - [x] `feat: modal "ver más" desde el popover (aún con texto)` — monta el patrón poquito→más y el
   modal con morph/blur (DESIGN §9), sin tocar JSON todavía.
-- [ ] `feat: catálogo de componentes (tipos + esquemas Zod + envelope discriminado)`
-- [ ] `feat: renderer JSON→componente con fallback a texto (nunca crashea)`
+- [x] `feat: catálogo de componentes (tipos + esquemas Zod + envelope discriminado)`
+- [x] `feat: renderer JSON→componente con fallback a texto (nunca crashea)`
 - [ ] `feat: prompt "elige + rellena" con salida estructurada de Ollama (format = JSON Schema)`
-- [ ] `feat: DefinitionCard` · `feat: FactTable` · `feat: Timeline` · `feat: Comparison` ·
+- [x] `feat: DefinitionCard` · `feat: FactTable` · `feat: Timeline` · `feat: Comparison` ·
   `feat: Steps/List`  *(un componente por slice; paralelizable, uno por agente)*
 - [ ] `feat: skeleton del componente mientras genera`
 - [ ] `test: validación de esquema (válido, inválido, parcial)`

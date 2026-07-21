@@ -2,29 +2,54 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FloatingPortal } from '@floating-ui/react';
 import { MODAL_MORPH, CONTENT_FADE, SURFACE_LAYOUT_ID } from '../app/motion';
-import DescriptionBody from './DescriptionBody';
-import type { DescriptionEntry } from '../app/store';
+import { useGenerative } from '../lookup/useGenerative';
+import CatalogRenderer from '../catalog/CatalogRenderer';
 
 interface DescribeModalProps {
   /** The word or phrase being described — shown as the modal title. */
   title: string;
-  entry?: DescriptionEntry;
+  messageId: string;
+  /** The block/sentence the term sits in (context for generation). */
+  context: string;
+  /** Plain gloss already shown in the popover; the fallback when no richer component fits. */
+  glossText: string;
   /** Shrink back to the popover. */
   onClose: () => void;
 }
 
+/** Loading state while the component is generated — the quiet three-dot indicator. */
+function GenerativeLoading() {
+  return (
+    <div className="curio-dots" role="status" aria-label="Generando descripción">
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </div>
+  );
+}
+
 /**
- * The "ver más" modal: the roomy home for a full description (and, in v1, generative-UI
- * components). It shares `SURFACE_LAYOUT_ID` with the popover, so opening it reads as the
- * small card GROWING into place — a smooth iOS-style morph, never a pop (DESIGN §9).
+ * The "ver más" modal: the roomy home for a full description — in v1, a generative-UI
+ * component chosen and filled by the model (with a plain-text fallback). It shares
+ * `SURFACE_LAYOUT_ID` with the popover, so opening it reads as the small card GROWING into
+ * place — a smooth iOS-style morph, never a pop (DESIGN §9).
  *
  * The OBJECT (the card) morphs; the TEXT enters with a clean fade on top, so no text is
  * ever scaled between two sizes (DESIGN §9.3, UI-PREFERENCES §3). The flat scrim behind
  * lives in SelectionPopover so it can fade independently of the morph.
  */
-export default function DescribeModal({ title, entry, onClose }: DescribeModalProps) {
+export default function DescribeModal({
+  title,
+  messageId,
+  context,
+  glossText,
+  onClose,
+}: DescribeModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<Element | null>(null);
+
+  // The modal being mounted means it's open; generate the rich component now (lazy).
+  const gen = useGenerative(true, messageId, title, context, glossText);
 
   // Escape closes; focus moves to the close button on open and returns to the trigger
   // on close (DESIGN §8). Capture phase so Escape reaches us before anything else.
@@ -77,7 +102,15 @@ export default function DescribeModal({ title, entry, onClose }: DescribeModalPr
               </button>
             </header>
             <div className="min-h-0 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-              <DescriptionBody entry={entry} />
+              {!gen || gen.status === 'loading' ? (
+                <GenerativeLoading />
+              ) : gen.status === 'error' ? (
+                <p className="text-fg-muted">{gen.error}</p>
+              ) : gen.envelope ? (
+                <CatalogRenderer envelope={gen.envelope} />
+              ) : (
+                <p className="whitespace-pre-wrap">{glossText}</p>
+              )}
             </div>
           </motion.div>
         </motion.div>
