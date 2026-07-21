@@ -208,7 +208,7 @@
   }
   /* Idle breathing — a slow, barely-there rise and swell. */
   .curio-logo-alive {
-    animation: curio-breathe 4s var(--ease-in-out) infinite;
+    animation: curio-breathe 3.6s var(--ease-in-out) infinite;
     will-change: transform;
   }
   @keyframes curio-breathe {
@@ -217,7 +217,7 @@
       transform: scale(1) translateY(0);
     }
     50% {
-      transform: scale(1.03) translateY(-3px);
+      transform: scale(1.05) translateY(-6px);
     }
   }
 

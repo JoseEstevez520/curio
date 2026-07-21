@@ -22,9 +22,9 @@ export default function Header({ models, showBrand }: HeaderProps) {
             <motion.div
               layoutId="curio-mascot"
               transition={MASCOT_MORPH}
-              style={{ width: 26, height: 26 }}
+              style={{ width: 30, height: 30 }}
             >
-              <CurioLogo size={26} decorative />
+              <CurioLogo size={30} decorative />
             </motion.div>
             {/* The wordmark isn't morphed (scaling text reads badly); it just fades in
                 once the mascot has settled. */}

@@ -32,9 +32,9 @@ export default function ChatView() {
                 layoutId="curio-mascot"
                 transition={MASCOT_MORPH}
                 className="mb-4"
-                style={{ width: 72, height: 72 }}
+                style={{ width: 112, height: 112 }}
               >
-                <CurioLogo size={72} alive track decorative />
+                <CurioLogo size={112} alive track decorative />
               </motion.div>
               <h1 className="text-2xl font-bold tracking-tight text-fg">Curio</h1>
               <p className="mt-2 text-base">
