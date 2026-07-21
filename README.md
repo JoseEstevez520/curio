@@ -1,59 +1,111 @@
+<div align="center">
+
 # Curio
 
-Lees un mensaje de un LLM (o cualquier texto), haces clic o pasas el ratón sobre una palabra y
-aparece una **descripción completa** ahí mismo. Para curiosos e investigadores: fin del
-copiar-pegar-buscar-volver.
+**Lee, haz clic en una palabra y entiéndela ahí mismo — sin salir del texto.**
 
-Piezas: **entidades** + **lazy loading** (la descripción se genera al clic/hover) + **modelos
-pequeños** en **local con Ollama** (sin API key). Con el tiempo, en vez de texto plano, una
-**UI generativa** (componentes de un catálogo que el modelo elige y rellena). Estilo limpio,
-monocromo, tipo Linear, sin sombras.
+_Read a message, click any word, get its description inline — local-first, no API keys._
+
+<br />
+
+[![React](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Ollama](https://img.shields.io/badge/Ollama-local-000000?logo=ollama&logoColor=white)](https://ollama.com)
+![local-first](https://img.shields.io/badge/local--first-sin_API_keys-18181B)
+
+<br />
 
 ![Curio — interfaz de chat monocroma con selector de modelo](docs/screenshot.png)
 
-> Estado: **v0 funcional** — chat con Ollama en streaming y clic en cualquier palabra para
-> ver su descripción en un popover en línea. (La captura muestra la interfaz inicial; graba un
-> GIF del popover en acción para lucir la interacción.)
+</div>
 
-## Arrancar en un chat nuevo
+---
 
-Abre un chat nuevo y escribe **`start`**. A partir de ahí, se arranca todo desde
-[`START.md`](START.md). No hace falta explicar nada más.
+## ¿Qué es?
 
-## Documentación
+Curio es una **superficie de lectura local-first**. Lees un mensaje de un LLM (o cualquier texto) en un chat limpio, haces **clic en cualquier palabra** —o **seleccionas una frase**— y aparece una **descripción en contexto** justo ahí, en un popover en línea. Sin copiar, pegar, buscar y volver.
 
-- [`START.md`](START.md) — cómo arranca un chat nuevo (léelo primero).
-- [`IDEA.md`](IDEA.md) — qué es Curio y por qué.
-- [`CLAUDE.md`](CLAUDE.md) — reglas de trabajo (mandan sobre todo).
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — stack, entidades, Ollama, UI generativa.
-- [`docs/DESIGN.md`](docs/DESIGN.md) — sistema de diseño (monocromo, Linear, sin sombras).
-- [`docs/ROADMAP.md`](docs/ROADMAP.md) — versiones y slices (la lista de tareas).
-- [`docs/AGENTS.md`](docs/AGENTS.md) — el equipo de agentes.
-- [`EXPERIMENTS.md`](EXPERIMENTS.md) · [`CHANGELOG.md`](CHANGELOG.md) — dónde vamos.
+Todo corre en tu máquina a través de **Ollama** con modelos pequeños: **sin claves de API y sin nube**.
 
-## Ejecutar en local
+## Características (v0)
 
-Requisitos: **Node 18+** y **[Ollama](https://ollama.com)** corriendo en local (sin API keys).
+- 💬 **Chat local con Ollama** en streaming, con selector del modelo instalado.
+- 👆 **Clic en cualquier palabra** → descripción de esa palabra en su contexto.
+- ✍️ **Selecciona una frase** (2+ palabras) → descripción de todo lo seleccionado.
+- 📝 **Markdown en las respuestas** (negritas, listas, encabezados, código, tablas) manteniendo cada palabra clicable.
+- ⚡ **Caché por término** (mensaje + palabra) para no recalcular lo ya visto.
+- 🌐 **Responde en el idioma de la conversación**.
+- 🎛️ **Streaming del descriptor** con cierre por Escape o clic fuera; banner amable si Ollama no corre o no hay modelos.
+- 🎨 **Estilo monocromo tipo iOS/Linear, sin sombras** — jerarquía por espacio y filetes de 1px.
+
+## Cómo funciona
+
+La idea son tres piezas:
+
+- **Entidades** — cualquier palabra (o selección) del mensaje es clicable.
+- **Lazy loading** — nada se calcula por adelantado: la descripción se genera **bajo demanda** al hacer clic o seleccionar.
+- **Modelo pequeño local** — la descripción la genera un modelo pequeño en **Ollama**, con la palabra + la frase de contexto, y se transmite en streaming al popover.
+
+Lo que viene en **v1** es la **UI generativa**: en vez de texto plano, el modelo elige un **componente de un catálogo fijo** (ficha de definición, línea de tiempo, tabla comparativa, mapa, etc.) y devuelve **JSON estructurado** que la app valida y renderiza. Detalle en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Empezar
+
+**Requisitos:** **Node 18+** y **[Ollama](https://ollama.com)** corriendo en local (sin API keys).
 
 1. **Arranca Ollama** y descarga un modelo pequeño:
+
    ```bash
    ollama serve                 # deja el daemon en http://localhost:11434
    ollama pull llama3.2:3b      # o qwen2.5:3b-instruct; en equipos flojos, qwen2.5:1.5b
    ```
-2. **Instala dependencias y levanta la app:**
+
+2. **Instala y levanta la app:**
+
    ```bash
    npm install
    npm run dev                  # http://localhost:5173
    ```
 
-El frontend habla con Ollama a través del proxy `/ollama` del dev server de Vite, así que
-**no hay que configurar CORS ni `OLLAMA_ORIGINS`**. Si Ollama no está corriendo, la app lo
-avisará (banner de onboarding, en un slice posterior).
+El frontend habla con Ollama a través del proxy **`/ollama`** del dev server de Vite, así que **no hay que tocar CORS ni `OLLAMA_ORIGINS`**.
 
-Scripts útiles: `npm run build` (producción), `npm run typecheck`, `npm run lint`,
-`npm run format`.
+### Otros scripts
 
-## Cómo se trabaja
+| Script              | Qué hace                          |
+| ------------------- | --------------------------------- |
+| `npm run build`     | Build de producción (`tsc` + Vite)|
+| `npm run preview`   | Sirve el build de producción      |
+| `npm run lint`      | ESLint (`lint:fix` para arreglar) |
+| `npm run typecheck` | Chequeo de tipos con TypeScript   |
+| `npm run format`    | Prettier (`format:check` sólo mira)|
 
-Por **slices pequeños**, con **muchos commits**, en **versiones** (tags `vX.Y`), y con **varios
-agentes** en paralelo cuando conviene. Local siempre: **sin API keys**, todo por **Ollama**.
+## Stack
+
+**Usado hoy (v0):**
+
+- **Vite 6** — dev server y build (incluye el proxy `/ollama`).
+- **React 18** + **TypeScript** — UI y tipos como contrato.
+- **Tailwind CSS** — estilos monocromos, sin librería de componentes.
+- **Zustand** — estado del chat y la UI.
+- **Floating UI** (`@floating-ui/react`) — posicionamiento del popover en línea.
+- **react-markdown** + **remark-gfm** — render de las respuestas en Markdown.
+
+**Próximamente (v1):** **Zod** para validar el JSON del catálogo de UI generativa (aún no instalado).
+
+## Estado y roadmap
+
+- ✅ **v0.0** (tag [`v0.0`](https://github.com/JoseEstevez520/curio/releases/tag/v0.0)) — descripción en texto plano al clic, todo el bucle funcionando en local.
+- 🔜 **v1** — **UI generativa** (catálogo de componentes elegidos y rellenados por el modelo).
+
+Detalle y slices en [`docs/ROADMAP.md`](docs/ROADMAP.md). Más contexto:
+
+- [`IDEA.md`](IDEA.md) — qué es Curio y por qué.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — stack, entidades, Ollama, UI generativa.
+- [`docs/DESIGN.md`](docs/DESIGN.md) — sistema de diseño (monocromo, Linear, sin sombras).
+- [`docs/AGENTS.md`](docs/AGENTS.md) — el equipo de agentes.
+- [`CHANGELOG.md`](CHANGELOG.md) · [`EXPERIMENTS.md`](EXPERIMENTS.md) — histórico y pruebas.
+
+## Privacidad / local-first
+
+Todo corre en **local** a través de **Ollama**: los modelos, las respuestas del chat y las descripciones. **Sin claves de API, sin llamadas a la nube.** Funciona offline una vez tienes el modelo descargado.
