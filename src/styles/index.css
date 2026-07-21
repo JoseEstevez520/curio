@@ -29,9 +29,18 @@
     color: var(--color-accent);
     cursor: pointer;
   }
-  /* The word whose description popover is open stays highlighted (like hover). */
+  /* The word whose description popover is open stays highlighted: accent text plus a
+     subtle continuous blue fill, so a clicked word and a selected phrase read as the
+     same "blue unit". The negative inline margin offsets the padding so text never
+     shifts, and box-decoration-break keeps the fill continuous across line wraps. */
   .entity-open {
     color: var(--color-accent);
+    background: var(--color-accent-subtle);
+    border-radius: var(--radius-xs);
+    margin: 0 -2px;
+    padding: 0 2px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
   /* Open state: the one word whose description is showing turns accent, with a
      quick one-shot flash so the click feels acknowledged. */

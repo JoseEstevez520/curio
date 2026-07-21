@@ -84,6 +84,19 @@ export default function SelectionPopover() {
     return () => el.classList.remove('entity-open');
   }, [selection]);
 
+  // Paint one continuous blue band over a selected phrase via the CSS Custom Highlight
+  // API — so a multi-word selection reads as a single unit, not per-word boxes. Styled
+  // by ::highlight(curio-selection) in tokens.css. No-ops where the API is unsupported.
+  useEffect(() => {
+    const range = selection?.range;
+    if (!range) return;
+    if (typeof Highlight === 'undefined' || !CSS.highlights) return;
+    CSS.highlights.set('curio-selection', new Highlight(range));
+    return () => {
+      CSS.highlights.delete('curio-selection');
+    };
+  }, [selection]);
+
   // Hook must run every render; it no-ops when there is no active selection.
   const entry = useDescribe(
     Boolean(selection),

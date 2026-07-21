@@ -229,9 +229,20 @@ body {
   line-height: var(--leading-relaxed);
 }
 
-/* Selection uses the accent-tinted token so reading/copying stay unhindered (§8) */
+/* Native drag-selection: one continuous accent-tinted band (not choppy per-word
+   boxes), so even mid-drag a phrase reads as a single unit while reading/copying stay
+   unhindered (§8). */
 ::selection {
-  background-color: var(--color-selection);
+  background-color: var(--color-accent-subtle);
+  color: var(--color-fg);
+}
+
+/* Persisted phrase highlight (CSS Custom Highlight API): the same continuous blue band
+   stays under a selected phrase while its description popover is open. Set/cleared from
+   SelectionPopover; unsupported browsers simply render nothing here. */
+::highlight(curio-selection) {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-fg);
 }
 
 /* Respect reduced motion (§7) */
