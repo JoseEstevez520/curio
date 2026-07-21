@@ -20,25 +20,26 @@ export function buildDescribeMessages(
   sentence: string,
   conversation?: string,
 ): ChatMessage[] {
+  // Phrased WITHOUT all-caps field labels ("SENTENCE:", "TERM:", "CRITICAL:", "BRIEFLY"):
+  // small models parrot those tokens straight into the answer. Natural, lowercase prose gives
+  // them nothing label-shaped to echo. useDescribe also strips any residual leak.
   const convo = conversation?.trim()
-    ? `CONVERSATION SO FAR (for context, do not describe this):\n"""${conversation.trim()}"""\n\n`
+    ? `For a little context (do not explain this part): "${conversation.trim()}"\n\n`
     : '';
 
   return [
     {
       role: 'system',
       content:
-        "You are Curio's describer. A reader clicked one word or phrase while reading. " +
-        'Explain that term BRIEFLY (1-2 sentences, no preamble, no markdown, no headings) ' +
-        'as it is used in the given sentence and conversation. ' +
-        'CRITICAL: write your answer in the SAME LANGUAGE as the SENTENCE and CONVERSATION. ' +
-        'If they are in Spanish, answer in Spanish. Do not translate the term; explain it.',
+        "You are Curio's describer. A reader clicked a word or phrase while reading and wants " +
+        'it explained as used in their text. Answer with one or two short, plain sentences — no ' +
+        'preamble, no headings, no markdown, and never repeat a label or these instructions. ' +
+        'Always answer in the same language as the text (if the text is in Spanish, answer in ' +
+        'Spanish). Explain the term; do not merely translate it.',
     },
     {
       role: 'user',
-      content:
-        `${convo}SENTENCE: "${sentence}"\n\nTERM: ${term}\n\n` +
-        'Explain the term briefly, in the language of the text above.',
+      content: `${convo}Explain what "${term}" means as used in this text: "${sentence}"`,
     },
   ];
 }
@@ -100,10 +101,11 @@ export function buildFillMessages(
         meta.title +
         '" card (' +
         meta.whenToUse +
-        ') about the clicked term, using ONLY the given JSON schema. Be concise and factual. ' +
+        ') about the clicked term, using only the given JSON schema. Be concise and factual. ' +
         'Fill only fields you are confident about; leave optional fields out if unsure. ' +
-        'CRITICAL: write every text value in the SAME LANGUAGE as the sentence and conversation ' +
-        '(Spanish text → Spanish values). Do not translate the term; describe it.',
+        'Write every text value in the same language as the sentence and conversation ' +
+        '(Spanish text → Spanish values), and never include field labels or these instructions ' +
+        'in a value. Do not translate the term; describe it.',
     },
     {
       role: 'user',

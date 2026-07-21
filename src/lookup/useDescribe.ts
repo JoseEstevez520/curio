@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type DescriptionEntry, type Message } from '../app/store';
 import { chatStream } from '../ollama/client';
 import { buildDescribeMessages } from '../ollama/prompts';
+import { cleanDescription } from './cleanDescription';
 import { describeError } from '../chat/useChat';
 
 /** A little conversation context: the user turn that prompted this reply, trimmed. */
@@ -67,10 +68,14 @@ export function useDescribe(
           signal: controller.signal,
         })) {
           acc += delta;
-          useChatStore.getState().setDescription(key, { status: 'loading', text: acc });
+          useChatStore
+            .getState()
+            .setDescription(key, { status: 'loading', text: cleanDescription(acc) });
         }
         settled = true;
-        useChatStore.getState().setDescription(key, { status: 'done', text: acc.trim() });
+        useChatStore
+          .getState()
+          .setDescription(key, { status: 'done', text: cleanDescription(acc) });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
         settled = true;
