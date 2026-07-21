@@ -48,7 +48,7 @@ una palabra → descripción en contexto (texto plano), estilo monocromo.
 validado con Zod**, con fallback a texto.
 
 **Slices (orden pensado para de-riesgar — el JSON llega cuando el sitio ya existe):**
-- [ ] `feat: modal "ver más" desde el popover (aún con texto)` — monta el patrón poquito→más y el
+- [x] `feat: modal "ver más" desde el popover (aún con texto)` — monta el patrón poquito→más y el
   modal con morph/blur (DESIGN §9), sin tocar JSON todavía.
 - [ ] `feat: catálogo de componentes (tipos + esquemas Zod + envelope discriminado)`
 - [ ] `feat: renderer JSON→componente con fallback a texto (nunca crashea)`
