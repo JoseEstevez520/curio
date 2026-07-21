@@ -49,6 +49,8 @@ interface ChatState {
   describeModel: string | null;
   /** The word/phrase whose description popover is open, or null. */
   selection: Selection | null;
+  /** True when the description has been expanded from the small popover into the modal. */
+  expanded: boolean;
   /** Description cache + in-flight state, keyed by descriptionKey(). */
   descriptions: Record<string, DescriptionEntry>;
 
@@ -63,6 +65,8 @@ interface ChatState {
   failMessage: (id: string, error: string) => void;
 
   setSelection: (selection: Selection | null) => void;
+  /** Grow the popover into the modal, or shrink it back to the popover. */
+  setExpanded: (expanded: boolean) => void;
 
   setDescription: (key: string, entry: DescriptionEntry) => void;
 }
@@ -76,6 +80,7 @@ export const useChatStore = create<ChatState>((set) => ({
   model: null,
   describeModel: null,
   selection: null,
+  expanded: false,
   descriptions: {},
 
   setModel: (model) => set({ model }),
@@ -107,7 +112,10 @@ export const useChatStore = create<ChatState>((set) => ({
       messages: s.messages.map((m) => (m.id === id ? { ...m, streaming: false, error } : m)),
     })),
 
-  setSelection: (selection) => set({ selection }),
+  // A new (or cleared) selection always starts collapsed — the modal never survives
+  // a change of the described word.
+  setSelection: (selection) => set({ selection, expanded: false }),
+  setExpanded: (expanded) => set({ expanded }),
 
   setDescription: (key, entry) =>
     set((s) => ({ descriptions: { ...s.descriptions, [key]: entry } })),
