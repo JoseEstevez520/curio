@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Curio",
+  "version": "1.0.0",
+  "identifier": "com.curio.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Curio",
+        "width": 1000,
+        "height": 720,
+        "minWidth": 480,
+        "minHeight": 480
+      }
+    ],
+    "security": {
+      "//": "Curio makes no external calls; Ollama is local. See docs/experiments/tauri-poc.md for the Ollama-access options (OLLAMA_ORIGINS vs. a Rust command). csp:null keeps the PoC simple.",
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.png"]
+  }
+}
