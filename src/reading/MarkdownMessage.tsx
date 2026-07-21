@@ -6,6 +6,30 @@ import { tokenize } from './tokenize';
 
 const BLOCK_SELECTOR = 'p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th';
 
+// Word characters, including the internal apostrophe/hyphen the tokenizer keeps.
+const WORD_CHAR = /[\p{L}\p{N}'’-]/u;
+
+/**
+ * Smart snap: grow each end of the selection out to a whole word, so half-selecting a
+ * word still describes (and highlights) the complete word. Each token lives in its own
+ * text node, so scanning within the endpoint's text node is enough.
+ */
+function expandRangeToWords(range: Range): void {
+  const { startContainer, endContainer } = range;
+  if (startContainer.nodeType === Node.TEXT_NODE) {
+    const t = startContainer.textContent ?? '';
+    let s = range.startOffset;
+    while (s > 0 && WORD_CHAR.test(t[s - 1])) s--;
+    range.setStart(startContainer, s);
+  }
+  if (endContainer.nodeType === Node.TEXT_NODE) {
+    const t = endContainer.textContent ?? '';
+    let e = range.endOffset;
+    while (e < t.length && WORD_CHAR.test(t[e])) e++;
+    range.setEnd(endContainer, e);
+  }
+}
+
 /** Wrap each content word in an inline .entity span (plain span → clean text selection). */
 function toClickable(text: string): ReactNode[] {
   return tokenize(text).map((tok, i) =>
@@ -139,12 +163,13 @@ export default function MarkdownMessage({ messageId, content, streaming }: Markd
     if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
     const liveRange = sel.getRangeAt(0);
     if (!ref.current?.contains(liveRange.commonAncestorContainer)) return;
-    const text = sel.toString().trim();
+    const range = liveRange.cloneRange();
+    expandRangeToWords(range); // snap partial words out to whole words
+    const text = range.toString().trim();
     if (!text) return;
-    const node = liveRange.commonAncestorContainer;
+    const node = range.commonAncestorContainer;
     const blockEl =
       (node instanceof Element ? node : node.parentElement)?.closest(BLOCK_SELECTOR) ?? ref.current;
-    const range = liveRange.cloneRange();
     useChatStore.getState().setSelection({
       messageId,
       text,

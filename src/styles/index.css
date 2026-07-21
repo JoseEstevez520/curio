@@ -74,6 +74,17 @@
     /* Rounded corners ARE possible at runtime here (real element, unlike the native
        ::selection/::highlight pseudos). Only the native drag selection stays square. */
     border-radius: var(--radius-sm);
+    /* Soft fade-in so the band appears smoothly (and the snap-to-word doesn't pop).
+       Runs once on mount; scroll/resize restyle the same element without replaying it. */
+    animation: curio-phrase-in var(--dur-fast) var(--ease-out);
+  }
+  @keyframes curio-phrase-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /* Streaming caret — a thin, modern blinking bar (not a chunky block). */
