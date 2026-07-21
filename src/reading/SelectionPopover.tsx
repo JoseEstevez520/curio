@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   useFloating,
@@ -13,7 +13,7 @@ import {
   FloatingPortal,
 } from '@floating-ui/react';
 import { useChatStore } from '../app/store';
-import { MODAL_MORPH, SURFACE_LAYOUT_ID } from '../app/motion';
+import { MODAL_MORPH, SCRIM_FADE, SURFACE_LAYOUT_ID } from '../app/motion';
 import { useDescribe } from '../lookup/useDescribe';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 import DescribeModal from './DescribeModal';
@@ -35,6 +35,9 @@ export default function SelectionPopover() {
   const setSelection = useChatStore((s) => s.setSelection);
   const expanded = useChatStore((s) => s.expanded);
   const setExpanded = useChatStore((s) => s.setExpanded);
+  // Stable so DescribeModal's focus effect doesn't re-run on every streamed gloss token
+  // (which would yank focus back to the close button and lose the return target).
+  const collapse = useCallback(() => setExpanded(false), [setExpanded]);
 
   const { refs, floatingStyles, context } = useFloating({
     open: true,
@@ -137,11 +140,11 @@ export default function SelectionPopover() {
           <motion.div
             key="curio-scrim"
             className="curio-scrim"
-            onClick={() => setExpanded(false)}
+            onClick={collapse}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.24 }}
+            transition={SCRIM_FADE}
             aria-hidden="true"
           />
         )}
@@ -155,7 +158,7 @@ export default function SelectionPopover() {
           messageId={selection.messageId}
           context={selection.context}
           glossText={entry?.text ?? ''}
-          onClose={() => setExpanded(false)}
+          onClose={collapse}
         />
       )}
     </>

@@ -28,16 +28,19 @@ export function useGenerative(
   context: string,
   fallbackText: string,
 ): GenerativeEntry | undefined {
-  const key = descriptionKey(messageId, term);
+  // Structured output needs the more capable model; fall back to the describer's. The model
+  // is part of the cache key, so switching models never serves a component built by another.
+  const model = useChatStore((s) => s.model ?? s.describeModel ?? '');
+  const key = descriptionKey(model, messageId, term);
   const entry = useChatStore((s) => s.generatives[key]);
 
   useEffect(() => {
     if (!active) return;
-    if (entry) return; // cache hit (done or in-flight)
+    // Cache hit: a finished (done) or in-flight (loading) result. An `error` entry is NOT a
+    // hit — retry it (e.g. Ollama was down, now it's up).
+    if (entry && entry.status !== 'error') return;
 
     const state = useChatStore.getState();
-    // Structured output needs the more capable model; fall back to the describer's.
-    const model = state.model ?? state.describeModel;
     if (!model) {
       state.setGenerative(key, {
         status: 'error',
@@ -47,6 +50,9 @@ export function useGenerative(
     }
 
     const controller = new AbortController();
+    // See useDescribe: if still false at teardown, the generation was cancelled mid-flight,
+    // so drop the stuck `loading` entry and let reopening retry (no infinite skeleton).
+    let settled = false;
     state.setGenerative(key, { status: 'loading' });
     const conversation = conversationContext(state.messages, messageId);
 
@@ -60,18 +66,23 @@ export function useGenerative(
           fallbackText: fallbackText.trim() || term,
           signal: controller.signal,
         });
+        settled = true;
         useChatStore.getState().setGenerative(key, { status: 'done', envelope });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
+        settled = true;
         useChatStore.getState().setGenerative(key, { status: 'error', error: describeError(e) });
       }
     })();
 
-    return () => controller.abort();
-    // Keyed on (active, key): read the latest fallbackText via closure at fire time; we
-    // don't want a change in the streaming gloss to re-trigger generation.
+    return () => {
+      controller.abort();
+      if (!settled) useChatStore.getState().clearGenerative(key);
+    };
+    // Keyed on (active, key, model): read the latest fallbackText via closure at fire time;
+    // we don't want a change in the streaming gloss to re-trigger generation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, key]);
+  }, [active, key, model]);
 
   return entry;
 }

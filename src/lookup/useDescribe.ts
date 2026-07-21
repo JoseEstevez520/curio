@@ -25,20 +25,21 @@ export function useDescribe(
   term: string,
   context: string,
 ): DescriptionEntry | undefined {
-  const key = descriptionKey(messageId, term);
+  // The describer is a separate, faster agent: prefer its small model, fall back to chat's.
+  // The model is part of the cache key, so switching models never serves a stale answer.
+  const model = useChatStore((s) => s.describeModel ?? s.model ?? '');
+  const key = descriptionKey(model, messageId, term);
   const entry = useChatStore((s) => s.descriptions[key]);
 
   useEffect(() => {
     if (!active) return;
-    // Cache hit (done or in-flight) → don't recompute.
-    if (entry) return;
+    // Cache hit: a finished (done) or in-flight (loading) result — don't recompute. An
+    // `error` entry is NOT a hit: retry it (e.g. Ollama was down, now it's up).
+    if (entry && entry.status !== 'error') return;
 
     const state = useChatStore.getState();
-    const setDescription = state.setDescription;
-    // The describer is a separate, faster agent: prefer its small model, fall back to chat's.
-    const model = state.describeModel ?? state.model;
     if (!model) {
-      setDescription(key, {
+      state.setDescription(key, {
         status: 'error',
         text: '',
         error: 'No model available. Pull one with `ollama pull llama3.2:3b`.',
@@ -47,8 +48,12 @@ export function useDescribe(
     }
 
     const controller = new AbortController();
-    setDescription(key, { status: 'loading', text: '' });
-    const conversation = conversationContext(useChatStore.getState().messages, messageId);
+    // Settled once the request finishes on its own (done/error); if it's still false when
+    // the effect tears down, the lookup was cancelled mid-flight — drop the stuck `loading`
+    // entry so reopening the term retries instead of showing a caret forever.
+    let settled = false;
+    state.setDescription(key, { status: 'loading', text: '' });
+    const conversation = conversationContext(state.messages, messageId);
 
     (async () => {
       try {
@@ -64,20 +69,25 @@ export function useDescribe(
           acc += delta;
           useChatStore.getState().setDescription(key, { status: 'loading', text: acc });
         }
+        settled = true;
         useChatStore.getState().setDescription(key, { status: 'done', text: acc.trim() });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
+        settled = true;
         useChatStore
           .getState()
           .setDescription(key, { status: 'error', text: '', error: describeError(e) });
       }
     })();
 
-    return () => controller.abort();
-    // `entry` intentionally excluded: we key the fetch on (active, key) and read the
+    return () => {
+      controller.abort();
+      if (!settled) useChatStore.getState().clearDescription(key);
+    };
+    // `entry` intentionally excluded: we key the fetch on (active, key, model) and read the
     // latest entry via getState to avoid re-triggering on every streamed token.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, key]);
+  }, [active, key, model]);
 
   return entry;
 }

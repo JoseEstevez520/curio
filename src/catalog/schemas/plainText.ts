@@ -5,7 +5,9 @@ import { z } from 'zod';
  * so the renderer can ALWAYS show something — plain prose in the reader's language.
  */
 export const plainTextData = z.object({
-  text: z.string(),
+  // Non-empty: a model reply of "" fails validation and coerces to the gloss fallback
+  // instead of rendering an empty modal body.
+  text: z.string().min(1),
 });
 
 export type PlainTextData = z.infer<typeof plainTextData>;

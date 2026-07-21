@@ -19,6 +19,9 @@ export const MODAL_MORPH: Transition = { duration: 0.44, ease: [0.32, 0.72, 0, 1
 /** A clean, quick opacity fade for content entering on top of a morph (text, not object). */
 export const CONTENT_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1], delay: 0.08 };
 
+/** The flat modal scrim fading in/out — same decelerating ease as the rest, no bounce. */
+export const SCRIM_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1] };
+
 /**
  * Shared `layoutId` for the description surface. The small popover and the "ver más"
  * modal both tag their card with this id, so Framer treats them as ONE object that
