@@ -150,7 +150,13 @@ export default function SelectionPopover() {
       {/* Modal card — mounted/unmounted instantly (not inside AnimatePresence) so the
           layoutId is unique on every commit and the morph both ways stays clean. */}
       {expanded && (
-        <DescribeModal title={selection.text} entry={entry} onClose={() => setExpanded(false)} />
+        <DescribeModal
+          title={selection.text}
+          messageId={selection.messageId}
+          context={selection.context}
+          glossText={entry?.text ?? ''}
+          onClose={() => setExpanded(false)}
+        />
       )}
     </>
   );
