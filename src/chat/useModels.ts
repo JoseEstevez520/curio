@@ -23,8 +23,15 @@ export function useModels() {
         return;
       }
       setStatus('ok');
-      const { model, setModel } = useChatStore.getState();
-      if (!model || !ms.some((m) => m.name === model)) setModel(ms[0].name);
+      const { model, describeModel, setModel, setDescribeModel } = useChatStore.getState();
+      const isSmall = (name: string) => /[:/](0\.5b|1b|1\.5b)\b/i.test(name);
+      const small = ms.find((m) => isSmall(m.name));
+      // Chat prefers a larger model; the describer prefers the small, fast one.
+      const chatDefault = (ms.find((m) => !isSmall(m.name)) ?? ms[0]).name;
+      if (!model || !ms.some((m) => m.name === model)) setModel(chatDefault);
+      if (!describeModel || !ms.some((m) => m.name === describeModel)) {
+        setDescribeModel(small?.name ?? chatDefault);
+      }
     } catch {
       // Any failure to list models means we can't use Ollama — surface the banner.
       setModels([]);

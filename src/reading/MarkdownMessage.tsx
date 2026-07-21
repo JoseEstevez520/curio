@@ -3,7 +3,6 @@ import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useChatStore } from '../app/store';
 import { tokenize } from './tokenize';
-import { toRectLike } from './rect';
 
 const BLOCK_SELECTOR = 'p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th';
 
@@ -113,14 +112,16 @@ export default function MarkdownMessage({ messageId, content, streaming }: Markd
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed && sel.toString().trim()) return; // a drag; handled on mouse-up
     const entity = (e.target as HTMLElement).closest('.entity');
-    if (!entity || !ref.current?.contains(entity)) return;
+    if (!(entity instanceof HTMLElement) || !ref.current?.contains(entity)) return;
     const word = entity.textContent?.trim() ?? '';
     if (!word) return;
     useChatStore.getState().setSelection({
       messageId,
       text: word,
-      rect: toRectLike(entity.getBoundingClientRect()),
       context: blockText(entity),
+      el: entity,
+      range: null,
+      block: entity.closest(BLOCK_SELECTOR) as HTMLElement | null,
     });
   };
 
@@ -128,15 +129,20 @@ export default function MarkdownMessage({ messageId, content, streaming }: Markd
   const onMouseUp = () => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
-    const range = sel.getRangeAt(0);
-    if (!ref.current?.contains(range.commonAncestorContainer)) return;
+    const liveRange = sel.getRangeAt(0);
+    if (!ref.current?.contains(liveRange.commonAncestorContainer)) return;
     const text = sel.toString().trim();
     if (text.split(/\s+/).filter(Boolean).length < 2) return;
+    const node = liveRange.commonAncestorContainer;
+    const blockEl =
+      (node instanceof Element ? node : node.parentElement)?.closest(BLOCK_SELECTOR) ?? ref.current;
     useChatStore.getState().setSelection({
       messageId,
       text,
-      rect: toRectLike(range.getBoundingClientRect()),
-      context: blockText(range.commonAncestorContainer),
+      context: blockText(node),
+      el: null,
+      range: liveRange.cloneRange(),
+      block: blockEl as HTMLElement | null,
     });
   };
 

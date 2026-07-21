@@ -33,7 +33,10 @@ export function useDescribe(
     // Cache hit (done or in-flight) → don't recompute.
     if (entry) return;
 
-    const { model, setDescription } = useChatStore.getState();
+    const state = useChatStore.getState();
+    const setDescription = state.setDescription;
+    // The describer is a separate, faster agent: prefer its small model, fall back to chat's.
+    const model = state.describeModel ?? state.model;
     if (!model) {
       setDescription(key, {
         status: 'error',

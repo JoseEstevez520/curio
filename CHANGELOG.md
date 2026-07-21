@@ -4,6 +4,16 @@ Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Kee
 
 ## [Unreleased]
 ### Added
+- **Modelo dedicado y rápido para el descriptor:** el chat usa el modelo grande (p. ej.
+  `llama3.2:3b`) y las descripciones un modelo pequeño (`llama3.2:1b`) para ir más rápidas —
+  se elige automáticamente entre los modelos instalados.
+
+### Changed (interacción)
+- La **palabra clicada se queda resaltada** (azul) mientras su descripción está abierta.
+- El popover se **ancla al DOM vivo** (palabra o selección) y **sigue al texto al hacer scroll**
+  (antes se quedaba fijo en la pantalla, desanclado).
+
+### Added (previo)
 - **Markdown en las respuestas:** las respuestas del asistente se renderizan como Markdown
   (negritas, listas, encabezados, código, tablas) en vez de texto crudo — manteniendo que cada
   palabra sea clicable y que puedas seleccionar frases.

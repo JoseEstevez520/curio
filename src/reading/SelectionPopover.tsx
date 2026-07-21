@@ -15,9 +15,9 @@ import { useDescribe } from '../lookup/useDescribe';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 
 /**
- * Describes a multi-word text SELECTION inside an assistant message. Anchored to the
- * selection's bounding rect via a Floating UI virtual element. Reuses useDescribe, so
- * a selected phrase is cached and explained just like a single word.
+ * Describes the open word or phrase. Anchored to the LIVE DOM (the word element, or a
+ * Range for a phrase) so the popover FOLLOWS the text on scroll. The open word stays
+ * highlighted. Reuses useDescribe, so words and phrases are cached the same way.
  */
 export default function SelectionPopover() {
   const selection = useChatStore((s) => s.selection);
@@ -33,16 +33,33 @@ export default function SelectionPopover() {
     whileElementsMounted: autoUpdate,
   });
 
-  const dismiss = useDismiss(context, { ancestorScroll: true });
+  const dismiss = useDismiss(context);
   const role = useRole(context, { role: 'tooltip' });
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
-  // Anchor to the stored selection rectangle via a virtual reference element.
-  const rect = selection?.rect;
+  // Anchor to the live element (word) or range (phrase) so scrolling keeps it in place.
   useEffect(() => {
-    if (!rect) return;
-    refs.setReference({ getBoundingClientRect: () => rect as DOMRect });
-  }, [refs, rect]);
+    if (!selection) return;
+    if (selection.el) {
+      refs.setReference(selection.el);
+      return;
+    }
+    if (selection.range) {
+      const range = selection.range;
+      refs.setReference({
+        getBoundingClientRect: () => range.getBoundingClientRect(),
+        contextElement: selection.block ?? undefined,
+      });
+    }
+  }, [selection, refs]);
+
+  // Keep the clicked word highlighted (accent) while its description is open.
+  useEffect(() => {
+    const el = selection?.el;
+    if (!el) return;
+    el.classList.add('entity-open');
+    return () => el.classList.remove('entity-open');
+  }, [selection]);
 
   // Hook must run every render; it no-ops when there is no active selection.
   const entry = useDescribe(

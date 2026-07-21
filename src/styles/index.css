@@ -29,6 +29,10 @@
     color: var(--color-accent);
     cursor: pointer;
   }
+  /* The word whose description popover is open stays highlighted (like hover). */
+  .entity-open {
+    color: var(--color-accent);
+  }
   /* Open state: the one word whose description is showing turns accent, with a
      quick one-shot flash so the click feels acknowledged. */
   .entity[aria-expanded='true'] {
