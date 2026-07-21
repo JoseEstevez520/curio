@@ -119,6 +119,11 @@ El salto grande, **después** de tener el núcleo web redondo (ver `VISION.md`):
   numérica de spacing (p. ej. `h-9` = 6rem = 96px). Usar píxeles arbitrarios para tamaños fijos,
   o replantear el mapeo.
 - [ ] Elegir **licencia** (MIT sugerida para un POC abierto) — el dueño decide.
+- [ ] **Accesibilidad por teclado de las palabras clicables:** hoy el clic/hover abre la
+  descripción, pero una palabra no es alcanzable por `Tab` (hacer tabulable cada palabra daría
+  cientos de paradas y empeoraría la lectura). Pendiente: un patrón de navegación por teclado
+  (p. ej. mover el foco por frases/entidades sin saturar el orden de tabulación). Salió en la
+  review de accesibilidad de v1.
 
 ---
 
