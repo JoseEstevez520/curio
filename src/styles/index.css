@@ -23,6 +23,12 @@
     appearance: none;
     transition: color var(--dur-fast) var(--ease-out);
   }
+  /* Small hover cue: the word tints to the accent blue and the cursor turns to a
+     pointer — enough to invite a click, without advertising links at rest. */
+  .entity:hover {
+    color: var(--color-accent);
+    cursor: pointer;
+  }
   /* Open state: the one word whose description is showing turns accent, with a
      quick one-shot flash so the click feels acknowledged. */
   .entity[aria-expanded='true'] {
