@@ -18,7 +18,7 @@ export interface CatalogComponentProps<T> {
  */
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.06em] text-fg-muted">
+    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.03em] text-fg-muted">
       {children}
     </div>
   );
