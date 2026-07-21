@@ -351,6 +351,29 @@
        while the box morphs between the popover and the modal. */
   }
 
+  /* Generative-UI skeleton — monochrome placeholder bars while the model builds the
+     component. A calm, low-contrast shimmer sweeps across (tone layering, never color).
+     Stops dead under reduced motion (below), leaving a flat muted bar. */
+  .curio-skeleton-bar {
+    border-radius: var(--radius-sm);
+    background: linear-gradient(
+      90deg,
+      var(--color-bg-muted) 25%,
+      var(--color-bg-inset) 37%,
+      var(--color-bg-muted) 63%
+    );
+    background-size: 400% 100%;
+    animation: curio-shimmer 1.4s var(--ease-in-out) infinite;
+  }
+  @keyframes curio-shimmer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0 0;
+    }
+  }
+
   /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
   .curio-popover {
     animation: curio-pop-in var(--dur-fast) var(--ease-out);
@@ -389,5 +412,10 @@
   }
   .curio-logo.is-blinking .curio-eye {
     transform: none;
+  }
+  /* Skeleton holds still — a flat muted bar, no sweep. */
+  .curio-skeleton-bar {
+    animation: none;
+    background: var(--color-bg-muted);
   }
 }

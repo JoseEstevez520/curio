@@ -4,6 +4,7 @@ import { FloatingPortal } from '@floating-ui/react';
 import { MODAL_MORPH, CONTENT_FADE, SURFACE_LAYOUT_ID } from '../app/motion';
 import { useGenerative } from '../lookup/useGenerative';
 import CatalogRenderer from '../catalog/CatalogRenderer';
+import GenerativeSkeleton from './GenerativeSkeleton';
 
 interface DescribeModalProps {
   /** The word or phrase being described — shown as the modal title. */
@@ -15,17 +16,6 @@ interface DescribeModalProps {
   glossText: string;
   /** Shrink back to the popover. */
   onClose: () => void;
-}
-
-/** Loading state while the component is generated — the quiet three-dot indicator. */
-function GenerativeLoading() {
-  return (
-    <div className="curio-dots" role="status" aria-label="Generando descripción">
-      <span aria-hidden="true" />
-      <span aria-hidden="true" />
-      <span aria-hidden="true" />
-    </div>
-  );
 }
 
 /**
@@ -103,7 +93,7 @@ export default function DescribeModal({
             </header>
             <div className="min-h-0 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
               {!gen || gen.status === 'loading' ? (
-                <GenerativeLoading />
+                <GenerativeSkeleton />
               ) : gen.status === 'error' ? (
                 <p className="text-fg-muted">{gen.error}</p>
               ) : gen.envelope ? (
