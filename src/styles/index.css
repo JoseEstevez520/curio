@@ -70,7 +70,11 @@
   }
   .curio-phrase-rect {
     position: fixed;
+    box-sizing: border-box; /* keep the 1px border inside the measured size */
     background: var(--color-selection);
+    /* A 1px Curio-blue hairline gives the band definition (design uses 1px rules).
+       Real element, so unlike ::selection/::highlight this IS possible at runtime. */
+    border: 1px solid color-mix(in srgb, var(--color-curio) 55%, transparent);
     border-radius: var(--radius-sm);
   }
 
