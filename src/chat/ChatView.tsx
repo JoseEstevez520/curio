@@ -1,6 +1,7 @@
 import { useChatStore } from '../app/store';
 import { useSendMessage } from './useChat';
 import { useModels } from './useModels';
+import CurioLogo from '../branding/CurioLogo';
 import Header from './Header';
 import OllamaBanner from './OllamaBanner';
 import Message from './Message';
@@ -21,6 +22,7 @@ export default function ChatView() {
           <OllamaBanner status={status} onRetry={() => void reload()} />
           {messages.length === 0 ? (
             <div className="text-fg-muted">
+              <CurioLogo size={72} alive track className="mb-4" />
               <h1 className="text-2xl font-bold tracking-tight text-fg">Curio</h1>
               <p className="mt-2 text-base">
                 Ask something below. In a reply, hover or click any word to see it explained inline.
