@@ -15,9 +15,9 @@ export default function ChatView() {
   return (
     <div className="flex h-screen flex-col bg-bg">
       <Header models={models} />
-      <OllamaBanner status={status} onRetry={() => void reload()} />
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-measure px-6 py-12">
+        <div className="mx-auto w-full max-w-2xl px-4 py-10">
+          <OllamaBanner status={status} onRetry={() => void reload()} />
           {messages.length === 0 ? (
             <div className="text-fg-muted">
               <h1 className="text-2xl font-bold tracking-tight text-fg">Curio</h1>

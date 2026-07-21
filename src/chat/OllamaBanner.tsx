@@ -5,7 +5,7 @@ interface OllamaBannerProps {
   onRetry: () => void;
 }
 
-/** Friendly hairline banner when Ollama is unreachable or has no models pulled. */
+/** Friendly, borderless notice when Ollama is unreachable or has no models pulled. */
 export default function OllamaBanner({ status, onRetry }: OllamaBannerProps) {
   if (status === 'ok' || status === 'checking') return null;
 
@@ -15,17 +15,15 @@ export default function OllamaBanner({ status, onRetry }: OllamaBannerProps) {
       : 'No models installed. Pull one with `ollama pull llama3.2:3b`, then retry.';
 
   return (
-    <div className="border-b border-border bg-bg-subtle px-6 py-2">
-      <div className="mx-auto flex max-w-measure items-center justify-between gap-3 text-sm text-fg-secondary">
-        <span>⚠ {message}</span>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="shrink-0 rounded-sm border border-border px-3 py-1 text-xs text-fg transition-colors duration-fast hover:bg-bg-muted"
-        >
-          Retry
-        </button>
-      </div>
+    <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-bg-muted px-4 py-3 text-sm text-fg-secondary">
+      <span>{message}</span>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="shrink-0 rounded-full bg-bg-inset px-3 py-1.5 text-xs text-fg transition-colors duration-fast hover:bg-border"
+      >
+        Retry
+      </button>
     </div>
   );
 }

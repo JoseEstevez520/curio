@@ -19,7 +19,7 @@ const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
   return (
     <div
       ref={ref}
-      className="curio-popover z-50 max-w-[320px] rounded-sm border border-border bg-bg px-3 py-2 text-sm leading-normal text-fg-secondary"
+      className="curio-popover z-50 max-w-[320px] rounded-2xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary"
       {...rest}
     >
       {entry?.status === 'error' ? (
