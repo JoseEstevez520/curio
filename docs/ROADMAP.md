@@ -45,7 +45,7 @@ A clean, monochrome, Linear-inspired chat UI. You read an LLM message, click or 
 - [x] `feat: cache descriptions per (term, message) to avoid recompute`
 - [x] `fix: handle Ollama-not-running / model-missing with a friendly banner`
 - [x] `docs: quickstart GIF/screenshot in README`
-- [ ] `chore: tag v0.0`
+- [x] `chore: tag v0.0`
 
 **Success criteria**
 - With Ollama running and one small model pulled, the owner can chat, click any word in a reply, and get a relevant plain-text description within a couple of seconds.
