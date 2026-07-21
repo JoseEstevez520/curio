@@ -1,0 +1,17 @@
+# Curio — Tauri PoC (desktop shell around the web core).
+# NOTE: not compiled in this environment (no Rust toolchain / WebView2 here).
+# See docs/experiments/tauri-poc.md for what was verified and what's missing.
+[package]
+name = "curio"
+version = "1.0.0"
+description = "Curio — local reading companion + Markdown second brain (Tauri PoC)"
+edition = "2021"
+rust-version = "1.77"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
