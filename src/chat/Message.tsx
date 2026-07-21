@@ -1,7 +1,26 @@
+import { useMemo } from 'react';
 import type { Message as MessageModel } from '../app/store';
+import { tokenize } from '../reading/tokenize';
+import WordSpan from '../reading/WordSpan';
 
 interface MessageProps {
   message: MessageModel;
+}
+
+/** Render assistant prose with every content word turned into a clickable span. */
+function InteractiveText({ messageId, content }: { messageId: string; content: string }) {
+  const tokens = useMemo(() => tokenize(content), [content]);
+  return (
+    <>
+      {tokens.map((tok, i) =>
+        tok.clickable ? (
+          <WordSpan key={i} messageId={messageId} index={i} term={tok.text} />
+        ) : (
+          <span key={i}>{tok.text}</span>
+        ),
+      )}
+    </>
+  );
 }
 
 export default function Message({ message }: MessageProps) {
@@ -17,7 +36,7 @@ export default function Message({ message }: MessageProps) {
         </div>
       ) : (
         <div className="text-base leading-relaxed text-fg">
-          {message.content}
+          <InteractiveText messageId={message.id} content={message.content} />
           {message.streaming && <span className="ml-0.5 animate-pulse text-fg-muted">▍</span>}
           {message.error && (
             <span className="text-sm text-fg-muted">
