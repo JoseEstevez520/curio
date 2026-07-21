@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
 import { MASCOT_MORPH } from '../app/motion';
 import ModelPicker from './ModelPicker';
+import ModeToggle from './ModeToggle';
 import type { OllamaModel } from '../ollama/types';
 
 interface HeaderProps {
@@ -44,7 +45,10 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
         ) : (
           <span aria-hidden="true" />
         )}
-        <ModelPicker models={models} />
+        <div className="flex items-center gap-3">
+          <ModeToggle />
+          <ModelPicker models={models} />
+        </div>
       </div>
     </header>
   );
