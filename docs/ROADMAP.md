@@ -87,8 +87,8 @@ clic sobre algo prefetcheado es instantáneo.
 **Meta:** abrir el abanico más allá de un solo chat.
 
 - [ ] `feat: sesiones de chat` — varias conversaciones, cambiar entre ellas, historial.
-- [ ] `feat: modo lectura de artículos` — pegar un texto/artículo y click-to-explain sobre él
-  (aplica el motor de lectura a texto arbitrario).
+- [x] `feat: modo lectura de artículos` — pegar un texto/artículo y click-to-explain sobre él
+  (aplica el motor de lectura a texto arbitrario). *(adelantado tras v1)*
 - [ ] `feat: "ir más a fondo"` — expandir un componente en uno más rico.
 - [ ] (explorar) `feat: canvas` — tablero donde lo explorado se acumula como tarjetas.
 - [ ] `chore: tag v3.0`
