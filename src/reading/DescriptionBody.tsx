@@ -24,4 +24,4 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
 
 /** Shared popover container styling (rounded, hairline, no shadow). */
 export const POPOVER_CLASS =
-  'curio-popover z-50 max-w-[320px] rounded-2xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
+  'curio-popover z-50 max-w-[320px] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';

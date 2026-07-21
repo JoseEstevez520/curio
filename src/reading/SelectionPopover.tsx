@@ -4,6 +4,7 @@ import {
   offset,
   flip,
   shift,
+  size,
   autoUpdate,
   useDismiss,
   useRole,
@@ -13,6 +14,13 @@ import {
 import { useChatStore } from '../app/store';
 import { useDescribe } from '../lookup/useDescribe';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
+
+/** Sticky composer height reserved at the bottom so the popover never opens over it. */
+const COMPOSER_HEIGHT = 80;
+/** Viewport padding for flip/shift/size — 12px on three sides, composer clearance below. */
+const PADDING = { top: 12, right: 12, bottom: COMPOSER_HEIGHT + 12, left: 12 };
+/** Never shrink the popover below this, even in tight vertical space. */
+const MIN_HEIGHT = 96;
 
 /**
  * Describes the open word or phrase. Anchored to the LIVE DOM (the word element, or a
@@ -28,8 +36,23 @@ export default function SelectionPopover() {
     onOpenChange: (open) => {
       if (!open) setSelection(null);
     },
+    // Prefer below the word, but flip above when there's no room — so a word near the
+    // bottom never opens over the sticky composer. `padding` keeps the popover clear of
+    // the viewport edges, and a taller bottom padding reserves room for the composer
+    // (~80px) so flip/shift/size all treat that band as unavailable space.
     placement: 'bottom',
-    middleware: [offset(6), flip(), shift({ padding: 8 })],
+    middleware: [
+      offset(6),
+      flip({ padding: PADDING }),
+      shift({ padding: PADDING }),
+      size({
+        padding: PADDING,
+        apply({ availableHeight, elements }) {
+          // Cap the popover to the space that's actually free; content scrolls if taller.
+          elements.floating.style.maxHeight = `${Math.max(MIN_HEIGHT, Math.round(availableHeight))}px`;
+        },
+      }),
+    ],
     whileElementsMounted: autoUpdate,
   });
 
