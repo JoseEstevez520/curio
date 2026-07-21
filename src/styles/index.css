@@ -60,6 +60,20 @@
     }
   }
 
+  /* Selected-phrase band — a soft, rounded, continuous highlight drawn behind the
+     text by PhraseHighlight (one rect per line). Translucent so the prose reads
+     through; rounded + slightly padded, like the open-word pill. */
+  .curio-phrase-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+  .curio-phrase-rect {
+    position: fixed;
+    background: var(--color-selection);
+    border-radius: var(--radius-sm);
+  }
+
   /* Streaming caret — a thin, modern blinking bar (not a chunky block). */
   .curio-caret {
     display: inline-block;

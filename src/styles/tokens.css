@@ -247,14 +247,6 @@ body {
   color: var(--color-fg);
 }
 
-/* Persisted phrase highlight (CSS Custom Highlight API): the same continuous blue band
-   stays under a selected phrase while its description popover is open. Set/cleared from
-   SelectionPopover; unsupported browsers simply render nothing here. */
-::highlight(curio-selection) {
-  background-color: var(--color-selection);
-  color: var(--color-fg);
-}
-
 /* Respect reduced motion (§7) */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -8,6 +8,7 @@ import Header from './Header';
 import OllamaBanner from './OllamaBanner';
 import Message from './Message';
 import Composer from './Composer';
+import PhraseHighlight from '../reading/PhraseHighlight';
 import SelectionPopover from '../reading/SelectionPopover';
 
 export default function ChatView() {
@@ -46,6 +47,8 @@ export default function ChatView() {
         </div>
       </div>
       <Composer onSend={send} disabled={isStreaming} />
+      {/* PhraseHighlight before SelectionPopover so the popover portal stacks above it. */}
+      <PhraseHighlight />
       <SelectionPopover />
     </div>
   );

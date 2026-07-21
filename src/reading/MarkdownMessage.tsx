@@ -136,14 +136,18 @@ export default function MarkdownMessage({ messageId, content, streaming }: Markd
     const node = liveRange.commonAncestorContainer;
     const blockEl =
       (node instanceof Element ? node : node.parentElement)?.closest(BLOCK_SELECTOR) ?? ref.current;
+    const range = liveRange.cloneRange();
     useChatStore.getState().setSelection({
       messageId,
       text,
       context: blockText(node),
       el: null,
-      range: liveRange.cloneRange(),
+      range,
       block: blockEl as HTMLElement | null,
     });
+    // Drop the native selection so only our own rounded band shows (no double band).
+    // The cloned range keeps the geometry for the popover anchor and PhraseHighlight.
+    sel.removeAllRanges();
   };
 
   return (
