@@ -9,7 +9,11 @@ pequeños** en **local con Ollama** (sin API key). Con el tiempo, en vez de text
 **UI generativa** (componentes de un catálogo que el modelo elige y rellena). Estilo limpio,
 monocromo, tipo Linear, sin sombras.
 
-> Estado: **obra de arranque escrita, sin código todavía.**
+![Curio — interfaz de chat monocroma con selector de modelo](docs/screenshot.png)
+
+> Estado: **v0 funcional** — chat con Ollama en streaming y clic en cualquier palabra para
+> ver su descripción en un popover en línea. (La captura muestra la interfaz inicial; graba un
+> GIF del popover en acción para lucir la interacción.)
 
 ## Arrancar en un chat nuevo
 
