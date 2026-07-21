@@ -121,13 +121,17 @@ export default function SelectionPopover() {
               className={POPOVER_CLASS}
             >
               <DescriptionBody entry={entry} />
-              <button
-                type="button"
-                onClick={() => setExpanded(true)}
-                className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
-              >
-                Ver más
-              </button>
+              {/* "Ver más" only once the gloss is ready — showing it over the loading dots
+                  (nothing to expand yet) reads as broken. Hidden while loading and on error. */}
+              {entry?.status === 'done' && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
+                >
+                  Ver más
+                </button>
+              )}
             </motion.div>
           )}
         </div>
