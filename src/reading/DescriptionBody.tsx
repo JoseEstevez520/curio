@@ -16,9 +16,11 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
     );
   }
   return (
-    <p className="text-fg-faint" aria-label="Loading">
-      …
-    </p>
+    <div className="curio-dots" role="status" aria-label="Loading description">
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </div>
   );
 }
 
