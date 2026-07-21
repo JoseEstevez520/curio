@@ -2,6 +2,11 @@
 
 Curio is a reading surface. You read a message from an LLM in a clean chat UI, then hover or click a word to reveal an inline description (v0) or a small generative-UI component (v1). This document defines the visual language: monochrome-first, typographically driven, calm.
 
+> **Owner UI preferences (read this too):** [`UI-PREFERENCES.md`](UI-PREFERENCES.md) distills what the
+> owner actually wants, learned from live feedback. Where it contradicts this doc (e.g. big morphs are
+> smooth/no-bounce, the clickable word is invisible at rest, fade not blur), **it wins** — this doc has
+> drifted in places and is noted there.
+
 ---
 
 ## 1. Design principles
