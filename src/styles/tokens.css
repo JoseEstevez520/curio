@@ -106,6 +106,7 @@
   --radius-sm: 6px; /* buttons, inputs, popover */
   --radius-md: 8px; /* cards, click panel */
   --radius-lg: 12px; /* large containers (rare) */
+  --radius-xl: 16px; /* popover ⇄ modal morph surface, composer pill */
   --radius-full: 999px; /* pills / avatars */
 
   /* ===== Motion — §7 ===== */
