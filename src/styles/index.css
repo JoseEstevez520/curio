@@ -237,6 +237,66 @@
     }
   }
 
+  /* Inspecting — Curio "looks up" a term: a slow body sway while the eyes scan and
+     the monocle is on. */
+  .curio-logo-sway {
+    animation: curio-sway 2.4s var(--ease-in-out) infinite;
+    will-change: transform;
+  }
+  @keyframes curio-sway {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(2deg);
+    }
+  }
+  .curio-logo.is-inspecting .curio-pupil {
+    animation: curio-scan 1.5s var(--ease-in-out) infinite;
+  }
+  @keyframes curio-scan {
+    0%,
+    100% {
+      transform: translateX(-12%);
+    }
+    50% {
+      transform: translateX(12%);
+    }
+  }
+
+  /* Monocle — a gold ring over the right eye with a little handle. Hidden at rest;
+     springs on (and eases off) when inspecting. */
+  .curio-monocle {
+    position: absolute;
+    border-style: solid;
+    border-color: #d4af37;
+    border-radius: var(--radius-full);
+    opacity: 0;
+    transform: scale(0.4) translateY(30%);
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+  .curio-monocle::after {
+    /* the handle: a short line dropping from the ring, angled out */
+    content: '';
+    position: absolute;
+    top: 90%;
+    left: 46%;
+    width: 8%;
+    height: 44%;
+    background: #d4af37;
+    border-radius: 2px;
+    transform-origin: top center;
+    transform: rotate(20deg);
+  }
+  .curio-logo.is-inspecting .curio-monocle {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
   /* Squish — a one-shot elastic squash-and-settle when the blob is clicked. */
   .curio-logo-squish {
     animation: curio-squish 450ms var(--ease-out);
@@ -283,10 +343,13 @@
     opacity: 0.55;
     transform: none;
   }
-  /* The mascot holds still: no breathing/wobble/squish, no blink squash. */
+  /* The mascot holds still: no breathing/wobble/squish/sway/scan, no blink squash.
+     The monocle still appears when inspecting — just without the spring/scan. */
   .curio-logo-alive,
   .curio-logo-thinking,
-  .curio-logo-squish {
+  .curio-logo-squish,
+  .curio-logo-sway,
+  .curio-logo.is-inspecting .curio-pupil {
     animation: none;
   }
   .curio-logo.is-blinking .curio-eye {

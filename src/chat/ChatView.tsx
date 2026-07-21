@@ -14,13 +14,19 @@ import SelectionPopover from '../reading/SelectionPopover';
 export default function ChatView() {
   const messages = useChatStore((s) => s.messages);
   const isStreaming = useChatStore((s) => s.messages.some((m) => m.streaming));
+  const inspecting = useChatStore((s) => s.selection !== null);
   const { models, status, reload } = useModels();
   const send = useSendMessage();
   const hasMessages = messages.length > 0;
 
   return (
     <div className="flex h-screen flex-col bg-bg">
-      <Header models={models} showBrand={hasMessages} thinking={isStreaming} />
+      <Header
+        models={models}
+        showBrand={hasMessages}
+        thinking={isStreaming}
+        inspecting={inspecting}
+      />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-2xl px-4 py-10">
           <OllamaBanner status={status} onRetry={() => void reload()} />

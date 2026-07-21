@@ -10,6 +10,9 @@ interface CurioLogoProps {
   alive?: boolean;
   /** Reacts while the assistant is generating: a soft body wobble (eyes intact). */
   thinking?: boolean;
+  /** Looking something up (a description is open): the monocle springs on, the eyes
+   *  scan and the body sways. */
+  inspecting?: boolean;
   /** Purely ornamental: hide from assistive tech (use when a visible "Curio"
    *  label already sits next to it, so the name isn't announced twice). */
   decorative?: boolean;
@@ -45,6 +48,7 @@ export default function CurioLogo({
   track = false,
   alive = false,
   thinking = false,
+  inspecting = false,
   decorative = false,
   className,
   title = 'Curio',
@@ -128,19 +132,40 @@ export default function CurioLogo({
     marginTop: `${-pupil / 2}px`,
   });
 
-  // One body animation at a time, by priority: a click squish wins, then thinking,
-  // then idle breathing. Keeping it exclusive avoids two `animation`s fighting.
+  // One body animation at a time, by priority: a click squish wins, then inspecting
+  // sway, then thinking, then idle breathing. Exclusive so two never fight `transform`.
   const bodyAnim = squishing
     ? 'curio-logo-squish'
-    : thinking
-      ? 'curio-logo-thinking'
-      : alive
-        ? 'curio-logo-alive'
-        : '';
+    : inspecting
+      ? 'curio-logo-sway'
+      : thinking
+        ? 'curio-logo-thinking'
+        : alive
+          ? 'curio-logo-alive'
+          : '';
 
-  const classes = ['curio-logo', bodyAnim, blinking && 'is-blinking', className]
+  const classes = [
+    'curio-logo',
+    bodyAnim,
+    blinking && 'is-blinking',
+    inspecting && 'is-inspecting',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
+
+  // Monocle sits over the right eye and scales with the blob (see docs/logo/logo.md).
+  // A real monocle rings well past the eye, so it's a sizeable fraction of the face.
+  const mono = size * 0.42;
+  const monocleStyle = {
+    left: '61%',
+    top: '57%',
+    width: `${mono}px`,
+    height: `${mono}px`,
+    marginLeft: `${-mono / 2}px`,
+    marginTop: `${-mono / 2}px`,
+    borderWidth: `${Math.max(2, Math.round(size * 0.05))}px`,
+  };
 
   return (
     <div
@@ -161,6 +186,7 @@ export default function CurioLogo({
       <div className="curio-eye" style={eyeStyle(EYE_RIGHT_X)}>
         <div className="curio-pupil" ref={rightPupil} />
       </div>
+      <div className="curio-monocle" style={monocleStyle} aria-hidden="true" />
     </div>
   );
 }
