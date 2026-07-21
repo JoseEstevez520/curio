@@ -4,6 +4,19 @@ Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Kee
 
 ## [Unreleased]
 ### Added
+- **Markdown en las respuestas:** las respuestas del asistente se renderizan como Markdown
+  (negritas, listas, encabezados, código, tablas) en vez de texto crudo — manteniendo que cada
+  palabra sea clicable y que puedas seleccionar frases.
+
+### Changed (UI, hacia estilo iOS)
+- **Composer** que **crece solo** al escribir (sin scroll interno hasta un máximo), input tipo
+  píldora y botón de envío circular con **flecha a la derecha**, ambos a la misma altura.
+- **Caret de escritura** fino y moderno que **sigue al texto** en streaming (antes saltaba de
+  línea y era un bloque grueso).
+- Palabras clicables como `<span>` inline (sin subrayado): la **selección de varias palabras se
+  ve continua y limpia** (antes salía a trozos por los botones).
+
+### Added (antes)
 - **Describir una selección de texto:** además de una palabra, ahora puedes **seleccionar una
   frase** (2+ palabras) en una respuesta y aparece un popover con la descripción de todo lo
   seleccionado (anclado a la selección; cacheado igual que las palabras). Adelanto del slice de

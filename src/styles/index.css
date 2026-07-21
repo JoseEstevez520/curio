@@ -44,6 +44,40 @@
     }
   }
 
+  /* Streaming caret — a thin, modern blinking bar (not a chunky block). */
+  .curio-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    background: var(--color-fg-muted);
+    animation: curio-blink 1.1s ease-in-out infinite;
+  }
+  @keyframes curio-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.15;
+    }
+  }
+  /* Streaming caret that FOLLOWS the text: rendered inline at the end of the last
+     block of a streaming message, so it trails the final character on its line. */
+  .curio-streaming > *:last-child::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    background: var(--color-fg-muted);
+    animation: curio-blink 1.1s ease-in-out infinite;
+  }
+
   /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
   .curio-popover {
     animation: curio-pop-in var(--dur-fast) var(--ease-out);

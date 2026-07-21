@@ -11,7 +11,7 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
     return (
       <p className="whitespace-pre-wrap">
         {entry.text}
-        {loading && <span className="ml-0.5 animate-pulse text-fg-faint">▍</span>}
+        {loading && <span className="curio-caret" aria-hidden="true" />}
       </p>
     );
   }

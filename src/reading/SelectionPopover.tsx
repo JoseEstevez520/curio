@@ -22,7 +22,6 @@ import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 export default function SelectionPopover() {
   const selection = useChatStore((s) => s.selection);
   const setSelection = useChatStore((s) => s.setSelection);
-  const messages = useChatStore((s) => s.messages);
 
   const { refs, floatingStyles, context } = useFloating({
     open: true,
@@ -45,15 +44,12 @@ export default function SelectionPopover() {
     refs.setReference({ getBoundingClientRect: () => rect as DOMRect });
   }, [refs, rect]);
 
-  const content = selection
-    ? (messages.find((m) => m.id === selection.messageId)?.content ?? '')
-    : '';
   // Hook must run every render; it no-ops when there is no active selection.
   const entry = useDescribe(
     Boolean(selection),
     selection?.messageId ?? '',
     selection?.text ?? '',
-    content.slice(0, 600),
+    selection?.context ?? '',
   );
 
   if (!selection) return null;
