@@ -3,6 +3,12 @@
 Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Keep a Changelog.
 
 ## [Unreleased]
+### Added
+- **Describir una selección de texto:** además de una palabra, ahora puedes **seleccionar una
+  frase** (2+ palabras) en una respuesta y aparece un popover con la descripción de todo lo
+  seleccionado (anclado a la selección; cacheado igual que las palabras). Adelanto del slice de
+  selección multi-palabra de v3.
+
 ### Changed
 - **Descriptor más limpio y sin "esto es un enlace":** las palabras clicables ya no llevan
   subrayado ni color en reposo (se leen como prosa normal). Al hacer clic, una pequeña animación

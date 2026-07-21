@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from 'react';
 import { useDescribe } from '../lookup/useDescribe';
+import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 
 interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   messageId: string;
@@ -7,33 +8,16 @@ interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   context: string;
 }
 
-/** The inline description popover. Anchored to its word by Floating UI (see WordSpan).
- *  Dismissed by clicking outside or pressing Escape (wired via useDismiss in WordSpan). */
+/** The inline description popover for a single clicked word. Anchored by Floating UI
+ *  (see WordSpan). Dismissed by clicking outside or pressing Escape. */
 const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
   { messageId, term, context, ...rest },
   ref,
 ) {
   const entry = useDescribe(true, messageId, term, context);
-  const loading = !entry || entry.status === 'loading';
-
   return (
-    <div
-      ref={ref}
-      className="curio-popover z-50 max-w-[320px] rounded-2xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary"
-      {...rest}
-    >
-      {entry?.status === 'error' ? (
-        <p className="text-fg-muted">{entry.error}</p>
-      ) : entry?.text ? (
-        <p className="whitespace-pre-wrap">
-          {entry.text}
-          {loading && <span className="ml-0.5 animate-pulse text-fg-faint">▍</span>}
-        </p>
-      ) : (
-        <p className="text-fg-faint" aria-label="Loading">
-          …
-        </p>
-      )}
+    <div ref={ref} className={POPOVER_CLASS} {...rest}>
+      <DescriptionBody entry={entry} />
     </div>
   );
 });

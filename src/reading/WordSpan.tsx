@@ -50,7 +50,12 @@ export default function WordSpan({ messageId, index, term, context }: WordSpanPr
         type="button"
         className="entity"
         aria-expanded={isOpen}
-        onClick={() => setOpenKey(isOpen ? null : key)}
+        onClick={() => {
+          // If the user just drag-selected a phrase, let the selection popover win.
+          const sel = window.getSelection();
+          if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) return;
+          setOpenKey(isOpen ? null : key);
+        }}
         {...getReferenceProps()}
       >
         {term}

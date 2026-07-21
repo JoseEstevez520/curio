@@ -5,6 +5,7 @@ import Header from './Header';
 import OllamaBanner from './OllamaBanner';
 import Message from './Message';
 import Composer from './Composer';
+import SelectionPopover from '../reading/SelectionPopover';
 
 export default function ChatView() {
   const messages = useChatStore((s) => s.messages);
@@ -31,6 +32,7 @@ export default function ChatView() {
         </div>
       </div>
       <Composer onSend={send} disabled={isStreaming} />
+      <SelectionPopover />
     </div>
   );
 }
