@@ -193,11 +193,14 @@ Use `--space-5`/`--space-6` between messages, `--space-7`+ around the reading co
   --radius-sm: 6px;   /* buttons, inputs, popover */
   --radius-md: 8px;   /* cards, click panel */
   --radius-lg: 12px;  /* large containers (rare) */
+  --radius-xl: 16px;  /* the popover ⇄ "ver más" modal morph surface; composer pill */
   --radius-full: 999px; /* pills / avatars */
 }
 ```
 
-Keep radii tight. Nothing rounder than `--radius-md` for content surfaces.
+Keep radii tight. Content **cards** stay at `--radius-md` or below; the larger `--radius-lg`/`--radius-xl`
+are reserved for the framing surfaces that morph and the composer pill (a soft, iOS-like shell around
+the reading content), never for the content blocks inside them.
 
 ---
 
@@ -300,13 +303,27 @@ When the reader selects a run of text (to ask about a whole phrase, not one word
 - Appears after ~120ms hover intent; dismisses on mouse-out. Motion per §7 (fade + 2px rise).
 - Not focusable/interactive — for anything clickable inside, use the click panel.
 
-### Click panel (larger — the full description)
+### "Ver más" modal (larger — the full description)
+The "poquito → más" second level: the small popover (the *vistazo*) has a **"Ver más"** action that
+**grows** into this modal, the home of the full description and, in v1, the generative-UI component.
+(This supersedes the earlier docked side-panel sketch; the shipped surface is a centered modal that
+**morphs** from the popover — a decision reconciled here, as with `UI-PREFERENCES.md`.)
+
 - Purpose: the complete description or, in v1, a generative-UI component.
-- **Placement:** right-hand side panel on wide screens (`width: 380–420px`, full height, `border-left: var(--border-hairline)`, background `--color-bg-subtle`); **bottom sheet** on narrow screens (`border-top: var(--border-hairline)`, `--radius-lg` top corners). It does not float over the text as a shadowed card — it docks.
-- Header: entity title `--text-lg`, `--weight-semibold`; a `--text-xs` `--color-fg-muted` kicker (type/source); a borderless close button (× icon, `--color-fg-muted`, hover `--color-fg`).
-- Body: `--space-5` padding, `--text-base`/`--text-sm` content, scrolls independently.
-- Divider between header and body: `border-bottom: var(--border-hairline)`.
-- Enter/exit: slide 8–12px + fade, per §7. Optional flat scrim behind on mobile only.
+- **Placement:** a **centered card** over a **flat scrim** — a dim (`--color-scrim`), never a shadow
+  (§5). `max-width: 560px`, `max-height: min(80vh, 640px)`, `--color-bg`, `--border-hairline`,
+  `--radius-xl` corners. The card does not float on a shadow; the scrim + hairline + the morph carry it.
+- **Morph, not pop (§9).** The card shares a Framer `layoutId` with the popover surface, so opening
+  **grows** the small card into the modal and closing **shrinks** it back — register-2 glide
+  (`MASCOT_MORPH`-style curve, ~0.44s, no bounce). The OBJECT morphs; the text content fades in on top
+  (never scaled between sizes). The scrim fades independently so the morph stays clean.
+- Header: entity title `--text-lg`, `--weight-semibold`; a borderless close button (× icon,
+  `--color-fg-muted`, hover `--color-fg`). Divider below: `border-bottom: var(--border-hairline)`.
+- Body: `--space-5` padding, `--text-base`/`--text-sm` content, scrolls independently. A generative
+  component renders here as a clean block (no box inside the box).
+- Dismiss: click the scrim or press Escape → shrinks back to the popover. Focus moves into the modal
+  on open, is trapped while open, and returns to the triggering word on close (§8). Honors
+  `prefers-reduced-motion` (the morph is skipped, the card simply appears/disappears).
 
 ### Generative-UI component cards (v1)
 All cards live inside the click panel (or inline in-message as blocks). Shared card recipe: background `--color-bg` on `--color-bg-subtle` panel (tone layering = separation), `--border-hairline`, `--radius-md`, `--space-4` padding, `--space-4` gap between stacked cards. A card title is `--text-xs` `--weight-semibold` uppercase-ish label in `--color-fg-muted` with `letter-spacing: 0.03em`. **No shadows, no colored headers.**
