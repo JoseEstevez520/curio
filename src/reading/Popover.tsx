@@ -5,12 +5,12 @@ interface PopoverProps extends HTMLAttributes<HTMLDivElement> {
   messageId: string;
   term: string;
   context: string;
-  onClose: () => void;
 }
 
-/** The inline description popover. Anchored to its word by Floating UI (see WordSpan). */
+/** The inline description popover. Anchored to its word by Floating UI (see WordSpan).
+ *  Dismissed by clicking outside or pressing Escape (wired via useDismiss in WordSpan). */
 const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
-  { messageId, term, context, onClose, ...rest },
+  { messageId, term, context, ...rest },
   ref,
 ) {
   const entry = useDescribe(true, messageId, term, context);
@@ -19,29 +19,20 @@ const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover(
   return (
     <div
       ref={ref}
-      className="z-50 max-w-[320px] rounded-sm border border-border bg-bg p-3 text-sm text-fg-secondary"
+      className="curio-popover z-50 max-w-[320px] rounded-sm border border-border bg-bg px-3 py-2 text-sm leading-normal text-fg-secondary"
       {...rest}
     >
-      <div className="mb-1 flex items-center justify-between gap-3">
-        <span className="text-xs font-medium text-fg-muted">{term}</span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="-mr-1 rounded-xs px-1 text-fg-muted transition-colors duration-fast hover:text-fg"
-        >
-          ×
-        </button>
-      </div>
       {entry?.status === 'error' ? (
-        <p className="text-fg-muted">⚠ {entry.error}</p>
+        <p className="text-fg-muted">{entry.error}</p>
       ) : entry?.text ? (
         <p className="whitespace-pre-wrap">
           {entry.text}
-          {loading && <span className="ml-0.5 animate-pulse text-fg-muted">▍</span>}
+          {loading && <span className="ml-0.5 animate-pulse text-fg-faint">▍</span>}
         </p>
       ) : (
-        <p className="text-fg-muted">Thinking…</p>
+        <p className="text-fg-faint" aria-label="Loading">
+          …
+        </p>
       )}
     </div>
   );

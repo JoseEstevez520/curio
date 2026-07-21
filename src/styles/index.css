@@ -6,32 +6,57 @@
 @tailwind utilities;
 
 @layer components {
-  /* Clickable word — docs/DESIGN.md §6. Reads as prose at rest; invites on hover.
-     No shadows; the affordance is a hairline underline + color, never a box. */
+  /* Clickable word — invisible by design. At rest it reads as plain prose: no
+     underline, no color, no cursor hint. Curiosity is rewarded on click, not
+     advertised. Feedback happens only after you click. */
   .entity {
-    color: var(--color-fg);
-    text-decoration: underline dotted var(--color-border-strong);
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
-    cursor: pointer;
-    border-radius: var(--radius-xs);
-    padding: 0 2px;
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
     background: transparent;
     border: 0;
-    font: inherit;
-    transition:
-      color var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out),
-      text-decoration-color var(--dur-fast) var(--ease-out);
+    margin: 0;
+    padding: 0 1px;
+    cursor: inherit;
+    border-radius: var(--radius-xs);
+    -webkit-appearance: none;
+    appearance: none;
+    transition: color var(--dur-fast) var(--ease-out);
   }
-  .entity:hover {
-    color: var(--color-accent);
-    text-decoration: underline solid var(--color-accent);
-    background: var(--color-accent-subtle);
-  }
+  /* Open state: the one word whose description is showing turns accent, with a
+     quick one-shot flash so the click feels acknowledged. */
   .entity[aria-expanded='true'] {
     color: var(--color-accent);
-    background: var(--color-accent-subtle);
-    text-decoration: underline solid var(--color-accent);
+    animation: curio-word-flash var(--dur-base) var(--ease-out);
+  }
+  @keyframes curio-word-flash {
+    from {
+      background: var(--color-accent-subtle);
+    }
+    to {
+      background: transparent;
+    }
+  }
+
+  /* Description popover — subtle fade + rise on open (docs/DESIGN.md §7). */
+  .curio-popover {
+    animation: curio-pop-in var(--dur-fast) var(--ease-out);
+  }
+  @keyframes curio-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entity[aria-expanded='true'],
+  .curio-popover {
+    animation: none;
   }
 }

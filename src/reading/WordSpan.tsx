@@ -63,7 +63,6 @@ export default function WordSpan({ messageId, index, term, context }: WordSpanPr
             messageId={messageId}
             term={term}
             context={context}
-            onClose={() => setOpenKey(null)}
             {...getFloatingProps()}
           />
         </FloatingPortal>

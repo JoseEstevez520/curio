@@ -3,6 +3,18 @@
 Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Keep a Changelog.
 
 ## [Unreleased]
+### Changed
+- **Descriptor más limpio y sin "esto es un enlace":** las palabras clicables ya no llevan
+  subrayado ni color en reposo (se leen como prosa normal). Al hacer clic, una pequeña animación
+  y el popover con fundido de entrada. Popover sin cabecera (solo el texto), cierre por
+  Escape / clic fuera.
+- **Idioma:** el descriptor responde en el **mismo idioma** de la conversación/frase (antes salía
+  en inglés aunque la conversación fuera en español).
+- **Contexto:** la descripción usa además un poco de contexto de la conversación (la pregunta del
+  usuario), no solo la frase.
+- **Velocidad:** modelo mantenido caliente (`keep_alive`), respuesta acotada (`num_predict`) y
+  streaming → descripción en ~2-3 s en caliente.
+
 - Siguiente: v1 (UI generativa — catálogo de componentes).
 
 ## [v0.0] — 2026-07-21 — Descripción en texto plano al clic
