@@ -10,12 +10,30 @@ aparece una **descripción completa** ahí mismo. Para curiosos e investigadores
 completo en `IDEA.md`.
 
 Piezas: entidades + lazy loading (descripción bajo demanda al clic/hover) + modelos pequeños
-en local con **Ollama** (sin API key).
+en local con **Ollama** (sin API key). Con el tiempo, **UI generativa** (componentes de un
+catálogo que el modelo elige y rellena) en vez de texto plano.
+
+## Arranque
+
+- En un chat nuevo, el dueño escribe **`start`**. Sigue **`START.md`** al pie de la letra:
+  lee los docs, mira el estado en git, coge el primer slice sin marcar de `docs/ROADMAP.md` y
+  ponte a ello por slices.
+
+## Documentos clave (leer al empezar)
+
+- `START.md` — el arranque. `IDEA.md` — qué y por qué.
+- `docs/ARCHITECTURE.md` — stack y cómo se construye. `docs/DESIGN.md` — estilo.
+- `docs/ROADMAP.md` — versiones y slices (la lista de tareas). `docs/AGENTS.md` — el equipo.
+- `EXPERIMENTS.md`, `CHANGELOG.md` — dónde vamos.
 
 ## Idioma y estilo
 
 - Responde **en español** y con lenguaje **llano**, con analogías cuando ayude. Nada de jerga
   salvo que se pida el detalle técnico.
+- **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia, tipo Linear,
+  **sin sombras** ni cajas flotantes — jerarquía con espacio y filetes de 1px. Ver `docs/DESIGN.md`.
+- **Restricción técnica (sagrada):** todo **local, sin API keys**; todo pasa por **Ollama** con
+  modelos pequeños.
 
 ## Flujo de trabajo con git — IMPORTANTE
 
@@ -29,6 +47,11 @@ en local con **Ollama** (sin API key).
   ```
 - **Push solo cuando el usuario lo pida.** Commit local por defecto; subir a `origin` solo bajo
   petición explícita.
+- **Trabaja por slices** (un slice = un commit pequeño). Marca la casilla `[x]` del slice en
+  `docs/ROADMAP.md` al terminarlo.
+- **Versiones = tags** (`git tag -a vX.Y`) en cada frontera de versión; actualiza `CHANGELOG.md`.
+- **Experimentos** en ramas `exp/<nombre>`; escribe el resultado en `EXPERIMENTS.md` y funde solo
+  la conclusión ganadora. `main` siempre demoable.
 
 ## Trabajar con varios agentes
 
