@@ -25,6 +25,18 @@ export interface GenerateOptions {
   signal?: AbortSignal;
 }
 
+/**
+ * Types that earn the modal's middle slot: they SHOW structure a sentence can't. Text-shaped
+ * types (definition-card, fact-table) and plain-text render as the gloss alone (no middle).
+ */
+const VISUAL_TYPES = new Set<CatalogType>([
+  'chart',
+  'concept-diagram',
+  'timeline',
+  'comparison',
+  'steps',
+]);
+
 /** Parse a JSON string defensively; returns `undefined` on any failure. */
 function tryParse(text: string): unknown {
   try {
@@ -76,8 +88,11 @@ export async function generateEnvelopeWith(
     if (typeof c.confidence === 'number') confidence = c.confidence;
   }
 
-  // Plain-text needs no second call — the gloss is already the answer.
-  if (type === 'plain-text') {
+  // The modal's middle slot earns its place only when the type is genuinely VISUAL/structured
+  // — something the reader's gloss can't convey (a chart, a map, a timeline…). Text-shaped
+  // types (definition-card, fact-table) would just restate the gloss, so we route them — and
+  // plain-text — to the gloss alone (no second call, no middle block). See DescribeModal.
+  if (!VISUAL_TYPES.has(type)) {
     return { type: 'plain-text', confidence, data: { text: fallbackText } };
   }
 

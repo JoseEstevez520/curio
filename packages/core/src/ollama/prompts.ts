@@ -68,14 +68,15 @@ export function buildTypeChoiceMessages(
     {
       role: 'system',
       content:
-        "You are Curio's presenter. A reader clicked a term while reading. Choose the SINGLE " +
-        'best way to present its description, from this fixed catalog:\n' +
+        "You are Curio's presenter. A reader clicked a term while reading and will already see " +
+        'a short written description. Your job is to decide whether a VISUAL adds something the ' +
+        'sentence cannot. Catalog:\n' +
         `${menu}\n\n` +
-        'PREFER a VISUAL type (chart, concept-diagram, timeline, comparison, fact-table) when ' +
-        'the term genuinely supports it — a curious reader wants to SEE structure, not read a ' +
-        'paragraph. Fall back to definition-card, and only choose "plain-text" when nothing ' +
-        'richer fits at all. Report your confidence 0-1. Choose only — do not write the ' +
-        'description yet.',
+        'Choose a visual type — chart, concept-diagram, timeline, comparison, steps — ONLY when ' +
+        'the term genuinely has that structure (real quantities to compare, real dated events, ' +
+        'a real process, clear connections). If a visual would be forced, generic, or just ' +
+        'repeat the sentence, choose "plain-text". When in doubt, choose "plain-text". ' +
+        'Report your confidence 0-1. Choose only — do not write the description yet.',
     },
     {
       role: 'user',
