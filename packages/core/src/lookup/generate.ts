@@ -225,13 +225,20 @@ export interface DeepOptions {
  * gloss. Longer token budget so it can breathe.
  */
 export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
-  const text = await provider.complete({
-    messages: buildDeepDescribeMessages(opts.term, opts.context, opts.conversation),
-    temperature: 0.3,
-    maxTokens: 350,
-    signal: opts.signal,
-  });
-  return cleanDescription(text);
+  try {
+    const text = await provider.complete({
+      messages: buildDeepDescribeMessages(opts.term, opts.context, opts.conversation),
+      temperature: 0.3,
+      maxTokens: 350,
+      signal: opts.signal,
+    });
+    return cleanDescription(text);
+  } catch (e) {
+    // Cancellation must propagate; any other failure just means no deeper text (the modal
+    // falls back to the gloss) — it must not blank the component or related links.
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return '';
+  }
 }
 
 /** Ollama wrapper for {@link describeDeepWith}. */

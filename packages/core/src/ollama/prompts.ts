@@ -31,9 +31,9 @@ export function buildDescribeMessages(
     {
       role: 'system',
       content:
-        "You are Curio's describer. A reader clicked a word or phrase while reading and wants " +
-        'it explained as used in their text. Answer with one or two short, plain sentences — no ' +
-        'preamble, no headings, no markdown, and never repeat a label or these instructions. ' +
+        "You are Curio's describer. A reader clicked a word or phrase while reading and wants a " +
+        'QUICK glimpse. Answer with EXACTLY ONE short, plain sentence — no more — with no ' +
+        'preamble, no headings, no markdown, and never repeating a label or these instructions. ' +
         'Always answer in the same language as the text (if the text is in Spanish, answer in ' +
         'Spanish). Explain the term; do not merely translate it.',
     },
@@ -61,10 +61,11 @@ export function buildDeepDescribeMessages(
       role: 'system',
       content:
         "You are Curio's describer writing the fuller explanation a curious reader sees when " +
-        'they choose to go deeper. In 3 to 5 short sentences of plain prose — no headings, no ' +
-        'markdown, no labels, and without repeating these instructions — explain what the term ' +
-        'is, one or two key aspects, and something genuinely interesting or worth knowing about ' +
-        'it as used in the text. Write in the SAME LANGUAGE as the text (Spanish text → Spanish).',
+        'they choose to go deeper. The reader has ALREADY seen a one-line definition, so do NOT ' +
+        'just restate what it is — go further: how it works, why it matters, an example, or a ' +
+        'genuinely interesting fact. Write 3 to 5 short sentences of plain prose — no headings, ' +
+        'no markdown, no labels, no repeating these instructions — in the SAME LANGUAGE as the ' +
+        'text (Spanish text → Spanish).',
     },
     {
       role: 'user',

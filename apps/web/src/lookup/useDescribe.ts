@@ -63,7 +63,7 @@ export function useDescribe(
           model,
           messages: buildDescribeMessages(term, context, conversation),
           temperature: 0.2,
-          numPredict: 120,
+          numPredict: 60,
           keepAlive: '10m',
           signal: controller.signal,
         })) {
