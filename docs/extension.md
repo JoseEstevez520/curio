@@ -2,40 +2,52 @@
 
 Lleva el "clic → descripción" de Curio a **cualquier página web**. Seleccionas una palabra o
 frase y aparece su descripción ahí mismo; **"Ver más"** abre un modal con la UI generativa
-(ficha, tabla, cronología…). Todo **local vía Ollama**, sin API keys — reutiliza el mismo
-`@curio/core` que la app web.
+(ficha, tabla, cronología…). Todo **local y sin API keys**, con el modelo del **navegador (Gemini
+Nano)** por defecto y **Ollama de reserva** — reutiliza el mismo `@curio/core` que la app web.
 
 > Vive en `apps/extension`. Es un **PoC funcional**: compila y carga como extensión sin
 > empaquetar; para usarla hay que permitir su origen en Ollama (abajo).
 
+## El cerebro: Gemini Nano primero, Ollama de reserva
+
+La extensión usa un **"cerebro" enchufable** (`LlmProvider` de `@curio/core`). Elige así:
+
+1. **Gemini Nano** — la **IA integrada de Chrome** (Prompt API), on-device y **sin instalar nada**.
+   Es la opción preferida: cero configuración para el usuario.
+2. **Ollama** (reserva) — si el navegador no tiene Nano disponible, cae al daemon local
+   `http://localhost:11434` (necesita permitir el origen, abajo).
+
+Toda la **lógica** (catálogo Zod, prompts, generación de dos etapas, validación, saneador) vive en
+`@curio/core` y es la misma que la web; solo cambia el proveedor.
+
 ## Cómo funciona (arquitectura)
 
-- **`@curio/core`** aporta toda la lógica (catálogo Zod, cliente Ollama, prompts, generación de
-  dos etapas, validación, saneador). La base de Ollama es **configurable**: aquí se apunta a
-  `http://localhost:11434` directamente (la web usa el proxy `/ollama`).
-- **Service worker (`background.ts`)** — el único que habla con Ollama. El content script le pide
-  `describe` / `generate` / `models` / `ping` por mensajes; así las llamadas salen del **origen de
-  la extensión** (cubierto por `host_permissions`) y la CSP/CORS de la página no las bloquea.
+- **Service worker (`background.ts`)** — el único que ejecuta el modelo. Detecta el cerebro
+  (`isChromeAIAvailable()` → Nano; si no, `pingOllama()` → Ollama) y responde
+  `describe` / `generate` / `status` por mensajes. Con Ollama, las llamadas salen del **origen de
+  la extensión** (cubierto por `host_permissions`), así la CSP/CORS de la página no las bloquea.
 - **Content script (`content.tsx`)** — monta la UI en un **Shadow DOM** (aislado del CSS de la
   página; el CSS de Tailwind se inyecta dentro del shadow). Al seleccionar texto, muestra el
   popover con la glosa y, en "Ver más", el modal con `CatalogRenderer` del core.
-- **Popup** — estado de Ollama, selector de modelo, on/off. Atajo **Alt+C** para activar.
+- **Popup** — muestra qué cerebro hay (Nano / Ollama / ninguno); con Ollama, selector de modelo;
+  on/off. Atajo **Alt+C** para activar.
 
-## Requisito clave: permitir la extensión en Ollama
+## Requisitos según el cerebro
 
-Ollama bloquea los orígenes de navegador por defecto. El origen de una extensión es
-`chrome-extension://<id>`. Arranca Ollama permitiéndolo:
+- **Con Gemini Nano** (recomendado): un Chrome reciente con la Prompt API disponible (puede requerir
+  activarla en `chrome://flags` y que Chrome descargue el modelo la primera vez). **Nada de Ollama.**
+- **Con Ollama** (reserva): Ollama bloquea los orígenes de navegador por defecto, así que hay que
+  permitir el de la extensión (`chrome-extension://<id>`) al arrancarlo:
 
-```bash
-# Windows (PowerShell)
-$env:OLLAMA_ORIGINS = "chrome-extension://*"; ollama serve
+  ```bash
+  # Windows (PowerShell)
+  $env:OLLAMA_ORIGINS = "chrome-extension://*"; ollama serve
+  # macOS / Linux
+  OLLAMA_ORIGINS=chrome-extension://* ollama serve
+  ```
 
-# macOS / Linux
-OLLAMA_ORIGINS=chrome-extension://* ollama serve
-```
-
-(Para acotar, sustituye `*` por el id real de la extensión una vez cargada.) Si Ollama ya corre
-como servicio, hay que reiniciarlo con esa variable. El popup avisa si detecta el bloqueo.
+  (Para acotar, sustituye `*` por el id real de la extensión.) Si Ollama corre como servicio,
+  reinícialo con esa variable. El popup avisa qué cerebro está usando (o si no hay ninguno).
 
 ## Compilar y cargar (desarrollo)
 

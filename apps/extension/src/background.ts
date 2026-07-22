@@ -1,65 +1,72 @@
 // Curio extension — background service worker.
 //
-// The single place that talks to Ollama. It points @curio/core at the local daemon and
-// answers the content script's requests (describe / generate / models / ping). Routing all
-// localhost calls through here keeps them in the extension origin (covered by
-// host_permissions), so page CSP/CORS never blocks them.
+// The single place that runs the model. It prefers the browser's built-in AI (Gemini Nano) so
+// the user needs zero setup; if that isn't available, it falls back to a local Ollama daemon.
+// Routing everything through here keeps localhost calls in the extension origin (covered by
+// host_permissions), so a page's CSP/CORS never blocks them.
 //
-// ⚠️ Ollama must allow the extension origin: run it with
+// If it falls back to Ollama, the daemon must allow the extension origin:
 //   OLLAMA_ORIGINS=chrome-extension://* ollama serve   (see docs/extension.md)
 
 import {
   configureOllama,
-  chat,
-  buildDescribeMessages,
-  cleanDescription,
-  generateEnvelope,
+  describeWith,
+  generateEnvelopeWith,
   listModels,
   pingOllama,
+  isChromeAIAvailable,
+  ChromeAIProvider,
+  OllamaProvider,
+  type LlmProvider,
 } from '@curio/core';
-import { STORAGE, type CurioRequest } from './messages';
+import { STORAGE, type Brain, type CurioRequest } from './messages';
 
-// The extension calls the daemon directly (no dev proxy here).
+// The Ollama fallback calls the daemon directly (no dev proxy in the extension).
 configureOllama('http://localhost:11434');
 
-async function resolveModels(): Promise<{ model?: string; describeModel?: string }> {
+async function storedModel(): Promise<string | undefined> {
   const s = await chrome.storage.local.get([STORAGE.model, STORAGE.describeModel]);
-  return { model: s[STORAGE.model], describeModel: s[STORAGE.describeModel] };
+  return s[STORAGE.model] ?? s[STORAGE.describeModel];
 }
+
+/** Pick the brain: built-in AI first, then Ollama; null if neither is ready. */
+async function pickProvider(): Promise<LlmProvider | null> {
+  if (await isChromeAIAvailable()) return new ChromeAIProvider();
+  const model = await storedModel();
+  if (model && (await pingOllama())) return new OllamaProvider(model);
+  return null;
+}
+
+const NO_BRAIN =
+  'No hay IA disponible: activa Gemini Nano en Chrome, o arranca Ollama (con OLLAMA_ORIGINS).';
 
 chrome.runtime.onMessage.addListener((msg: CurioRequest, _sender, sendResponse) => {
   (async () => {
     try {
-      if (msg.kind === 'ping') {
-        sendResponse({ ok: true, data: await pingOllama() });
-        return;
-      }
-      if (msg.kind === 'models') {
-        sendResponse({ ok: true, data: await listModels() });
+      if (msg.kind === 'status') {
+        let brain: Brain = 'none';
+        let models = [] as Awaited<ReturnType<typeof listModels>>;
+        if (await isChromeAIAvailable()) {
+          brain = 'chrome-ai';
+        } else if (await pingOllama()) {
+          brain = 'ollama';
+          models = await listModels();
+        }
+        sendResponse({ ok: true, data: { brain, models } });
         return;
       }
 
-      const { model, describeModel } = await resolveModels();
+      const provider = await pickProvider();
+      if (!provider) throw new Error(NO_BRAIN);
 
       if (msg.kind === 'describe') {
-        const m = describeModel ?? model;
-        if (!m) throw new Error('No hay modelo seleccionado. Ábrelo en el popup de Curio.');
-        const text = await chat({
-          model: m,
-          messages: buildDescribeMessages(msg.term, msg.context, msg.conversation),
-          temperature: 0.2,
-          numPredict: 120,
-          keepAlive: '10m',
-        });
-        sendResponse({ ok: true, data: cleanDescription(text) });
+        const text = await describeWith(provider, msg.term, msg.context, msg.conversation);
+        sendResponse({ ok: true, data: text });
         return;
       }
 
       if (msg.kind === 'generate') {
-        const m = model ?? describeModel;
-        if (!m) throw new Error('No hay modelo seleccionado. Ábrelo en el popup de Curio.');
-        const envelope = await generateEnvelope({
-          model: m,
+        const envelope = await generateEnvelopeWith(provider, {
           term: msg.term,
           context: msg.context,
           conversation: msg.conversation,

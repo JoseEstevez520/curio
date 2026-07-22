@@ -1,9 +1,15 @@
-import { chat } from '../ollama/client';
-import { buildTypeChoiceMessages, buildFillMessages } from '../ollama/prompts';
+import {
+  buildTypeChoiceMessages,
+  buildFillMessages,
+  buildDescribeMessages,
+} from '../ollama/prompts';
 import { typeChoiceJsonSchema, dataJsonSchema } from '../catalog/jsonSchema';
 import { coerceFromParts } from '../catalog/coerce';
 import { catalogMeta } from '../catalog/catalog';
 import { CATALOG_TYPES, type CatalogType, type Envelope } from '../catalog/schemas';
+import { OllamaProvider } from '../llm/ollama-provider';
+import type { LlmProvider } from '../llm/provider';
+import { cleanDescription } from './cleanDescription';
 
 export interface GenerateOptions {
   model: string;
@@ -27,7 +33,8 @@ function tryParse(text: string): unknown {
 }
 
 /**
- * Generate a validated {@link Envelope} for the modal, two-stage (DESIGN / ARCHITECTURE §6):
+ * Generate a validated {@link Envelope} using any {@link LlmProvider}, two-stage
+ * (DESIGN / ARCHITECTURE §6):
  *
  *   1. CHOOSE — a tiny classification constrained to `{ type, confidence }`.
  *   2. FILL   — populate ONLY the chosen component's schema (smaller schema = better fills
@@ -36,18 +43,23 @@ function tryParse(text: string): unknown {
  * Every exit is a valid envelope: if stage 1 picks `plain-text` (or anything goes wrong),
  * we return the plain gloss; if stage 2's data fails Zod, `coerceFromParts` falls back to
  * plain-text too. The renderer therefore never sees anything unvalidated.
+ *
+ * This is the provider-agnostic core: it maps each stage's `numPredict` budget onto the
+ * provider's `maxTokens` and calls {@link LlmProvider.complete}. {@link generateEnvelope} is
+ * the thin Ollama wrapper over it.
  */
-export async function generateEnvelope(opts: GenerateOptions): Promise<Envelope> {
-  const { model, term, context, conversation, fallbackText, signal } = opts;
+export async function generateEnvelopeWith(
+  provider: LlmProvider,
+  opts: Omit<GenerateOptions, 'model'>,
+): Promise<Envelope> {
+  const { term, context, conversation, fallbackText, signal } = opts;
 
   // Stage 1: choose a catalog type.
-  const choiceRaw = await chat({
-    model,
+  const choiceRaw = await provider.complete({
     messages: buildTypeChoiceMessages(term, context, conversation),
     format: typeChoiceJsonSchema(),
     temperature: 0,
-    numPredict: 60,
-    keepAlive: '10m',
+    maxTokens: 60,
     signal,
   });
 
@@ -68,15 +80,43 @@ export async function generateEnvelope(opts: GenerateOptions): Promise<Envelope>
   }
 
   // Stage 2: fill the chosen component's schema.
-  const fillRaw = await chat({
-    model,
+  const fillRaw = await provider.complete({
     messages: buildFillMessages(term, context, catalogMeta(type), conversation),
     format: dataJsonSchema(type),
     temperature: 0.2,
-    numPredict: 500,
-    keepAlive: '10m',
+    maxTokens: 500,
     signal,
   });
 
   return coerceFromParts(type, confidence, tryParse(fillRaw), fallbackText);
+}
+
+/**
+ * Generate a validated {@link Envelope} for the modal via Ollama. Thin wrapper: builds an
+ * {@link OllamaProvider} from `opts.model` and delegates to {@link generateEnvelopeWith}. The
+ * signature and observable behavior are unchanged — the web app and extension call it as before.
+ */
+export async function generateEnvelope(opts: GenerateOptions): Promise<Envelope> {
+  const provider = new OllamaProvider(opts.model);
+  return generateEnvelopeWith(provider, opts);
+}
+
+/**
+ * Produce a plain-text gloss for `term` with any {@link LlmProvider} — the single-shot path
+ * the extension uses to get a description from whichever brain is available. Runs the same
+ * label-free describe prompt used elsewhere and strips any leaked scaffolding via
+ * {@link cleanDescription}.
+ */
+export async function describeWith(
+  provider: LlmProvider,
+  term: string,
+  context: string,
+  conversation?: string,
+): Promise<string> {
+  const text = await provider.complete({
+    messages: buildDescribeMessages(term, context, conversation),
+    temperature: 0.2,
+    maxTokens: 120,
+  });
+  return cleanDescription(text);
 }

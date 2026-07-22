@@ -5,6 +5,11 @@
 // Nothing here depends on a particular app store or DOM layout — the Ollama endpoint is
 // configurable via `configureOllama` so each surface points it at the right place.
 
+// Pluggable "brain": the provider seam + its Ollama and Chrome built-in AI (Gemini Nano) impls.
+export * from './llm/provider';
+export * from './llm/ollama-provider';
+export * from './llm/chrome-ai-provider';
+
 // Motion tokens (shared-element morph, fades).
 export * from './motion';
 

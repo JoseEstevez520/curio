@@ -17,22 +17,27 @@ export interface GenerateRequest {
   conversation?: string;
   fallbackText?: string;
 }
-export interface ModelsRequest {
-  kind: 'models';
-}
-export interface PingRequest {
-  kind: 'ping';
+export interface StatusRequest {
+  kind: 'status';
 }
 
-export type CurioRequest = DescribeRequest | GenerateRequest | ModelsRequest | PingRequest;
+export type CurioRequest = DescribeRequest | GenerateRequest | StatusRequest;
+
+/** Which brain the extension will use: the browser's built-in AI, Ollama, or nothing ready. */
+export type Brain = 'chrome-ai' | 'ollama' | 'none';
+
+export interface StatusData {
+  brain: Brain;
+  /** Installed Ollama models — only relevant (and populated) when brain === 'ollama'. */
+  models: OllamaModel[];
+}
 
 /** A discriminated result so the content side always knows if it can trust `data`. */
 export type CurioResponse<T> = { ok: true; data: T } | { ok: false; error: string };
 
 export type DescribeResult = CurioResponse<string>;
 export type GenerateResult = CurioResponse<Envelope>;
-export type ModelsResult = CurioResponse<OllamaModel[]>;
-export type PingResult = CurioResponse<boolean>;
+export type StatusResult = CurioResponse<StatusData>;
 
 /** Storage keys shared across background / content / popup. */
 export const STORAGE = {

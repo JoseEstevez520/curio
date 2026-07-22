@@ -2,14 +2,12 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { OllamaModel } from '@curio/core';
-import { STORAGE, type ModelsResult, type PingResult } from './messages';
+import { STORAGE, type Brain, type StatusResult } from './messages';
 import './popup.css';
-
-type Status = 'checking' | 'up' | 'down';
 
 function Popup() {
   const [enabled, setEnabled] = useState(false);
-  const [status, setStatus] = useState<Status>('checking');
+  const [brain, setBrain] = useState<Brain | 'checking'>('checking');
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [model, setModel] = useState('');
 
@@ -20,17 +18,15 @@ function Popup() {
     });
 
     (async () => {
-      const ping = (await chrome.runtime.sendMessage({ kind: 'ping' })) as PingResult;
-      if (!ping.ok || !ping.data) {
-        setStatus('down');
+      const res = (await chrome.runtime.sendMessage({ kind: 'status' })) as StatusResult;
+      if (!res.ok) {
+        setBrain('none');
         return;
       }
-      setStatus('up');
-      const res = (await chrome.runtime.sendMessage({ kind: 'models' })) as ModelsResult;
-      if (res.ok) {
-        setModels(res.data);
-        // Default to the stored model, else the first available.
-        setModel((m) => m || res.data[0]?.name || '');
+      setBrain(res.data.brain);
+      setModels(res.data.models);
+      if (res.data.brain === 'ollama') {
+        setModel((m) => m || res.data.models[0]?.name || '');
       }
     })();
   }, []);
@@ -47,6 +43,15 @@ function Popup() {
     chrome.storage.local.set({ [STORAGE.model]: name, [STORAGE.describeModel]: name });
   };
 
+  const statusLine =
+    brain === 'checking'
+      ? 'Comprobando…'
+      : brain === 'chrome-ai'
+        ? 'IA del navegador (Gemini Nano) · sin configurar nada'
+        : brain === 'ollama'
+          ? 'Ollama conectado'
+          : 'Sin IA disponible';
+
   return (
     <div className="wrap">
       <div className="row">
@@ -56,13 +61,11 @@ function Popup() {
         </button>
       </div>
 
-      <div className={`status ${status === 'up' ? 'ok' : status === 'down' ? 'warn' : ''}`}>
-        {status === 'checking' && 'Comprobando Ollama…'}
-        {status === 'up' && 'Ollama conectado'}
-        {status === 'down' && 'Ollama no responde (o bloquea la extensión)'}
+      <div className={`status ${brain === 'none' ? 'warn' : brain === 'checking' ? '' : 'ok'}`}>
+        {statusLine}
       </div>
 
-      {status === 'up' && (
+      {brain === 'ollama' && (
         <div>
           <label htmlFor="curio-model">Modelo</label>
           <select id="curio-model" value={model} onChange={(e) => pickModel(e.target.value)}>
@@ -84,9 +87,10 @@ function Popup() {
         activar).
       </div>
 
-      {status === 'down' && (
+      {brain === 'none' && (
         <div className="hint">
-          Para que Ollama acepte la extensión, arráncalo permitiendo su origen:
+          Activa <b>Gemini Nano</b> en Chrome (chrome://flags → Prompt API), o arranca Ollama
+          permitiendo la extensión:
           <br />
           <code>OLLAMA_ORIGINS=chrome-extension://* ollama serve</code>
         </div>

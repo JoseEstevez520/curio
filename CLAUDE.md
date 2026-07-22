@@ -32,8 +32,10 @@ catálogo que el modelo elige y rellena) en vez de texto plano.
   salvo que se pida el detalle técnico.
 - **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia, tipo Linear,
   **sin sombras** ni cajas flotantes — jerarquía con espacio y filetes de 1px. Ver `docs/DESIGN.md`.
-- **Restricción técnica (sagrada):** todo **local, sin API keys**; todo pasa por **Ollama** con
-  modelos pequeños.
+- **Restricción técnica (sagrada):** todo **local y sin API keys**, siempre con **modelos
+  pequeños**. El "cerebro" es enchufable por superficie: **Ollama** en web y escritorio; en la
+  **extensión**, el **modelo integrado del navegador (Gemini Nano)** cuando está disponible —así el
+  usuario no instala nada— con **Ollama de reserva**. Nada de nube ni claves.
 
 ## Flujo de trabajo con git — IMPORTANTE
 
