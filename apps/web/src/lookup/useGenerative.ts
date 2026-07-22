@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
-import { generateEnvelope } from '@curio/core';
+import { generateEnvelope, generateRelated } from '@curio/core';
 import { describeError } from '../chat/useChat';
 
 /** The user turn that prompted this reply, trimmed — a little disambiguating context. */
@@ -14,12 +14,13 @@ function conversationContext(messages: Message[], messageId: string): string {
 }
 
 /**
- * Resolve the generative-UI component for `term` (the modal's rich content). Lazy: only
- * runs when `active` (i.e. the modal is open), so a plain click never pays for generation.
- * Cached per (message, term) in the store, so reopening the modal is instant.
+ * Resolve the generative-UI component + related links for `term` (the modal's rich content).
+ * Runs when `active`; we PREFETCH it on word click (see SelectionPopover) so "Ver más" opens
+ * to a ready component instead of a spinner. Cached per (model, message, term) in the store,
+ * so opening the modal is instant once the prefetch lands.
  *
- * `fallbackText` is the plain gloss already shown in the popover; it becomes the plain-text
- * envelope whenever a richer component isn't produced.
+ * `fallbackText` is the plain gloss; it becomes the plain-text envelope when no richer
+ * component is produced.
  */
 export function useGenerative(
   active: boolean,
@@ -58,16 +59,21 @@ export function useGenerative(
 
     (async () => {
       try {
-        const envelope = await generateEnvelope({
-          model,
-          term,
-          context,
-          conversation,
-          fallbackText: fallbackText.trim() || term,
-          signal: controller.signal,
-        });
+        // The component and the related links are independent — fetch them together so the
+        // modal has both as soon as possible (this whole thing is prefetched on word click).
+        const [envelope, related] = await Promise.all([
+          generateEnvelope({
+            model,
+            term,
+            context,
+            conversation,
+            fallbackText: fallbackText.trim() || term,
+            signal: controller.signal,
+          }),
+          generateRelated(model, { term, context, conversation, signal: controller.signal }),
+        ]);
         settled = true;
-        useChatStore.getState().setGenerative(key, { status: 'done', envelope });
+        useChatStore.getState().setGenerative(key, { status: 'done', envelope, related });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
         settled = true;

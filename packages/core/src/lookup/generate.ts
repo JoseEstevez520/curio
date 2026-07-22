@@ -2,6 +2,7 @@ import {
   buildTypeChoiceMessages,
   buildFillMessages,
   buildDescribeMessages,
+  buildRelatedMessages,
 } from '../ollama/prompts';
 import { typeChoiceJsonSchema, dataJsonSchema } from '../catalog/jsonSchema';
 import { coerceFromParts } from '../catalog/coerce';
@@ -9,6 +10,7 @@ import { catalogMeta } from '../catalog/catalog';
 import { CATALOG_TYPES, type CatalogType, type Envelope } from '../catalog/schemas';
 import { OllamaProvider } from '../llm/ollama-provider';
 import type { LlmProvider } from '../llm/provider';
+import type { OllamaFormat } from '../ollama/types';
 import { cleanDescription } from './cleanDescription';
 
 export interface GenerateOptions {
@@ -119,4 +121,77 @@ export async function describeWith(
     maxTokens: 120,
   });
   return cleanDescription(text);
+}
+
+/**
+ * JSON-Schema constraint for the related-concepts call. Wrapped in an OBJECT with a
+ * `minItems` array — a bare top-level array makes small models (e.g. llama3.2:3b) satisfy the
+ * schema with an empty `[]`; an object + minItems reliably coaxes 3-5 real items out of them.
+ */
+const RELATED_SCHEMA: OllamaFormat = {
+  type: 'object',
+  properties: {
+    related: { type: 'array', items: { type: 'string' }, minItems: 3, maxItems: 5 },
+  },
+  required: ['related'],
+  additionalProperties: false,
+};
+
+export interface RelatedOptions {
+  term: string;
+  context: string;
+  conversation?: string;
+  signal?: AbortSignal;
+}
+
+/**
+ * Propose a few SHORT related concepts to explore next from `term`, using any provider.
+ * Constrained to a JSON array of strings; parsed defensively. Returns [] on any non-abort
+ * failure (related links are a nice-to-have — they must never break the modal). Filters out
+ * blanks and the term itself, capped at 5. These render as clickable links in the modal.
+ */
+export async function generateRelatedWith(
+  provider: LlmProvider,
+  opts: RelatedOptions,
+): Promise<string[]> {
+  try {
+    const raw = await provider.complete({
+      messages: buildRelatedMessages(opts.term, opts.context, opts.conversation),
+      format: RELATED_SCHEMA,
+      temperature: 0.4,
+      maxTokens: 120,
+      signal: opts.signal,
+    });
+    const parsed = tryParse(raw);
+    // Accept the object form `{ related: [...] }` (what the schema asks for) or a bare array.
+    const list = Array.isArray(parsed)
+      ? parsed
+      : parsed &&
+          typeof parsed === 'object' &&
+          Array.isArray((parsed as { related?: unknown }).related)
+        ? (parsed as { related: unknown[] }).related
+        : [];
+    const term = opts.term.trim().toLowerCase();
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of list) {
+      if (typeof item !== 'string') continue;
+      const s = item.trim();
+      const key = s.toLowerCase();
+      if (!s || key === term || seen.has(key)) continue;
+      seen.add(key);
+      out.push(s);
+      if (out.length === 5) break;
+    }
+    return out;
+  } catch (e) {
+    // Cancellation must propagate so the caller can bail cleanly; everything else → no links.
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return [];
+  }
+}
+
+/** Ollama wrapper for {@link generateRelatedWith}. */
+export function generateRelated(model: string, opts: RelatedOptions): Promise<string[]> {
+  return generateRelatedWith(new OllamaProvider(model), opts);
 }

@@ -113,3 +113,29 @@ export function buildFillMessages(
     },
   ];
 }
+
+/**
+ * Build the messages for the "explorer" — it proposes a few SHORT related concepts a curious
+ * reader might want to explore next from the clicked term. Output is constrained to a JSON
+ * array of strings (see generateRelatedWith). Short names only, in the text's language, and
+ * never the term itself — these become clickable links in the modal for going deeper.
+ */
+export function buildRelatedMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's explorer. Given a term the reader clicked, propose 3 to 5 SHORT related " +
+        'concepts they might want to explore next — just brief names (1-3 words each), in the ' +
+        'SAME LANGUAGE as the text, with no explanations, no labels, and never the term itself.',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}List the related concepts.`,
+    },
+  ];
+}

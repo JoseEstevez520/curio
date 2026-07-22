@@ -15,6 +15,7 @@ import {
 import { useChatStore } from '../app/store';
 import { SCRIM_FADE } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
+import { useGenerative } from '../lookup/useGenerative';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 import DescribeModal from './DescribeModal';
 
@@ -105,6 +106,16 @@ export default function SelectionPopover() {
     selection?.context ?? '',
   );
 
+  // Prefetch the rich component + related links the moment a word is selected, so opening
+  // "Ver más" shows a ready result instead of a spinner — no waiting on the user's part.
+  useGenerative(
+    Boolean(selection),
+    selection?.messageId ?? '',
+    selection?.text ?? '',
+    selection?.context ?? '',
+    entry?.text ?? '',
+  );
+
   if (!selection) return null;
 
   return (
@@ -161,10 +172,9 @@ export default function SelectionPopover() {
           layoutId is unique on every commit and the morph both ways stays clean. */}
       {expanded && (
         <DescribeModal
-          title={selection.text}
+          initialTerm={selection.text}
           messageId={selection.messageId}
           context={selection.context}
-          glossText={entry?.text ?? ''}
           onClose={collapse}
         />
       )}

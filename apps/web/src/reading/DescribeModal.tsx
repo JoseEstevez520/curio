@@ -1,53 +1,58 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FloatingPortal } from '@floating-ui/react';
 import { MODAL_IN, CatalogRenderer } from '@curio/core';
+import { useDescribe } from '../lookup/useDescribe';
 import { useGenerative } from '../lookup/useGenerative';
+import DescriptionBody from './DescriptionBody';
 import GenerativeSkeleton from './GenerativeSkeleton';
 
 interface DescribeModalProps {
-  /** The word or phrase being described — shown as the modal title. */
-  title: string;
+  /** The word or phrase the modal opens on (the reader's click). */
+  initialTerm: string;
   messageId: string;
   /** The block/sentence the term sits in (context for generation). */
   context: string;
-  /** Plain gloss already shown in the popover; the fallback when no richer component fits. */
-  glossText: string;
   /** Shrink back to the popover. */
   onClose: () => void;
 }
 
-/**
- * The "ver más" modal: the roomy home for a full description — in v1, a generative-UI
- * component chosen and filled by the model (with a plain-text fallback). It shares
- * `SURFACE_LAYOUT_ID` with the popover, so opening it reads as the small card GROWING into
- * place — a smooth iOS-style morph, never a pop (DESIGN §9).
- *
- * It opens with a clean uniform scale-up + fade (MODAL_IN) rather than a shared-element morph
- * from the popover: the morph looked jerky and distorted because the popover→modal scale is
- * anisotropic AND the generated content resizes the box a second time when it loads. A uniform
- * scale never distorts and never re-animates layout, so it stays smooth (UI-PREFERENCES §2:
- * suave por encima de todo). The flat scrim behind lives in SelectionPopover.
- */
 const FOCUSABLE = 'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])';
 
+/**
+ * The "ver más" modal: the roomy, richer home for a description. It leads with the short gloss
+ * (the "little text"), then — when the term warrants it — a generative-UI component below, and
+ * a row of RELATED links to explore next. All of it is PREFETCHED on the word click (see
+ * SelectionPopover), so opening the modal shows a ready result, not a spinner.
+ *
+ * Related links make the modal explorable: clicking one navigates the modal in place to that
+ * term (with a one-tap way back to where you started). It opens with a clean uniform scale-up +
+ * fade (MODAL_IN) — smooth, never distorting. The flat scrim behind lives in SelectionPopover.
+ */
 export default function DescribeModal({
-  title,
+  initialTerm,
   messageId,
   context,
-  glossText,
   onClose,
 }: DescribeModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<Element | null>(null);
 
-  // The modal being mounted means it's open; generate the rich component now (lazy).
-  const gen = useGenerative(true, messageId, title, context, glossText);
+  // The term currently shown. Starts at the clicked word; related links navigate it in place.
+  const [term, setTerm] = useState(initialTerm);
+
+  // Gloss (the short lead text) + the rich component & related links, both keyed by `term`.
+  // The initial term is already prefetched; navigating to a related term fetches on demand.
+  const gloss = useDescribe(true, messageId, term, context);
+  const gen = useGenerative(true, messageId, term, context, gloss?.text ?? '');
+  const related = gen?.related ?? [];
+  const showComponent =
+    gen?.status === 'done' && gen.envelope && gen.envelope.type !== 'plain-text';
 
   // Escape closes; focus moves to the close button on open and returns to the trigger on
-  // close; Tab is trapped inside the dialog (DESIGN §8). Capture phase so Escape/Tab reach
-  // us first. `onClose` is memoized by the caller, so this runs once per open, not per token.
+  // close; Tab is trapped inside the dialog (DESIGN §8). Capture phase so Escape/Tab reach us
+  // first. `onClose` is memoized by the caller, so this runs once per open, not per token.
   useEffect(() => {
     returnFocus.current = document.activeElement;
     closeRef.current?.focus();
@@ -58,7 +63,6 @@ export default function DescribeModal({
         return;
       }
       if (e.key !== 'Tab') return;
-      // Focus trap: keep Tab / Shift+Tab cycling within the card, never out to the page.
       const card = cardRef.current;
       if (!card) return;
       const items = Array.from(card.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
@@ -88,12 +92,7 @@ export default function DescribeModal({
 
   return (
     <FloatingPortal>
-      {/* Centering layer: transparent and click-through; only the card catches clicks,
-          so a click anywhere outside it lands on the scrim behind and closes. */}
       <div className="curio-modal-center">
-        {/* Clean uniform scale-up + fade (MODAL_IN) — never distorts (uniform scale) and never
-            re-animates layout, so it stays smooth even as the generated content loads and the
-            box resizes. transformOrigin center so it grows from the middle. */}
         <motion.div
           ref={cardRef}
           initial={{ opacity: 0, scale: 0.96 }}
@@ -106,9 +105,21 @@ export default function DescribeModal({
           aria-labelledby="curio-modal-title"
         >
           <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-3">
-            <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
-              {title}
-            </h2>
+            <div className="min-w-0">
+              {/* One-tap way back to the word you started on, once you've followed a link. */}
+              {term !== initialTerm && (
+                <button
+                  type="button"
+                  onClick={() => setTerm(initialTerm)}
+                  className="mb-0.5 block truncate text-xs text-fg-muted transition-colors hover:text-fg"
+                >
+                  ‹ {initialTerm}
+                </button>
+              )}
+              <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
+                {term}
+              </h2>
+            </div>
             <button
               ref={closeRef}
               onClick={onClose}
@@ -118,19 +129,43 @@ export default function DescribeModal({
               &times;
             </button>
           </header>
-          {/* Flexible, bounded body: fills the card up to its max-height and scrolls only when
-              the content genuinely overflows (short answers show no scrollbar). */}
+
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-            {!gen || gen.status === 'loading' ? (
-              <GenerativeSkeleton />
-            ) : gen.status === 'error' ? (
-              <p role="alert" className="text-fg-muted">
-                {gen.error}
-              </p>
-            ) : gen.envelope ? (
-              <CatalogRenderer envelope={gen.envelope} />
-            ) : (
-              <p className="whitespace-pre-wrap">{glossText}</p>
+            {/* Lead: the short gloss — the modal always opens with something readable. */}
+            <DescriptionBody entry={gloss} />
+
+            {/* Rich component below the gloss, when the term warrants more than a sentence.
+                While generating we show a skeleton so richness is visibly on its way. */}
+            {gen?.status === 'loading' && (
+              <div className="mt-4 border-t border-border pt-4">
+                <GenerativeSkeleton />
+              </div>
+            )}
+            {showComponent && gen?.envelope && (
+              <div className="mt-4 border-t border-border pt-4">
+                <CatalogRenderer envelope={gen.envelope} />
+              </div>
+            )}
+
+            {/* Related links — explore next. Clicking navigates the modal to that term. */}
+            {related.length > 0 && (
+              <div className="mt-5 border-t border-border pt-4">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.03em] text-fg-muted">
+                  Relacionado
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {related.map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setTerm(r)}
+                      className="rounded-full border border-border px-3 py-1 text-sm text-fg-secondary transition-colors hover:border-border-strong hover:text-accent"
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </motion.div>
