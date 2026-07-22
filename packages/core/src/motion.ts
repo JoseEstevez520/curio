@@ -17,11 +17,17 @@ export const MASCOT_MORPH: Transition = { duration: 0.5, ease: [0.32, 0.72, 0, 1
 export const MODAL_MORPH: Transition = { duration: 0.44, ease: [0.32, 0.72, 0, 1] };
 
 /**
- * Fade for content entering on top of a morph (text, not object). The content can never be
- * distorted now — it's a sibling of the morphing surface, not a child (see DescribeModal) —
- * so this delay is purely for feel: it lets the surface grow into place first, then the text
- * settles in on top once the box is ready (DESIGN §9.3: the object morphs, the text arrives
- * after). The curve decelerates, so by ~0.3s the box is ~95% of its final size.
+ * "Ver más" modal entrance: a clean, UNIFORM scale-up (0.96→1) + fade, centered. A
+ * shared-element morph from the tiny popover to a big modal whose content also loads async
+ * proved jerky and distorting (anisotropic scale + a second layout resize when the generated
+ * component arrives). A uniform scale never distorts and never re-animates layout, so it stays
+ * smooth — the iOS "gentle grow" that presentations/alerts actually use. Decelerating, no bounce.
+ */
+export const MODAL_IN: Transition = { duration: 0.26, ease: [0.16, 1, 0.3, 1] };
+
+/**
+ * Fade for content entering on top of a morph (text, not object). Kept for reuse; the modal
+ * now scales in as one piece (MODAL_IN), so content no longer needs a separate delayed fade.
  */
 export const CONTENT_FADE: Transition = { duration: 0.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 };
 

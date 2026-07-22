@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FloatingPortal } from '@floating-ui/react';
-import { MODAL_MORPH, CONTENT_FADE, SURFACE_LAYOUT_ID } from '@curio/core';
+import { MODAL_IN, CatalogRenderer } from '@curio/core';
 import { useGenerative } from '../lookup/useGenerative';
-import { CatalogRenderer } from '@curio/core';
 import GenerativeSkeleton from './GenerativeSkeleton';
 
 interface DescribeModalProps {
@@ -24,10 +23,11 @@ interface DescribeModalProps {
  * `SURFACE_LAYOUT_ID` with the popover, so opening it reads as the small card GROWING into
  * place — a smooth iOS-style morph, never a pop (DESIGN §9).
  *
- * The card morphs and its content travels with it, but the content is counter-scaled
- * (layout="position") so the card's non-uniform scale never stretches the text — the object
- * morphs, the text just rides along crisp and fades in (DESIGN §9.3, UI-PREFERENCES §3). The
- * flat scrim behind lives in SelectionPopover so it can fade independently of the morph.
+ * It opens with a clean uniform scale-up + fade (MODAL_IN) rather than a shared-element morph
+ * from the popover: the morph looked jerky and distorted because the popover→modal scale is
+ * anisotropic AND the generated content resizes the box a second time when it loads. A uniform
+ * scale never distorts and never re-animates layout, so it stays smooth (UI-PREFERENCES §2:
+ * suave por encima de todo). The flat scrim behind lives in SelectionPopover.
  */
 const FOCUSABLE = 'button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])';
 
@@ -91,56 +91,48 @@ export default function DescribeModal({
       {/* Centering layer: transparent and click-through; only the card catches clicks,
           so a click anywhere outside it lands on the scrim behind and closes. */}
       <div className="curio-modal-center">
-        {/* One card morphs from the popover (shared layoutId). The content is a CHILD with
-            layout="position", so Framer counter-scales it every frame: it travels WITH the card
-            (coherent morph, not a box sliding in from the side) yet its text is never stretched
-            by the card's non-uniform scale. The layout transition MUST match the card's
-            (MODAL_MORPH) or the correction desyncs; opacity fades on its own. */}
+        {/* Clean uniform scale-up + fade (MODAL_IN) — never distorts (uniform scale) and never
+            re-animates layout, so it stays smooth even as the generated content loads and the
+            box resizes. transformOrigin center so it grows from the middle. */}
         <motion.div
           ref={cardRef}
-          layoutId={SURFACE_LAYOUT_ID}
-          transition={MODAL_MORPH}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={MODAL_IN}
           className="curio-modal-card"
-          // 16 === --radius-xl; inline so Framer keeps the corners crisp while the card morphs.
-          style={{ borderRadius: 16 }}
+          style={{ borderRadius: 16, transformOrigin: 'center' }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="curio-modal-title"
         >
-          <motion.div
-            layout="position"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ layout: MODAL_MORPH, opacity: CONTENT_FADE }}
-            className="flex min-h-0 flex-col"
-          >
-            <header className="flex items-start justify-between gap-3 border-b border-border px-5 py-3">
-              <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
-                {title}
-              </h2>
-              <button
-                ref={closeRef}
-                onClick={onClose}
-                aria-label="Cerrar"
-                className="-mr-1 -mt-0.5 shrink-0 rounded-md p-1 text-xl leading-none text-fg-muted transition-colors hover:text-fg"
-              >
-                &times;
-              </button>
-            </header>
-            <div className="min-h-0 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-              {!gen || gen.status === 'loading' ? (
-                <GenerativeSkeleton />
-              ) : gen.status === 'error' ? (
-                <p role="alert" className="text-fg-muted">
-                  {gen.error}
-                </p>
-              ) : gen.envelope ? (
-                <CatalogRenderer envelope={gen.envelope} />
-              ) : (
-                <p className="whitespace-pre-wrap">{glossText}</p>
-              )}
-            </div>
-          </motion.div>
+          <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-3">
+            <h2 id="curio-modal-title" className="text-lg font-semibold leading-snug text-fg">
+              {title}
+            </h2>
+            <button
+              ref={closeRef}
+              onClick={onClose}
+              aria-label="Cerrar"
+              className="-mr-1 -mt-0.5 shrink-0 rounded-md p-1 text-xl leading-none text-fg-muted transition-colors hover:text-fg"
+            >
+              &times;
+            </button>
+          </header>
+          {/* Flexible, bounded body: fills the card up to its max-height and scrolls only when
+              the content genuinely overflows (short answers show no scrollbar). */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
+            {!gen || gen.status === 'loading' ? (
+              <GenerativeSkeleton />
+            ) : gen.status === 'error' ? (
+              <p role="alert" className="text-fg-muted">
+                {gen.error}
+              </p>
+            ) : gen.envelope ? (
+              <CatalogRenderer envelope={gen.envelope} />
+            ) : (
+              <p className="whitespace-pre-wrap">{glossText}</p>
+            )}
+          </div>
         </motion.div>
       </div>
     </FloatingPortal>
