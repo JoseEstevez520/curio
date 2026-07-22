@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
-import { generateEnvelope, generateRelated, generateDeep } from '@curio/core';
+import { generateEnvelope, generateRelated, generateDeep, fetchWikiSummary } from '@curio/core';
 import { describeError } from '../chat/useChat';
 
 /** The user turn that prompted this reply, trimmed — a little disambiguating context. */
@@ -59,10 +59,11 @@ export function useGenerative(
 
     (async () => {
       try {
-        // Fan out the three independent generations at once (prefetched on word click): the
-        // deep explanation (the modal's "more"), an optional visual component, and the related
-        // links. Whichever the model produces, the modal has them ready with no extra wait.
-        const [deep, envelope, related] = await Promise.all([
+        // Fan out every source at once (prefetched on word click): the local deep explanation
+        // (fallback text), an optional visual component, the related links, AND Wikipedia's
+        // card (real photo + facts + link) — the "living" panel. All parallel, all cached, so
+        // "Ver más" opens with everything ready and no extra wait.
+        const [deep, envelope, related, wiki] = await Promise.all([
           generateDeep(model, { term, context, conversation, signal: controller.signal }),
           generateEnvelope({
             model,
@@ -73,9 +74,14 @@ export function useGenerative(
             signal: controller.signal,
           }),
           generateRelated(model, { term, context, conversation, signal: controller.signal }),
+          // Pass a short slice of the surrounding text as a hint so ambiguous terms resolve
+          // to the right article (e.g. "Júpiter" → the planet, not the god).
+          fetchWikiSummary(term, 'es', controller.signal, context.slice(0, 40)),
         ]);
         settled = true;
-        useChatStore.getState().setGenerative(key, { status: 'done', envelope, related, deep });
+        useChatStore
+          .getState()
+          .setGenerative(key, { status: 'done', envelope, related, deep, wiki });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
         settled = true;

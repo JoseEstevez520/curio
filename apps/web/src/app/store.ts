@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { ChatMessage } from '@curio/core';
-import type { Envelope } from '@curio/core';
+import type { Envelope, WikiSummary } from '@curio/core';
 
 export type Role = 'user' | 'assistant';
 
@@ -46,6 +46,8 @@ export interface GenerativeEntry {
   envelope?: Envelope;
   /** The fuller explanation shown in the modal — the actual "more" behind "Ver más". */
   deep?: string;
+  /** Wikipedia card (photo + facts + link) when the term has an article; null if none. */
+  wiki?: WikiSummary | null;
   /** Short related concepts to explore next — clickable links in the modal. */
   related?: string[];
   error?: string;

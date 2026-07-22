@@ -33,3 +33,6 @@ export { default as ConceptDiagram } from './catalog/components/ConceptDiagram';
 export * from './reading/tokenize';
 export * from './lookup/generate';
 export * from './lookup/cleanDescription';
+
+// Open reference data (Wikipedia) — real photo + facts + link for the "ver más" panel.
+export * from './wikipedia/client';

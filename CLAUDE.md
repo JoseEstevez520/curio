@@ -32,10 +32,14 @@ catálogo que el modelo elige y rellena) en vez de texto plano.
   salvo que se pida el detalle técnico.
 - **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia, tipo Linear,
   **sin sombras** ni cajas flotantes — jerarquía con espacio y filetes de 1px. Ver `docs/DESIGN.md`.
-- **Restricción técnica (sagrada):** todo **local y sin API keys**, siempre con **modelos
-  pequeños**. El "cerebro" es enchufable por superficie: **Ollama** en web y escritorio; en la
-  **extensión**, el **modelo integrado del navegador (Gemini Nano)** cuando está disponible —así el
-  usuario no instala nada— con **Ollama de reserva**. Nada de nube ni claves.
+- **Restricción técnica (sagrada, actualizada):** **sin API keys de pago ni servicios cerrados**,
+  siempre con **modelos pequeños**. El "cerebro" es enchufable por superficie: **Ollama** en web y
+  escritorio; en la **extensión**, el **modelo integrado del navegador (Gemini Nano)** con Ollama de
+  reserva. **Datos de referencia de la web abierta y sin clave están permitidos** (p. ej.
+  **Wikipedia/Wikimedia**) para enriquecer el panel "ver más" con foto + hechos + enlace reales —
+  el dueño decidió que Curio no tiene por qué ser 100% local. **Rumbo:** hoy Wikipedia da la base
+  fiable; en el futuro las descripciones serán **personalizadas para el usuario** (generadas), no
+  genéricas. Nada de claves de pago ni nube cerrada.
 
 ## Flujo de trabajo con git — IMPORTANTE
 

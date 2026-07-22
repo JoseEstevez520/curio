@@ -46,8 +46,9 @@ export default function DescribeModal({
   const gloss = useDescribe(true, messageId, term, context);
   const gen = useGenerative(true, messageId, term, context, gloss?.text ?? '');
   const related = gen?.related ?? [];
+  const wiki = gen?.wiki ?? null;
   const showComponent =
-    gen?.status === 'done' && gen.envelope && gen.envelope.type !== 'plain-text';
+    gen?.status === 'done' && !wiki && gen.envelope && gen.envelope.type !== 'plain-text';
 
   // Escape closes; focus moves to the close button on open and returns to the trigger on
   // close; Tab is trapped inside the dialog (DESIGN §8). Capture phase so Escape/Tab reach us
@@ -130,20 +131,45 @@ export default function DescribeModal({
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-            {/* The "more": the fuller explanation. It shows the short gloss instantly (already
-                cached from the popover) as a placeholder, then swaps to the deeper text once the
-                prefetch lands — so the modal is never empty and always ends up saying more. */}
-            {gen?.deep ? (
-              <p className="whitespace-pre-wrap">{gen.deep}</p>
-            ) : (
-              <DescriptionBody entry={gloss} />
-            )}
-
-            {/* A visual only when the term genuinely warrants one (chart, timeline, map…). */}
-            {showComponent && gen?.envelope && (
-              <div className="mt-5">
-                <CatalogRenderer envelope={gen.envelope} />
+            {gen?.status === 'done' && wiki ? (
+              // The "living" panel: a real photo + a reliable summary + a link to go deeper.
+              <div>
+                {wiki.thumbnail && (
+                  <img
+                    src={wiki.thumbnail.source}
+                    alt={wiki.title}
+                    loading="lazy"
+                    className="mb-4 h-[180px] w-full rounded-lg border border-border object-cover"
+                  />
+                )}
+                {wiki.description && (
+                  <p className="mb-1 text-xs uppercase tracking-[0.03em] text-fg-muted">
+                    {wiki.description}
+                  </p>
+                )}
+                <p className="whitespace-pre-wrap">{wiki.extract}</p>
+                <a
+                  href={wiki.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
+                >
+                  Ver más en Wikipedia →
+                </a>
               </div>
+            ) : gen?.status === 'done' ? (
+              // No Wikipedia article — fall back to the local, in-context explanation (+ visual).
+              <>
+                <p className="whitespace-pre-wrap">{gen.deep || gloss?.text || ''}</p>
+                {showComponent && gen.envelope && (
+                  <div className="mt-5">
+                    <CatalogRenderer envelope={gen.envelope} />
+                  </div>
+                )}
+              </>
+            ) : (
+              // Still prefetching: show the short gloss instantly (cached) as a placeholder.
+              <DescriptionBody entry={gloss} />
             )}
 
             {/* Related links — explore next. Clean chip row (clicking navigates the modal to
