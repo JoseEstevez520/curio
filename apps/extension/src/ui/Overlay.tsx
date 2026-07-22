@@ -63,9 +63,15 @@ export default function Overlay() {
       close();
       return;
     }
-    const onMouseUp = () => {
+    const onMouseUp = (e: MouseEvent) => {
+      // Ignore mouse-ups inside Curio's own UI (the "Ver más" button, the modal, the scrim).
+      // Otherwise, since the page's text stays selected, clicking "Ver más" would re-fire this
+      // handler, capture the same selection again and reset the state — so the modal never opens.
+      // Read composedPath synchronously (it's only valid during dispatch), then act on the tick.
+      const inOwnUi = !!rootRef.current && e.composedPath().includes(rootRef.current);
       // Let the click settle, then read the selection.
       setTimeout(() => {
+        if (inOwnUi) return;
         const sel = window.getSelection();
         if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
         const term = sel.toString().replace(/\s+/g, ' ').trim();
