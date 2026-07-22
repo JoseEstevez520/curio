@@ -104,7 +104,7 @@ export default function DescribeModal({
           aria-modal="true"
           aria-labelledby="curio-modal-title"
         >
-          <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-3">
+          <header className="flex shrink-0 items-start justify-between gap-3 px-5 pb-1 pt-4">
             <div className="min-w-0">
               {/* One-tap way back to the word you started on, once you've followed a link. */}
               {term !== initialTerm && (
@@ -137,12 +137,12 @@ export default function DescribeModal({
             {/* Rich component below the gloss, when the term warrants more than a sentence.
                 While generating we show a skeleton so richness is visibly on its way. */}
             {gen?.status === 'loading' && (
-              <div className="mt-4 border-t border-border pt-4">
+              <div className="mt-5">
                 <GenerativeSkeleton />
               </div>
             )}
             {showComponent && gen?.envelope && (
-              <div className="mt-4 border-t border-border pt-4">
+              <div className="mt-5">
                 <CatalogRenderer envelope={gen.envelope} />
               </div>
             )}
@@ -150,7 +150,7 @@ export default function DescribeModal({
             {/* Related links — explore next. Clean chip row (clicking navigates the modal to
                 that term). Kept simple on purpose — it reads cleaner than a graph here. */}
             {related.length > 0 && (
-              <div className="mt-5 border-t border-border pt-4">
+              <div className="mt-7">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-[0.03em] text-fg-muted">
                   Relacionado
                 </div>
