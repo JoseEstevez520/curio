@@ -86,6 +86,21 @@ El frontend habla con Ollama a través del proxy **`/ollama`** del dev server de
 | `npm run lint`      | ESLint (`lint:fix` para arreglar) |
 | `npm run typecheck` | Chequeo de tipos con TypeScript   |
 | `npm run format`    | Prettier (`format:check` sólo mira)|
+| `npm run build:ext` | Build de la extensión de navegador |
+
+### Monorepo (workspaces npm)
+
+El "clic → descripción" vive en un **núcleo portable** que comparten todas las superficies:
+
+```
+packages/core   @curio/core — el motor: catálogo Zod, cliente Ollama (base configurable),
+                prompts, generación de dos etapas, validación, tokenizador.
+apps/web        La app web (chat + lector de artículos). Consume @curio/core.
+apps/extension  Extensión de navegador (Chrome/Edge MV3): clic → descripción en cualquier
+                página, reusando @curio/core. Ver docs/extension.md.
+```
+
+Los comandos de arriba (`dev`, `build`, `lint`…) se ejecutan desde la raíz y delegan en la app web.
 
 ## Stack
 
