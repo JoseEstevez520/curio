@@ -71,9 +71,11 @@ export function buildTypeChoiceMessages(
         "You are Curio's presenter. A reader clicked a term while reading. Choose the SINGLE " +
         'best way to present its description, from this fixed catalog:\n' +
         `${menu}\n\n` +
-        'Pick the type whose shape genuinely fits the term in its context; when nothing fits ' +
-        'clearly, choose "plain-text". Report your confidence 0-1. Choose only — do not write ' +
-        'the description yet.',
+        'PREFER a VISUAL type (chart, concept-diagram, timeline, comparison, fact-table) when ' +
+        'the term genuinely supports it — a curious reader wants to SEE structure, not read a ' +
+        'paragraph. Fall back to definition-card, and only choose "plain-text" when nothing ' +
+        'richer fits at all. Report your confidence 0-1. Choose only — do not write the ' +
+        'description yet.',
     },
     {
       role: 'user',

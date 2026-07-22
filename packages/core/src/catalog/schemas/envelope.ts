@@ -5,6 +5,8 @@ import { factTableData } from './factTable';
 import { timelineData } from './timeline';
 import { comparisonData } from './comparison';
 import { stepsData } from './steps';
+import { chartData } from './chart';
+import { conceptDiagramData } from './conceptDiagram';
 
 /**
  * The response envelope for a generated description. The model returns ONE of these: a
@@ -42,6 +44,12 @@ export const envelope = z.discriminatedUnion('type', [
     data: comparisonData,
   }),
   z.object({ type: z.literal('steps'), confidence: z.number().min(0).max(1), data: stepsData }),
+  z.object({ type: z.literal('chart'), confidence: z.number().min(0).max(1), data: chartData }),
+  z.object({
+    type: z.literal('concept-diagram'),
+    confidence: z.number().min(0).max(1),
+    data: conceptDiagramData,
+  }),
 ]);
 
 export type Envelope = z.infer<typeof envelope>;

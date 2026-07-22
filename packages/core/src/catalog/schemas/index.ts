@@ -5,6 +5,8 @@ import { factTableData } from './factTable';
 import { timelineData } from './timeline';
 import { comparisonData } from './comparison';
 import { stepsData } from './steps';
+import { chartData } from './chart';
+import { conceptDiagramData } from './conceptDiagram';
 import type { CatalogType } from './envelope';
 
 /**
@@ -19,6 +21,8 @@ export const dataSchemas = {
   timeline: timelineData,
   comparison: comparisonData,
   steps: stepsData,
+  chart: chartData,
+  'concept-diagram': conceptDiagramData,
 } satisfies Record<CatalogType, z.ZodType>;
 
 export * from './envelope';
@@ -28,3 +32,5 @@ export * from './factTable';
 export * from './timeline';
 export * from './comparison';
 export * from './steps';
+export * from './chart';
+export * from './conceptDiagram';

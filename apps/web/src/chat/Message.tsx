@@ -16,6 +16,20 @@ export default function Message({ message }: MessageProps) {
     );
   }
 
+  // While the assistant reply is on its way but no token has landed yet, show the "thinking"
+  // dots so the wait never looks like a dead screen (the header mascot also wobbles).
+  if (message.streaming && !message.content) {
+    return (
+      <div className="mb-6" role="status" aria-label="Pensando">
+        <div className="curio-dots">
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-6 text-base leading-relaxed text-fg">
       <MarkdownMessage

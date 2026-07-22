@@ -44,6 +44,18 @@ export const CATALOG: readonly CatalogEntryMeta[] = [
     title: 'Pasos',
     whenToUse: 'An ordered how-to / instructions, or a simple list of items.',
   },
+  {
+    type: 'chart',
+    title: 'Gráfico',
+    whenToUse:
+      'A few comparable QUANTITIES worth seeing as bars (sizes, populations, durations, %).',
+  },
+  {
+    type: 'concept-diagram',
+    title: 'Mapa',
+    whenToUse:
+      'A concept whose meaning is best SEEN as a small map of how it connects to related ideas.',
+  },
 ] as const;
 
 /** Look up a catalog entry's metadata by type. */

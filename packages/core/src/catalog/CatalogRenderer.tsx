@@ -5,6 +5,8 @@ import FactTable from './components/FactTable';
 import Timeline from './components/Timeline';
 import Comparison from './components/Comparison';
 import Steps from './components/Steps';
+import Chart from './components/Chart';
+import ConceptDiagram from './components/ConceptDiagram';
 
 /**
  * Render a VALIDATED envelope as its catalog component. This is a `switch` on the
@@ -29,6 +31,10 @@ export default function CatalogRenderer({ envelope }: { envelope: Envelope }) {
       return <Comparison data={envelope.data} />;
     case 'steps':
       return <Steps data={envelope.data} />;
+    case 'chart':
+      return <Chart data={envelope.data} />;
+    case 'concept-diagram':
+      return <ConceptDiagram data={envelope.data} />;
     default:
       // Exhaustiveness guard: if a new catalog type is added without a branch here, this
       // line fails to compile. At runtime it degrades to nothing rather than crashing.
