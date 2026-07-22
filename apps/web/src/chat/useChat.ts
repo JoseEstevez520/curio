@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
-import { chatStream, OllamaError } from '../ollama/client';
-import { CHAT_SYSTEM_PROMPT } from '../ollama/prompts';
+import { chatStream, OllamaError } from '@curio/core';
+import { CHAT_SYSTEM_PROMPT } from '@curio/core';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {

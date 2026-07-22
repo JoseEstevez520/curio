@@ -14,6 +14,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Resolve the core package to its source (matches the Vite alias). */
+    "baseUrl": ".",
+    "paths": { "@curio/core": ["../../packages/core/src/index.ts"] },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { ChatMessage } from '../ollama/types';
-import type { Envelope } from '../catalog/schemas';
+import type { ChatMessage } from '@curio/core';
+import type { Envelope } from '@curio/core';
 
 export type Role = 'user' | 'assistant';
 

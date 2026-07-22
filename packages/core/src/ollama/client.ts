@@ -6,8 +6,23 @@
 
 import type { ChatMessage, ChatParams, OllamaFormat } from './types';
 
-/** Prefix for every Ollama request. The Vite proxy forwards `/ollama/*` → `:11434/*`. */
-export const OLLAMA_BASE = '/ollama';
+/**
+ * Base prefix for every Ollama request. Configurable so the same core works on any surface:
+ *   • web app  → '/ollama'            (Vite proxy forwards /ollama/* → :11434/*, no CORS)
+ *   • extension / desktop → 'http://localhost:11434' (direct; needs OLLAMA_ORIGINS set)
+ * Defaults to the web proxy path so the web app needs no configuration.
+ */
+let ollamaBase = '/ollama';
+
+/** Point the core at a different Ollama endpoint (e.g. the extension calls localhost directly). */
+export function configureOllama(baseUrl: string): void {
+  ollamaBase = baseUrl.replace(/\/$/, '');
+}
+
+/** The current Ollama base prefix. */
+export function getOllamaBase(): string {
+  return ollamaBase;
+}
 
 /** Discriminates *why* a call failed so callers can react appropriately. */
 export type OllamaErrorKind =
@@ -41,7 +56,7 @@ export class OllamaError extends Error {
 export async function ollamaFetch(path: string, init?: RequestInit): Promise<Response> {
   let response: Response;
   try {
-    response = await fetch(`${OLLAMA_BASE}${path}`, init);
+    response = await fetch(`${ollamaBase}${path}`, init);
   } catch (cause) {
     // A DOMException with name 'AbortError' means the caller cancelled — re-throw
     // it untouched so callers can distinguish cancellation from an outage.

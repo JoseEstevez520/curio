@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
-import { MASCOT_MORPH } from '../app/motion';
+import { MASCOT_MORPH } from '@curio/core';
 import ModelPicker from './ModelPicker';
 import ModeToggle from './ModeToggle';
-import type { OllamaModel } from '../ollama/types';
+import type { OllamaModel } from '@curio/core';
 
 interface HeaderProps {
   models: OllamaModel[];

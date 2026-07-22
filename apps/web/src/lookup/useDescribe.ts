@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type DescriptionEntry, type Message } from '../app/store';
-import { chatStream } from '../ollama/client';
-import { buildDescribeMessages } from '../ollama/prompts';
-import { cleanDescription } from './cleanDescription';
+import { chatStream } from '@curio/core';
+import { buildDescribeMessages } from '@curio/core';
+import { cleanDescription } from '@curio/core';
 import { describeError } from '../chat/useChat';
 
 /** A little conversation context: the user turn that prompted this reply, trimmed. */

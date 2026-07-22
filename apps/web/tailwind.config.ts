@@ -5,7 +5,12 @@ import type { Config } from 'tailwindcss';
 // theme switching stays driven by the cascade. Monochrome, Linear-inspired.
 // No boxShadow utilities are defined anywhere in Curio (see docs/DESIGN.md §5).
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{ts,tsx}',
+    // The catalog components + reading UI live in @curio/core; scan them for classes too.
+    '../../packages/core/src/**/*.{ts,tsx}',
+  ],
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FloatingPortal } from '@floating-ui/react';
-import { MODAL_MORPH, CONTENT_FADE, SURFACE_LAYOUT_ID } from '../app/motion';
+import { MODAL_MORPH, CONTENT_FADE, SURFACE_LAYOUT_ID } from '@curio/core';
 import { useGenerative } from '../lookup/useGenerative';
-import CatalogRenderer from '../catalog/CatalogRenderer';
+import { CatalogRenderer } from '@curio/core';
 import GenerativeSkeleton from './GenerativeSkeleton';
 
 interface DescribeModalProps {

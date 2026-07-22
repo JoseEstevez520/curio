@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
-import { generateEnvelope } from './generate';
+import { generateEnvelope } from '@curio/core';
 import { describeError } from '../chat/useChat';
 
 /** The user turn that prompted this reply, trimmed — a little disambiguating context. */

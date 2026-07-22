@@ -2,7 +2,7 @@ import { Children, useRef, type ReactNode, type MouseEvent } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useChatStore } from '../app/store';
-import { tokenize } from './tokenize';
+import { tokenize } from '@curio/core';
 
 const BLOCK_SELECTOR = 'p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th';
 

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useChatStore } from '../app/store';
-import { MASCOT_MORPH } from '../app/motion';
+import { MASCOT_MORPH } from '@curio/core';
 import { useSendMessage } from './useChat';
 import { useModels } from './useModels';
 import CurioLogo from '../branding/CurioLogo';

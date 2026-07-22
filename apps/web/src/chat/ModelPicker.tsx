@@ -1,5 +1,5 @@
 import { useChatStore } from '../app/store';
-import type { OllamaModel } from '../ollama/types';
+import type { OllamaModel } from '@curio/core';
 
 interface ModelPickerProps {
   models: OllamaModel[];

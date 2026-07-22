@@ -13,7 +13,7 @@ import {
   FloatingPortal,
 } from '@floating-ui/react';
 import { useChatStore } from '../app/store';
-import { MODAL_MORPH, SCRIM_FADE, SURFACE_LAYOUT_ID } from '../app/motion';
+import { MODAL_MORPH, SCRIM_FADE, SURFACE_LAYOUT_ID } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
 import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
 import DescribeModal from './DescribeModal';

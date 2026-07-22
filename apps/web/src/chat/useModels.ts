@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useChatStore } from '../app/store';
-import { listModels } from '../ollama/models';
-import type { OllamaModel } from '../ollama/types';
+import { listModels } from '@curio/core';
+import type { OllamaModel } from '@curio/core';
 
 export type OllamaStatus = 'checking' | 'ok' | 'unreachable' | 'no-models';
 
