@@ -31,21 +31,33 @@ function layoutNodes(count: number): NodePosition[] {
   });
 }
 
+interface ConceptDiagramProps extends CatalogComponentProps<ConceptDiagramData> {
+  /** When set, the outer nodes become buttons — click one to explore that concept. */
+  onSelect?: (label: string) => void;
+  /** Section heading above the map. */
+  heading?: string;
+}
+
 /**
  * A term shown as the hub of a small radial map: the concept in the middle, its related
  * ideas spread evenly around it, and a hairline edge (with an optional relation label)
  * connecting each one back to the center. DESIGN.md §6 "concept-diagram": hairline pills,
  * 1px edges, flat and schematic — no gradients, no shadows. The single accent is reserved
- * for the center node.
+ * for the center node. With `onSelect`, the spokes are clickable — the modal uses it to turn
+ * the reader's related links into an explorable graph.
  */
-export default function ConceptDiagram({ data }: CatalogComponentProps<ConceptDiagramData>) {
+export default function ConceptDiagram({
+  data,
+  onSelect,
+  heading = 'Mapa de conceptos',
+}: ConceptDiagramProps) {
   const positions = layoutNodes(data.nodes.length);
   const centerLeftPct = (CENTER_X / VIEW_W) * 100;
   const centerTopPct = (CENTER_Y / VIEW_H) * 100;
 
   return (
     <CatalogBlock>
-      <SectionLabel>Mapa de conceptos</SectionLabel>
+      <SectionLabel>{heading}</SectionLabel>
 
       <div className="relative h-[260px] w-full">
         <svg
@@ -96,17 +108,26 @@ export default function ConceptDiagram({ data }: CatalogComponentProps<ConceptDi
 
         {data.nodes.map((node, index) => {
           const pos = positions[index];
-          return (
-            <div
+          const style = {
+            left: `${pos.leftPct}%`,
+            top: `${pos.topPct}%`,
+            transform: 'translate(-50%, -50%)',
+          } as const;
+          const base =
+            'absolute max-w-[110px] truncate whitespace-nowrap rounded-full border border-border-strong bg-bg px-2.5 py-1 text-xs text-fg-secondary';
+          return onSelect ? (
+            <button
               key={`node-${index}`}
-              className="absolute max-w-[110px] truncate whitespace-nowrap rounded-full border border-border-strong bg-bg px-2.5 py-1 text-xs text-fg-secondary"
-              style={{
-                left: `${pos.leftPct}%`,
-                top: `${pos.topPct}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
+              type="button"
+              onClick={() => onSelect(node.label)}
+              className={`${base} transition-colors hover:border-accent hover:text-accent`}
+              style={style}
               title={node.label}
             >
+              {node.label}
+            </button>
+          ) : (
+            <div key={`node-${index}`} className={base} style={style} title={node.label}>
               {node.label}
             </div>
           );

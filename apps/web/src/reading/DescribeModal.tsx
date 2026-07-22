@@ -147,7 +147,8 @@ export default function DescribeModal({
               </div>
             )}
 
-            {/* Related links — explore next. Clicking navigates the modal to that term. */}
+            {/* Related links — explore next. Clean chip row (clicking navigates the modal to
+                that term). Kept simple on purpose — it reads cleaner than a graph here. */}
             {related.length > 0 && (
               <div className="mt-5 border-t border-border pt-4">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-[0.03em] text-fg-muted">

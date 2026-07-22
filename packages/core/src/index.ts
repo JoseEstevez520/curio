@@ -26,6 +26,8 @@ export * from './catalog/coerce';
 export * from './catalog/catalog';
 export * from './catalog/jsonSchema';
 export { default as CatalogRenderer } from './catalog/CatalogRenderer';
+// Exposed on its own too: the modal renders the reader's related links as a clickable graph.
+export { default as ConceptDiagram } from './catalog/components/ConceptDiagram';
 
 // Reading + lookup: word tokenizer, two-stage generation, prompt-leak sanitizer.
 export * from './reading/tokenize';
