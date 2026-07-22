@@ -2,6 +2,7 @@ import {
   buildTypeChoiceMessages,
   buildFillMessages,
   buildDescribeMessages,
+  buildDeepDescribeMessages,
   buildRelatedMessages,
 } from '../ollama/prompts';
 import { typeChoiceJsonSchema, dataJsonSchema } from '../catalog/jsonSchema';
@@ -209,4 +210,31 @@ export async function generateRelatedWith(
 /** Ollama wrapper for {@link generateRelatedWith}. */
 export function generateRelated(model: string, opts: RelatedOptions): Promise<string[]> {
   return generateRelatedWith(new OllamaProvider(model), opts);
+}
+
+export interface DeepOptions {
+  term: string;
+  context: string;
+  conversation?: string;
+  signal?: AbortSignal;
+}
+
+/**
+ * Produce the DEEP explanation (a few sentences) shown in the modal — the actual "more" behind
+ * "Ver más", distinct from the one-line popover gloss. Uses any provider; sanitized like the
+ * gloss. Longer token budget so it can breathe.
+ */
+export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
+  const text = await provider.complete({
+    messages: buildDeepDescribeMessages(opts.term, opts.context, opts.conversation),
+    temperature: 0.3,
+    maxTokens: 350,
+    signal: opts.signal,
+  });
+  return cleanDescription(text);
+}
+
+/** Ollama wrapper for {@link describeDeepWith}. */
+export function generateDeep(model: string, opts: DeepOptions): Promise<string> {
+  return describeDeepWith(new OllamaProvider(model), opts);
 }

@@ -44,6 +44,35 @@ export function buildDescribeMessages(
   ];
 }
 
+/**
+ * Build the messages for the DEEP explanation — the fuller read a reader gets on "Ver más".
+ * Where {@link buildDescribeMessages} is a one-line glimpse for the popover, this is a proper
+ * few-sentence explanation (what it is, a key aspect or two, something genuinely interesting),
+ * so opening the modal actually shows MORE. Plain prose in the reader's language — no headings,
+ * no markdown, no labels.
+ */
+export function buildDeepDescribeMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's describer writing the fuller explanation a curious reader sees when " +
+        'they choose to go deeper. In 3 to 5 short sentences of plain prose — no headings, no ' +
+        'markdown, no labels, and without repeating these instructions — explain what the term ' +
+        'is, one or two key aspects, and something genuinely interesting or worth knowing about ' +
+        'it as used in the text. Write in the SAME LANGUAGE as the text (Spanish text → Spanish).',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}Explain it more fully.`,
+    },
+  ];
+}
+
 /** Shared "here is what the reader clicked" block for the two generative stages. */
 function termContextBlock(term: string, sentence: string, conversation?: string): string {
   const convo = conversation?.trim()

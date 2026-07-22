@@ -5,7 +5,6 @@ import { MODAL_IN, CatalogRenderer } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
 import { useGenerative } from '../lookup/useGenerative';
 import DescriptionBody from './DescriptionBody';
-import GenerativeSkeleton from './GenerativeSkeleton';
 
 interface DescribeModalProps {
   /** The word or phrase the modal opens on (the reader's click). */
@@ -131,16 +130,16 @@ export default function DescribeModal({
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-            {/* Lead: the short gloss — the modal always opens with something readable. */}
-            <DescriptionBody entry={gloss} />
-
-            {/* Rich component below the gloss, when the term warrants more than a sentence.
-                While generating we show a skeleton so richness is visibly on its way. */}
-            {gen?.status === 'loading' && (
-              <div className="mt-5">
-                <GenerativeSkeleton />
-              </div>
+            {/* The "more": the fuller explanation. It shows the short gloss instantly (already
+                cached from the popover) as a placeholder, then swaps to the deeper text once the
+                prefetch lands — so the modal is never empty and always ends up saying more. */}
+            {gen?.deep ? (
+              <p className="whitespace-pre-wrap">{gen.deep}</p>
+            ) : (
+              <DescriptionBody entry={gloss} />
             )}
+
+            {/* A visual only when the term genuinely warrants one (chart, timeline, map…). */}
             {showComponent && gen?.envelope && (
               <div className="mt-5">
                 <CatalogRenderer envelope={gen.envelope} />

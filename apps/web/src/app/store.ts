@@ -44,6 +44,8 @@ export interface GenerativeEntry {
   status: 'loading' | 'done' | 'error';
   /** The validated component envelope, once generation succeeds. */
   envelope?: Envelope;
+  /** The fuller explanation shown in the modal — the actual "more" behind "Ver más". */
+  deep?: string;
   /** Short related concepts to explore next — clickable links in the modal. */
   related?: string[];
   error?: string;

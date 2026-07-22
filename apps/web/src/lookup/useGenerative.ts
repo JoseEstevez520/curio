@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
-import { generateEnvelope, generateRelated } from '@curio/core';
+import { generateEnvelope, generateRelated, generateDeep } from '@curio/core';
 import { describeError } from '../chat/useChat';
 
 /** The user turn that prompted this reply, trimmed — a little disambiguating context. */
@@ -59,9 +59,11 @@ export function useGenerative(
 
     (async () => {
       try {
-        // The component and the related links are independent — fetch them together so the
-        // modal has both as soon as possible (this whole thing is prefetched on word click).
-        const [envelope, related] = await Promise.all([
+        // Fan out the three independent generations at once (prefetched on word click): the
+        // deep explanation (the modal's "more"), an optional visual component, and the related
+        // links. Whichever the model produces, the modal has them ready with no extra wait.
+        const [deep, envelope, related] = await Promise.all([
+          generateDeep(model, { term, context, conversation, signal: controller.signal }),
           generateEnvelope({
             model,
             term,
@@ -73,7 +75,7 @@ export function useGenerative(
           generateRelated(model, { term, context, conversation, signal: controller.signal }),
         ]);
         settled = true;
-        useChatStore.getState().setGenerative(key, { status: 'done', envelope, related });
+        useChatStore.getState().setGenerative(key, { status: 'done', envelope, related, deep });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
         settled = true;
