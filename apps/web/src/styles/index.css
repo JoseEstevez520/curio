@@ -337,38 +337,19 @@
        outside it reaches the scrim behind and shrinks back to the popover. */
     pointer-events: none;
   }
-  /* Shell: the modal's real box, sized by the content in normal flow and capped by the
-     content's max-height. It never animates and has no background of its own — it only
-     establishes geometry and clips the rounded corners, so the surface + content siblings
-     inside it are never subject to a transform. */
-  .curio-modal-shell {
-    position: relative;
+  /* The single morphing card (shared layoutId with the popover). Its content counter-scales
+     (layout="position" in DescribeModal), so the card can morph as one object without warping
+     the text. border-radius is set inline so Framer keeps the corners crisp while it scales. */
+  .curio-modal-card {
     pointer-events: auto;
-    width: 100%;
-    max-width: 560px;
-    overflow: hidden;
-    border-radius: var(--radius-xl);
-  }
-  /* Surface: the ONLY element that morphs (via layoutId). Fills the shell, behind the
-     content — background + hairline only, no text — so its non-uniform scale during the
-     grow/shrink never distorts anything readable. */
-  .curio-modal-surface {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: var(--color-bg);
-    border: var(--border-hairline);
-    /* border-radius is set inline (style prop) on the element so Framer can keep the
-       corners crisp while the surface scales non-uniformly between the two sizes. */
-  }
-  /* Content: in normal flow (so it gives the shell its height), above the surface. Only
-     fades — never scaled. Its own max-height + the scrolling body keep tall content bounded. */
-  .curio-modal-content {
-    position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 560px;
     max-height: min(80vh, 640px);
+    overflow: hidden;
+    background: var(--color-bg);
+    border: var(--border-hairline);
   }
 
   /* Generative-UI skeleton — monochrome placeholder bars while the model builds the
