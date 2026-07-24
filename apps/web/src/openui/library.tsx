@@ -135,6 +135,134 @@ const Callout = defineComponent({
   ),
 });
 
+const BulletList = defineComponent({
+  name: 'BulletList',
+  description:
+    'A short list of points. Set ordered=true for a ranked or sequential list, otherwise bullets.',
+  props: z.object({
+    title: z.string().optional(),
+    ordered: z.boolean().optional(),
+    items: z.array(z.string()),
+  }),
+  component: ({ props }) => {
+    const List = props.ordered ? 'ol' : 'ul';
+    return (
+      <div>
+        {props.title && (
+          <div className="mb-1.5 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+        )}
+        <List
+          className={`space-y-1 pl-5 text-sm text-fg-secondary ${
+            props.ordered ? 'list-decimal' : 'list-disc'
+          }`}
+        >
+          {props.items.map((it, i) => (
+            <li key={i}>{toClickable(it)}</li>
+          ))}
+        </List>
+      </div>
+    );
+  },
+});
+
+const Quote = defineComponent({
+  name: 'Quote',
+  description: 'A notable quotation, optionally attributed to someone. Use for a memorable line.',
+  props: z.object({ text: z.string(), author: z.string().optional() }),
+  component: ({ props }) => (
+    <blockquote className="border-l-2 border-border pl-3 text-sm italic leading-relaxed text-fg-secondary">
+      {toClickable(props.text)}
+      {props.author && (
+        <footer className="mt-1 text-xs not-italic text-fg-muted">— {toClickable(props.author)}</footer>
+      )}
+    </blockquote>
+  ),
+});
+
+const Comparison = defineComponent({
+  name: 'Comparison',
+  description:
+    'Two or three things side by side (X vs Y, pros vs cons). Each column has a heading and bullet points.',
+  props: z.object({
+    title: z.string().optional(),
+    columns: z.array(z.object({ heading: z.string(), points: z.array(z.string()) })),
+  }),
+  component: ({ props }) => (
+    <div>
+      {props.title && (
+        <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+      )}
+      <div
+        className="grid gap-3"
+        style={{
+          gridTemplateColumns: `repeat(${Math.max(1, props.columns.length)}, minmax(0, 1fr))`,
+        }}
+      >
+        {props.columns.map((c, i) => (
+          <div key={i} className="rounded-lg border border-border p-3">
+            <div className="mb-1.5 text-sm font-semibold text-fg">{toClickable(c.heading)}</div>
+            <ul className="list-disc space-y-1 pl-4 text-xs text-fg-secondary">
+              {c.points.map((p, j) => (
+                <li key={j}>{toClickable(p)}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+});
+
+const Steps = defineComponent({
+  name: 'Steps',
+  description:
+    'A numbered how-to / process — sequential instructions. Use this for steps, not Timeline (which is for dated events).',
+  props: z.object({
+    title: z.string().optional(),
+    steps: z.array(z.object({ title: z.string(), detail: z.string().optional() })),
+  }),
+  component: ({ props }) => (
+    <div>
+      {props.title && (
+        <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+      )}
+      <ol className="space-y-2">
+        {props.steps.map((s, i) => (
+          <li key={i} className="flex gap-3">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-xs tabular-nums text-fg-muted">
+              {i + 1}
+            </span>
+            <div>
+              <div className="text-sm text-fg">{toClickable(s.title)}</div>
+              {s.detail && <p className="mt-0.5 text-xs text-fg-secondary">{toClickable(s.detail)}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  ),
+});
+
+const CodeBlock = defineComponent({
+  name: 'CodeBlock',
+  description:
+    'A block of source code for a programming answer/snippet. Keep the code faithful; set language when known.',
+  props: z.object({ language: z.string().optional(), code: z.string() }),
+  // Code is shown verbatim (monospace) — NOT tokenized into clickable words.
+  component: ({ props }) => (
+    <div className="overflow-hidden rounded-lg border border-border">
+      {props.language && (
+        <div className="border-b border-border bg-bg-muted px-3 py-1 text-xs text-fg-muted">
+          {props.language}
+        </div>
+      )}
+      <pre className="overflow-x-auto bg-bg-muted p-3 text-xs leading-relaxed">
+        <code className="font-mono text-fg">{props.code}</code>
+      </pre>
+    </div>
+  ),
+});
+
 /**
  * The root the model must enter through: a vertical stack holding any of our pieces. OpenUI
  * requires a single root component (`root = Panel(...)`); children compose via each piece's
@@ -155,6 +283,11 @@ const Panel = defineComponent({
         FactTable.ref,
         Timeline.ref,
         Callout.ref,
+        BulletList.ref,
+        Quote.ref,
+        Comparison.ref,
+        Steps.ref,
+        CodeBlock.ref,
       ]),
     ),
   }),
@@ -166,5 +299,19 @@ const Panel = defineComponent({
 /** The Curio library handed to OpenUI: the exact vocabulary the model may compose. */
 export const curioLibrary = createLibrary({
   root: 'Panel',
-  components: [Panel, Heading, Prose, DefinitionCard, KeyStat, FactTable, Timeline, Callout],
+  components: [
+    Panel,
+    Heading,
+    Prose,
+    DefinitionCard,
+    KeyStat,
+    FactTable,
+    Timeline,
+    Callout,
+    BulletList,
+    Quote,
+    Comparison,
+    Steps,
+    CodeBlock,
+  ],
 });

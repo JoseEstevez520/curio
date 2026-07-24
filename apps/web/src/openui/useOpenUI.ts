@@ -23,7 +23,8 @@ const TASK_NOTE = [
   'Never pass pieces to Panel as separate arguments; they go inside that single array, in reading order.',
   'Compose the components that best express THIS term — do not force a fixed shape. Prefer a short',
   'Heading + Prose, then any structured pieces that genuinely help (DefinitionCard, FactTable, Timeline,',
-  'KeyStat, Callout). Keep it tight: a few pieces, not a wall. Write all text in the same language as the',
+  'Steps, Comparison, BulletList, Quote, CodeBlock, KeyStat, Callout). Keep it tight: a few pieces, not a',
+  'wall. Write all text in the same language as the',
   'term/context (default Spanish). Be factual and concise.',
 ].join(' ');
 
