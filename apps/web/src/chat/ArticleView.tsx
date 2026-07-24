@@ -19,56 +19,29 @@ import { useGenUI } from '../openui/useGenUI';
 export default function ArticleView() {
   const article = useChatStore((s) => s.article);
   const setArticle = useChatStore((s) => s.setArticle);
+  // Gen UI is the SAME global switch as the header's Texto/Gen UI — no separate toggle here,
+  // so turning it on once applies to both the chat and the reader.
+  const genUI = useChatStore((s) => s.genUI);
   const [draft, setDraft] = useState('');
-  const [genui, setGenui] = useState(false);
 
   // Stable across renders so it doesn't re-trigger the stream (library.prompt() is rebuilt).
   const systemPrompt = useMemo(() => openUIArticleSystemPrompt(), []);
-  const gen = useGenUI(!!article && genui, systemPrompt, article?.content ?? '');
+  const gen = useGenUI(!!article && genUI, systemPrompt, article?.content ?? '');
 
   if (article) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-10">
-        <div className="mb-6 flex items-center justify-between gap-3">
-          {/* Original vs. Gen UI — same monochrome pill as the other toggles. */}
-          <div
-            role="tablist"
-            aria-label="Vista"
-            className="inline-flex items-center gap-0.5 rounded-full border border-border p-0.5"
-          >
-            {[
-              { value: false, label: 'Original' },
-              { value: true, label: 'Gen UI' },
-            ].map((opt) => {
-              const active = genui === opt.value;
-              return (
-                <button
-                  key={opt.label}
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setGenui(opt.value)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors duration-fast ${
-                    active ? 'bg-bg-inset text-fg' : 'text-fg-muted hover:text-fg'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+        <div className="mb-6 flex justify-end">
           <button
             type="button"
-            onClick={() => {
-              setArticle(null);
-              setGenui(false);
-            }}
+            onClick={() => setArticle(null)}
             className="text-xs font-medium text-fg-muted transition-colors duration-fast hover:text-fg"
           >
             Pegar otro
           </button>
         </div>
 
-        {genui ? (
+        {genUI ? (
           gen.error ? (
             <p className="rounded-2xl bg-bg-muted px-4 py-3 text-sm text-fg-secondary">
               {gen.error}
@@ -107,7 +80,8 @@ export default function ArticleView() {
       <h1 className="text-2xl font-bold tracking-tight text-fg">Leer</h1>
       <p className="mt-2 text-base text-fg-muted">
         Pega un artículo o cualquier texto. Luego haz clic en una palabra o selecciona una frase
-        para verla explicada ahí mismo — o pásalo a Gen UI para leerlo más ameno.
+        para verla explicada ahí mismo — o activa <strong>Gen UI</strong> (arriba) para leerlo más
+        ameno.
       </p>
       <textarea
         value={draft}

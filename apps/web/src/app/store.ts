@@ -98,8 +98,11 @@ interface ChatState {
   model: string | null;
   /** Model tag used by the (separate, fast) describer; falls back to `model`. */
   describeModel: string | null;
-  /** When true, assistant replies COMPOSE components (OpenUI) instead of plain text. Persisted. */
-  genChat: boolean;
+  /**
+   * Gen UI mode (global): when true, the assistant's chat replies AND the article reader
+   * COMPOSE components (OpenUI) instead of plain text. One switch for every surface. Persisted.
+   */
+  genUI: boolean;
   /** The word/phrase whose description popover is open, or null. */
   selection: Selection | null;
   /** True when the description has been expanded from the small popover into the modal. */
@@ -114,7 +117,7 @@ interface ChatState {
   setBrain: (brain: Brain) => void;
   setGroqApiKey: (key: string) => void;
   setGroqModel: (model: string) => void;
-  setGenChat: (on: boolean) => void;
+  setGenUI: (on: boolean) => void;
 
   /** Switch reading surface (closes any open description). */
   setMode: (mode: Mode) => void;
@@ -149,7 +152,7 @@ const LS = {
   brain: 'curio.brain',
   groqKey: 'curio.groqApiKey',
   groqModel: 'curio.groqModel',
-  genChat: 'curio.genChat',
+  genUI: 'curio.genUI',
 };
 
 function lsGet(key: string): string | null {
@@ -191,7 +194,7 @@ export const useChatStore = create<ChatState>((set) => ({
   groqModel: initialGroqModel,
   model: null,
   describeModel: null,
-  genChat: lsGet(LS.genChat) === '1',
+  genUI: lsGet(LS.genUI) === '1',
   selection: null,
   expanded: false,
   descriptions: {},
@@ -211,9 +214,9 @@ export const useChatStore = create<ChatState>((set) => ({
     lsSet(LS.groqModel, groqModel);
     set({ groqModel });
   },
-  setGenChat: (genChat) => {
-    lsSet(LS.genChat, genChat ? '1' : '0');
-    set({ genChat });
+  setGenUI: (genUI) => {
+    lsSet(LS.genUI, genUI ? '1' : '0');
+    set({ genUI });
   },
 
   // Switching surface always closes any open description.
