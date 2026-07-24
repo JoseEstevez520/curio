@@ -21,8 +21,14 @@ export interface CompletionRequest {
  * Implementations live alongside this file (ollama-provider.ts, chrome-ai-provider.ts).
  */
 export interface LlmProvider {
-  /** Short id for logs/telemetry, e.g. 'ollama' or 'chrome-ai'. */
+  /** Short id for logs/telemetry, e.g. 'ollama', 'groq' or 'chrome-ai'. */
   readonly name: string;
   /** Run one completion and return the full text (callers that need JSON parse it). */
   complete(req: CompletionRequest): Promise<string>;
+  /**
+   * Optional token-by-token streaming, used by the chat and the popover gloss so text appears
+   * as it's generated. Providers that can't stream simply omit this; callers fall back to
+   * {@link complete} and render the whole answer at once.
+   */
+  completeStream?(req: CompletionRequest): AsyncGenerator<string>;
 }

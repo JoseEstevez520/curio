@@ -1,4 +1,4 @@
-import { chat } from '../ollama/client';
+import { chat, chatStream } from '../ollama/client';
 import type { CompletionRequest, LlmProvider } from './provider';
 
 /**
@@ -16,6 +16,18 @@ export class OllamaProvider implements LlmProvider {
 
   complete(req: CompletionRequest): Promise<string> {
     return chat({
+      model: this.model,
+      messages: req.messages,
+      format: req.format,
+      temperature: req.temperature,
+      numPredict: req.maxTokens,
+      keepAlive: this.keepAlive,
+      signal: req.signal,
+    });
+  }
+
+  completeStream(req: CompletionRequest): AsyncGenerator<string> {
+    return chatStream({
       model: this.model,
       messages: req.messages,
       format: req.format,
