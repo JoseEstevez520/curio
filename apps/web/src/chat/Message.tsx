@@ -1,5 +1,7 @@
+import { Renderer } from '@openuidev/react-lang';
 import type { Message as MessageModel } from '../app/store';
 import MarkdownMessage from '../reading/MarkdownMessage';
+import { curioLibrary } from '../openui/library';
 
 interface MessageProps {
   message: MessageModel;
@@ -32,11 +34,20 @@ export default function Message({ message }: MessageProps) {
 
   return (
     <div className="mb-6 text-base leading-relaxed text-fg">
-      <MarkdownMessage
-        messageId={message.id}
-        content={message.content}
-        streaming={message.streaming}
-      />
+      {message.generative ? (
+        // A composed-components reply: the model's OpenUI Lang → our Curio components.
+        <Renderer
+          response={message.content}
+          library={curioLibrary}
+          isStreaming={message.streaming}
+        />
+      ) : (
+        <MarkdownMessage
+          messageId={message.id}
+          content={message.content}
+          streaming={message.streaming}
+        />
+      )}
       {message.error && (
         <span className="text-sm text-fg-muted">
           {message.content ? ' ' : ''}

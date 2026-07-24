@@ -31,6 +31,8 @@ export interface Message {
   streaming?: boolean;
   /** Set if generating this reply failed. */
   error?: string;
+  /** True when `content` is OpenUI Lang (a composed-components reply), not markdown text. */
+  generative?: boolean;
 }
 
 /** A cached / in-flight term description, keyed by `${messageId} ${term}`. */
@@ -96,6 +98,8 @@ interface ChatState {
   model: string | null;
   /** Model tag used by the (separate, fast) describer; falls back to `model`. */
   describeModel: string | null;
+  /** When true, assistant replies COMPOSE components (OpenUI) instead of plain text. Persisted. */
+  genChat: boolean;
   /** The word/phrase whose description popover is open, or null. */
   selection: Selection | null;
   /** True when the description has been expanded from the small popover into the modal. */
@@ -110,6 +114,7 @@ interface ChatState {
   setBrain: (brain: Brain) => void;
   setGroqApiKey: (key: string) => void;
   setGroqModel: (model: string) => void;
+  setGenChat: (on: boolean) => void;
 
   /** Switch reading surface (closes any open description). */
   setMode: (mode: Mode) => void;
@@ -118,7 +123,7 @@ interface ChatState {
 
   addUserMessage: (content: string) => void;
   /** Create an empty assistant message and return its id, for streaming into. */
-  startAssistantMessage: () => string;
+  startAssistantMessage: (generative?: boolean) => string;
   appendToMessage: (id: string, delta: string) => void;
   finishMessage: (id: string) => void;
   failMessage: (id: string, error: string) => void;
@@ -140,7 +145,12 @@ function newId(): string {
 }
 
 /** Keys for the handful of brain settings we persist across reloads. */
-const LS = { brain: 'curio.brain', groqKey: 'curio.groqApiKey', groqModel: 'curio.groqModel' };
+const LS = {
+  brain: 'curio.brain',
+  groqKey: 'curio.groqApiKey',
+  groqModel: 'curio.groqModel',
+  genChat: 'curio.genChat',
+};
 
 function lsGet(key: string): string | null {
   try {
@@ -181,6 +191,7 @@ export const useChatStore = create<ChatState>((set) => ({
   groqModel: initialGroqModel,
   model: null,
   describeModel: null,
+  genChat: lsGet(LS.genChat) === '1',
   selection: null,
   expanded: false,
   descriptions: {},
@@ -200,6 +211,10 @@ export const useChatStore = create<ChatState>((set) => ({
     lsSet(LS.groqModel, groqModel);
     set({ groqModel });
   },
+  setGenChat: (genChat) => {
+    lsSet(LS.genChat, genChat ? '1' : '0');
+    set({ genChat });
+  },
 
   // Switching surface always closes any open description.
   setMode: (mode) => set({ mode, selection: null, expanded: false }),
@@ -213,10 +228,10 @@ export const useChatStore = create<ChatState>((set) => ({
   addUserMessage: (content) =>
     set((s) => ({ messages: [...s.messages, { id: newId(), role: 'user', content }] })),
 
-  startAssistantMessage: () => {
+  startAssistantMessage: (generative = false) => {
     const id = newId();
     set((s) => ({
-      messages: [...s.messages, { id, role: 'assistant', content: '', streaming: true }],
+      messages: [...s.messages, { id, role: 'assistant', content: '', streaming: true, generative }],
     }));
     return id;
   },

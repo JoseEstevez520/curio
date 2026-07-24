@@ -3,6 +3,7 @@ import { useChatStore, toChatMessages } from '../app/store';
 import { OllamaError, OpenAIError } from '@curio/core';
 import { CHAT_SYSTEM_PROMPT } from '@curio/core';
 import { getBrain } from '../llm/brain';
+import { openUIChatSystemPrompt } from '../openui/chatPrompt';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
@@ -22,7 +23,9 @@ export function useSendMessage() {
     const store = useChatStore.getState();
     store.addUserMessage(text);
     const history = useChatStore.getState().messages;
-    const assistantId = store.startAssistantMessage();
+    // Generative chat: the reply COMPOSES components (OpenUI Lang) instead of markdown text.
+    const genChat = store.genChat;
+    const assistantId = store.startAssistantMessage(genChat);
 
     const { provider, ready, reason } = getBrain('chat');
     if (!ready) {
@@ -31,7 +34,10 @@ export function useSendMessage() {
     }
 
     try {
-      const messages = toChatMessages(history, CHAT_SYSTEM_PROMPT);
+      const messages = toChatMessages(
+        history,
+        genChat ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT,
+      );
       // Stream when the brain supports it (Ollama, Groq both do); otherwise render at once.
       if (provider.completeStream) {
         for await (const delta of provider.completeStream({ messages })) {
