@@ -46,7 +46,7 @@ const DefinitionCard = defineComponent({
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-semibold text-fg">{toClickable(props.term)}</span>
         {props.partOfSpeech && (
-          <span className="text-xs italic text-fg-muted">{props.partOfSpeech}</span>
+          <span className="text-xs italic text-fg-muted">{toClickable(props.partOfSpeech)}</span>
         )}
       </div>
       <p className="mt-1 text-sm leading-relaxed text-fg-secondary">
@@ -62,7 +62,7 @@ const KeyStat = defineComponent({
   props: z.object({ value: z.string(), label: z.string() }),
   component: ({ props }) => (
     <div className="rounded-lg border border-border p-3">
-      <div className="text-xl font-semibold tracking-tight text-fg">{props.value}</div>
+      <div className="text-xl font-semibold tracking-tight text-fg">{toClickable(props.value)}</div>
       <div className="mt-0.5 text-xs text-fg-muted">{toClickable(props.label)}</div>
     </div>
   ),
@@ -79,7 +79,7 @@ const FactTable = defineComponent({
     <div className="rounded-lg border border-border">
       {props.title && (
         <div className="border-b border-border px-3 py-2 text-xs font-medium text-fg-muted">
-          {props.title}
+          {toClickable(props.title)}
         </div>
       )}
       <dl className="divide-y divide-border">
@@ -106,14 +106,14 @@ const Timeline = defineComponent({
   component: ({ props }) => (
     <div>
       {props.title && (
-        <div className="mb-2 text-xs font-medium text-fg-muted">{props.title}</div>
+        <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
       )}
       <ol className="border-l border-border">
         {props.events.map((e, i) => (
           <li key={i} className="relative pb-3 pl-4 last:pb-0">
             <span className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full bg-fg-muted" />
             <div className="flex items-baseline gap-2">
-              <span className="text-xs tabular-nums text-fg-muted">{e.date}</span>
+              <span className="text-xs tabular-nums text-fg-muted">{toClickable(e.date)}</span>
               <span className="text-sm text-fg">{toClickable(e.label)}</span>
             </div>
             {e.detail && <p className="mt-0.5 text-xs text-fg-secondary">{toClickable(e.detail)}</p>}
