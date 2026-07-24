@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { defineComponent, createLibrary } from '@openuidev/react-lang';
 import { toClickable } from '../reading/toClickable';
+import { SvgLineChart, SvgDonut } from './charts/SvgCharts';
 
 /**
  * SPIKE (exp/openui) — Curio's catalog re-expressed as an OpenUI component library.
@@ -360,6 +361,44 @@ const Divider = defineComponent({
     ),
 });
 
+const LineChart = defineComponent({
+  name: 'LineChart',
+  description:
+    'A line chart for a TREND across ordered points (time or sequence). Needs at least 2 points. It draws itself on entrance. points: array of {label, value:number}.',
+  props: z.object({
+    title: z.string().optional(),
+    points: z.array(z.object({ label: z.string(), value: z.number() })),
+  }),
+  component: ({ props }) =>
+    props.points.length >= 2 ? (
+      <div>
+        {props.title && (
+          <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+        )}
+        <SvgLineChart data={props.points} />
+      </div>
+    ) : null,
+});
+
+const Donut = defineComponent({
+  name: 'Donut',
+  description:
+    'A donut chart for a few PARTS OF A WHOLE (proportions, shares, a breakdown). slices: array of {label, value:number}. Best with 2-6 slices.',
+  props: z.object({
+    title: z.string().optional(),
+    slices: z.array(z.object({ label: z.string(), value: z.number() })),
+  }),
+  component: ({ props }) =>
+    props.slices.length >= 1 ? (
+      <div>
+        {props.title && (
+          <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+        )}
+        <SvgDonut slices={props.slices} />
+      </div>
+    ) : null,
+});
+
 const SandboxHTML = defineComponent({
   name: 'SandboxHTML',
   description:
@@ -421,6 +460,8 @@ const Panel = defineComponent({
         BarList.ref,
         Tags.ref,
         Divider.ref,
+        LineChart.ref,
+        Donut.ref,
         SandboxHTML.ref,
       ]),
     ),
@@ -451,6 +492,8 @@ export const curioLibrary = createLibrary({
     BarList,
     Tags,
     Divider,
+    LineChart,
+    Donut,
     SandboxHTML,
   ],
 });
