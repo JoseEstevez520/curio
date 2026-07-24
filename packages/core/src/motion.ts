@@ -40,7 +40,7 @@ export const SCRIM_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1] 
  * the chosen segment ("todo fluye a un lugar", DESIGN §9) instead of popping. Same decelerating
  * iOS curve as the big morphs, just shorter so a control tap stays crisp. No bounce.
  */
-export const SEGMENT_SLIDE: Transition = { duration: 0.24, ease: [0.32, 0.72, 0, 1] };
+export const SEGMENT_SLIDE: Transition = { duration: 0.3, ease: [0.32, 0.72, 0, 1] };
 
 /**
  * Shared `layoutId` for the description surface. The small popover and the "ver más"
