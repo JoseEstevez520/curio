@@ -359,6 +359,38 @@ const Divider = defineComponent({
     ),
 });
 
+const SandboxHTML = defineComponent({
+  name: 'SandboxHTML',
+  description:
+    'LEVEL-3 ESCAPE HATCH — a self-contained HTML/CSS/JS mini-app for things the other components CANNOT express: an interactive diagram, a <canvas> animation, a small simulation, a playable demo. Put a COMPLETE standalone HTML document in `html` (inline ALL css/js; NO external URLs, fonts or scripts). Use this ONLY when a genuinely interactive/visual result is needed — for text, data or lists prefer the normal components.',
+  props: z.object({
+    html: z.string(),
+    title: z.string().optional(),
+    /** Frame height in px (defaults to 340). */
+    height: z.number().optional(),
+  }),
+  // Rendered in a SANDBOXED iframe: `allow-scripts` WITHOUT `allow-same-origin`, so the
+  // model-authored HTML runs at a null (opaque) origin — it can execute JS but cannot reach
+  // the parent DOM, cookies, storage or same-origin network. This is what makes free HTML safe.
+  component: ({ props }) => (
+    <div className="overflow-hidden rounded-lg border border-border">
+      {props.title && (
+        <div className="border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+          {toClickable(props.title)}
+        </div>
+      )}
+      <iframe
+        title={props.title ?? 'Interactive'}
+        srcDoc={props.html}
+        sandbox="allow-scripts"
+        loading="lazy"
+        className="block w-full bg-white"
+        style={{ height: props.height ?? 340, border: 0 }}
+      />
+    </div>
+  ),
+});
+
 /**
  * The root the model must enter through: a vertical stack holding any of our pieces. OpenUI
  * requires a single root component (`root = Panel(...)`); children compose via each piece's
@@ -388,6 +420,7 @@ const Panel = defineComponent({
         BarList.ref,
         Tags.ref,
         Divider.ref,
+        SandboxHTML.ref,
       ]),
     ),
   }),
@@ -417,5 +450,6 @@ export const curioLibrary = createLibrary({
     BarList,
     Tags,
     Divider,
+    SandboxHTML,
   ],
 });
