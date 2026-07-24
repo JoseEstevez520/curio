@@ -1,6 +1,7 @@
 import { Renderer } from '@openuidev/react-lang';
 import type { Message as MessageModel } from '../app/store';
 import MarkdownMessage from '../reading/MarkdownMessage';
+import ClickableSurface from '../reading/clickable';
 import { curioLibrary } from '../openui/library';
 
 interface MessageProps {
@@ -35,12 +36,16 @@ export default function Message({ message }: MessageProps) {
   return (
     <div className="mb-6 text-base leading-relaxed text-fg">
       {message.generative ? (
-        // A composed-components reply: the model's OpenUI Lang → our Curio components.
-        <Renderer
-          response={message.content}
-          library={curioLibrary}
-          isStreaming={message.streaming}
-        />
+        // A composed-components reply: the model's OpenUI Lang → our Curio components. Wrapped
+        // in ClickableSurface so the words INSIDE those components stay click-to-explain, just
+        // like the Markdown reply (the components emit `.entity` word spans via toClickable).
+        <ClickableSurface messageId={message.id} streaming={message.streaming}>
+          <Renderer
+            response={message.content}
+            library={curioLibrary}
+            isStreaming={message.streaming}
+          />
+        </ClickableSurface>
       ) : (
         <MarkdownMessage
           messageId={message.id}

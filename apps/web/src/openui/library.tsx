@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { defineComponent, createLibrary } from '@openuidev/react-lang';
+import { toClickable } from '../reading/toClickable';
 
 /**
  * SPIKE (exp/openui) — Curio's catalog re-expressed as an OpenUI component library.
@@ -19,7 +20,7 @@ const Heading = defineComponent({
   description: 'A short section title for the panel. Use at most once, at the top.',
   props: z.object({ text: z.string() }),
   component: ({ props }) => (
-    <h2 className="text-base font-semibold tracking-tight text-fg">{props.text}</h2>
+    <h2 className="text-base font-semibold tracking-tight text-fg">{toClickable(props.text)}</h2>
   ),
 });
 
@@ -28,7 +29,7 @@ const Prose = defineComponent({
   description: 'A paragraph of explanatory text. The workhorse for prose.',
   props: z.object({ text: z.string() }),
   component: ({ props }) => (
-    <p className="text-sm leading-relaxed text-fg-secondary">{props.text}</p>
+    <p className="text-sm leading-relaxed text-fg-secondary">{toClickable(props.text)}</p>
   ),
 });
 
@@ -43,12 +44,14 @@ const DefinitionCard = defineComponent({
   component: ({ props }) => (
     <div className="rounded-lg border border-border p-3">
       <div className="flex items-baseline gap-2">
-        <span className="text-sm font-semibold text-fg">{props.term}</span>
+        <span className="text-sm font-semibold text-fg">{toClickable(props.term)}</span>
         {props.partOfSpeech && (
           <span className="text-xs italic text-fg-muted">{props.partOfSpeech}</span>
         )}
       </div>
-      <p className="mt-1 text-sm leading-relaxed text-fg-secondary">{props.definition}</p>
+      <p className="mt-1 text-sm leading-relaxed text-fg-secondary">
+        {toClickable(props.definition)}
+      </p>
     </div>
   ),
 });
@@ -60,7 +63,7 @@ const KeyStat = defineComponent({
   component: ({ props }) => (
     <div className="rounded-lg border border-border p-3">
       <div className="text-xl font-semibold tracking-tight text-fg">{props.value}</div>
-      <div className="mt-0.5 text-xs text-fg-muted">{props.label}</div>
+      <div className="mt-0.5 text-xs text-fg-muted">{toClickable(props.label)}</div>
     </div>
   ),
 });
@@ -82,8 +85,8 @@ const FactTable = defineComponent({
       <dl className="divide-y divide-border">
         {props.rows.map((r, i) => (
           <div key={i} className="flex items-baseline justify-between gap-4 px-3 py-2">
-            <dt className="text-xs text-fg-muted">{r.label}</dt>
-            <dd className="text-sm text-fg">{r.value}</dd>
+            <dt className="text-xs text-fg-muted">{toClickable(r.label)}</dt>
+            <dd className="text-sm text-fg">{toClickable(r.value)}</dd>
           </div>
         ))}
       </dl>
@@ -111,9 +114,9 @@ const Timeline = defineComponent({
             <span className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full bg-fg-muted" />
             <div className="flex items-baseline gap-2">
               <span className="text-xs tabular-nums text-fg-muted">{e.date}</span>
-              <span className="text-sm text-fg">{e.label}</span>
+              <span className="text-sm text-fg">{toClickable(e.label)}</span>
             </div>
-            {e.detail && <p className="mt-0.5 text-xs text-fg-secondary">{e.detail}</p>}
+            {e.detail && <p className="mt-0.5 text-xs text-fg-secondary">{toClickable(e.detail)}</p>}
           </li>
         ))}
       </ol>
@@ -126,7 +129,9 @@ const Callout = defineComponent({
   description: 'A subtle highlighted note for a caveat, tip, or "did you know".',
   props: z.object({ text: z.string() }),
   component: ({ props }) => (
-    <div className="rounded-lg bg-bg-muted px-3 py-2 text-sm text-fg-secondary">{props.text}</div>
+    <div className="rounded-lg bg-bg-muted px-3 py-2 text-sm text-fg-secondary">
+      {toClickable(props.text)}
+    </div>
   ),
 });
 
