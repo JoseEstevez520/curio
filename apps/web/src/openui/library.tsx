@@ -1,7 +1,9 @@
+import { Children, isValidElement } from 'react';
 import { z } from 'zod';
 import { defineComponent, createLibrary } from '@openuidev/react-lang';
 import { toClickable } from '../reading/toClickable';
 import { SvgLineChart, SvgDonut } from './charts/SvgCharts';
+import Reveal from './Reveal';
 
 /**
  * SPIKE (exp/openui) — Curio's catalog re-expressed as an OpenUI component library.
@@ -413,7 +415,7 @@ const SandboxHTML = defineComponent({
   // model-authored HTML runs at a null (opaque) origin — it can execute JS but cannot reach
   // the parent DOM, cookies, storage or same-origin network. This is what makes free HTML safe.
   component: ({ props }) => (
-    <div className="overflow-hidden rounded-lg border border-border">
+    <div data-lvl3 className="overflow-hidden rounded-lg border border-border">
       {props.title && (
         <div className="border-b border-border px-3 py-1.5 text-xs text-fg-muted">
           {toClickable(props.title)}
@@ -467,7 +469,15 @@ const Panel = defineComponent({
     ),
   }),
   component: ({ props, renderNode }) => (
-    <div className="flex flex-col gap-4">{renderNode(props.children)}</div>
+    <div className="flex flex-col gap-4">
+      {Children.map(renderNode(props.children), (child) => {
+        // Level 3 (SandboxHTML) marks its root with data-lvl3 — it animates itself inside the
+        // iframe, so we render it as-is; everything else gets the shared fade-up reveal.
+        const isLvl3 =
+          isValidElement(child) && (child.props as { 'data-lvl3'?: boolean })['data-lvl3'];
+        return isLvl3 ? child : <Reveal>{child}</Reveal>;
+      })}
+    </div>
   ),
 });
 
