@@ -470,12 +470,13 @@ const Panel = defineComponent({
   }),
   component: ({ props, renderNode }) => (
     <div className="flex flex-col gap-4">
-      {Children.map(renderNode(props.children), (child) => {
+      {Children.map(renderNode(props.children), (child, i) => {
         // Level 3 (SandboxHTML) marks its root with data-lvl3 — it animates itself inside the
-        // iframe, so we render it as-is; everything else gets the shared fade-up reveal.
+        // iframe, so we render it as-is; everything else gets the shared fade-up reveal,
+        // staggered top-to-bottom (capped so a long panel never drags).
         const isLvl3 =
           isValidElement(child) && (child.props as { 'data-lvl3'?: boolean })['data-lvl3'];
-        return isLvl3 ? child : <Reveal>{child}</Reveal>;
+        return isLvl3 ? child : <Reveal delay={Math.min(i * 0.05, 0.3)}>{child}</Reveal>;
       })}
     </div>
   ),

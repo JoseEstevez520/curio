@@ -46,22 +46,20 @@ export default function ArticleView() {
             <p className="rounded-2xl bg-bg-muted px-4 py-3 text-sm text-fg-secondary">
               {gen.error}
             </p>
-          ) : gen.response ? (
-            // The transformed reading: composed components, words still clickable.
-            <div className="text-base leading-relaxed text-fg">
-              <ClickableSurface messageId={article.id}>
-                <Renderer
-                  response={gen.response}
-                  library={curioLibrary}
-                  isStreaming={gen.isStreaming}
-                />
-              </ClickableSurface>
-            </div>
-          ) : (
+          ) : gen.isStreaming || !gen.response ? (
+            // Dots for the whole transform: partial OpenUI Lang pops in out of order. Reveal the
+            // finished reading at once, staggered (see Panel/Reveal).
             <div className="curio-dots" role="status" aria-label="Transformando">
               <span aria-hidden="true" />
               <span aria-hidden="true" />
               <span aria-hidden="true" />
+            </div>
+          ) : (
+            // The transformed reading: composed components, words still clickable.
+            <div className="text-base leading-relaxed text-fg">
+              <ClickableSurface messageId={article.id}>
+                <Renderer response={gen.response} library={curioLibrary} isStreaming={false} />
+              </ClickableSurface>
             </div>
           )
         ) : (

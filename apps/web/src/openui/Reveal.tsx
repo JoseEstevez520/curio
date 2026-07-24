@@ -1,19 +1,25 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
+interface RevealProps {
+  children: ReactNode;
+  /** Stagger offset (s) so a panel's pieces flow in top-to-bottom instead of all at once. */
+  delay?: number;
+}
+
 /**
- * SPIKE (exp/openui) — the shared entrance for a generative panel's pieces. Each top-level
- * component fades up gently as it lands (and, during streaming, they arrive one by one — so
- * the panel reveals itself in sequence instead of popping in as a block). Same iOS decelerating
- * curve as the rest of Curio's motion, so a composed answer feels choreographed like the
- * hand-made UI. Level 3 (SandboxHTML) is NOT wrapped — its iframe runs its own animation.
+ * The shared entrance for a generative panel's pieces: a gentle fade-up on the iOS decelerating
+ * curve (register 2, DESIGN §9 "todo fluye a un lugar"). Pieces are revealed together when the
+ * reply is complete — staggered by `delay` so they flow top-to-bottom. Honors reduced-motion
+ * (no offset, no delay — the piece just appears). Level 3 (SandboxHTML) is never wrapped.
  */
-export default function Reveal({ children }: { children: ReactNode }) {
+export default function Reveal({ children, delay = 0 }: RevealProps) {
+  const reduced = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={reduced ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.34, ease: [0.32, 0.72, 0, 1] }}
+      transition={reduced ? { duration: 0 } : { duration: 0.34, ease: [0.32, 0.72, 0, 1], delay }}
     >
       {children}
     </motion.div>

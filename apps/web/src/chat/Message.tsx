@@ -19,9 +19,11 @@ export default function Message({ message }: MessageProps) {
     );
   }
 
-  // While the assistant reply is on its way but no token has landed yet, show the "thinking"
-  // dots so the wait never looks like a dead screen (the header mascot also wobbles).
-  if (message.streaming && !message.content) {
+  // Show the "thinking" dots while waiting. For Gen UI we keep them for the WHOLE generation:
+  // partial OpenUI Lang parses into pieces that pop in out of order (the panel is written before
+  // its children resolve), which reads as janky. Instead we reveal the complete panel at once,
+  // staggered top-to-bottom (see Panel/Reveal). Plain text still streams token-by-token.
+  if (message.streaming && (message.generative || !message.content)) {
     return (
       <div className="mb-6" role="status" aria-label="Pensando">
         <div className="curio-dots">
@@ -40,13 +42,9 @@ export default function Message({ message }: MessageProps) {
         // in ClickableSurface so the words INSIDE those components stay click-to-explain, just
         // like the Markdown reply (the components emit `.entity` word spans via toClickable).
         <ClickableSurface messageId={message.id}>
-          {/* No streaming caret here: the "|" fits flowing text, not composed components.
-              The Renderer reveals progressively via isStreaming instead. */}
-          <Renderer
-            response={message.content}
-            library={curioLibrary}
-            isStreaming={message.streaming}
-          />
+          {/* Reached only once the reply is complete (streaming shows the dots above), so the
+              whole panel renders and reveals at once — no half-built, out-of-order pop-in. */}
+          <Renderer response={message.content} library={curioLibrary} isStreaming={false} />
         </ClickableSurface>
       ) : (
         <MarkdownMessage
