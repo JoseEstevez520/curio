@@ -263,6 +263,102 @@ const CodeBlock = defineComponent({
   ),
 });
 
+const StatRow = defineComponent({
+  name: 'StatRow',
+  description:
+    'A row of 2-4 headline figures side by side. Use for a few striking numbers at a glance (more impactful than separate KeyStats).',
+  props: z.object({
+    stats: z.array(z.object({ value: z.string(), label: z.string() })),
+  }),
+  component: ({ props }) => (
+    <div
+      className="grid gap-3"
+      style={{ gridTemplateColumns: `repeat(${Math.max(1, props.stats.length)}, minmax(0, 1fr))` }}
+    >
+      {props.stats.map((s, i) => (
+        <div key={i} className="rounded-lg border border-border p-3">
+          <div className="text-xl font-semibold tracking-tight text-fg">{toClickable(s.value)}</div>
+          <div className="mt-0.5 text-xs text-fg-muted">{toClickable(s.label)}</div>
+        </div>
+      ))}
+    </div>
+  ),
+});
+
+const BarList = defineComponent({
+  name: 'BarList',
+  description:
+    'A small quantitative comparison as horizontal bars (population, share, counts…). Values are numbers on the same scale.',
+  props: z.object({
+    title: z.string().optional(),
+    items: z.array(z.object({ label: z.string(), value: z.number() })),
+  }),
+  component: ({ props }) => {
+    const max = Math.max(1, ...props.items.map((it) => it.value || 0));
+    return (
+      <div>
+        {props.title && (
+          <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
+        )}
+        <div className="space-y-1.5">
+          {props.items.map((it, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <span className="w-28 shrink-0 truncate text-xs text-fg-secondary">
+                {toClickable(it.label)}
+              </span>
+              <span className="h-2 flex-1 overflow-hidden rounded-full bg-bg-inset">
+                <span
+                  className="block h-full rounded-full bg-fg-muted"
+                  style={{ width: `${Math.round(((it.value || 0) / max) * 100)}%` }}
+                />
+              </span>
+              <span className="w-14 shrink-0 text-right text-xs tabular-nums text-fg-muted">
+                {it.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+});
+
+const Tags = defineComponent({
+  name: 'Tags',
+  description: 'A row of short keyword chips — related terms, topics or labels to skim or click.',
+  props: z.object({ items: z.array(z.string()) }),
+  component: ({ props }) => (
+    <div className="flex flex-wrap gap-2">
+      {props.items.map((t, i) => (
+        <span
+          key={i}
+          className="rounded-full border border-border px-2.5 py-0.5 text-xs text-fg-secondary"
+        >
+          {toClickable(t)}
+        </span>
+      ))}
+    </div>
+  ),
+});
+
+const Divider = defineComponent({
+  name: 'Divider',
+  description: 'A thin separator between sections, with an optional short label. Use to structure a long panel.',
+  props: z.object({ label: z.string().optional() }),
+  component: ({ props }) =>
+    props.label ? (
+      <div className="flex items-center gap-3 py-1">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-[0.03em] text-fg-muted">
+          {toClickable(props.label)}
+        </span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+    ) : (
+      <hr className="border-border" />
+    ),
+});
+
 /**
  * The root the model must enter through: a vertical stack holding any of our pieces. OpenUI
  * requires a single root component (`root = Panel(...)`); children compose via each piece's
@@ -288,6 +384,10 @@ const Panel = defineComponent({
         Comparison.ref,
         Steps.ref,
         CodeBlock.ref,
+        StatRow.ref,
+        BarList.ref,
+        Tags.ref,
+        Divider.ref,
       ]),
     ),
   }),
@@ -313,5 +413,9 @@ export const curioLibrary = createLibrary({
     Comparison,
     Steps,
     CodeBlock,
+    StatRow,
+    BarList,
+    Tags,
+    Divider,
   ],
 });
