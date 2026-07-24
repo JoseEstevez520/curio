@@ -37,6 +37,15 @@
   --color-accent-subtle: #eff4ff; /* accent-tinted fill (selection, active word bg) */
   --color-accent-fg: #ffffff; /* text on accent */
 
+  /* Data palette — restrained, slightly desaturated colors for DATA ONLY (chart series,
+     bars). The chrome (surfaces, borders, text) stays monochrome; color carries meaning in
+     data viz, never decoration. Tweak freely. */
+  --chart-1: #2563eb;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #db2777;
+
   /* Curio brand blue — sampled from the mascot. Used for the text selection wash. */
   --color-curio: #2e9bf7;
 
@@ -146,6 +155,13 @@
     --color-accent-subtle: #16233d; /* accent-tinted fill */
     --color-accent-fg: #0a0a0a;
 
+    /* Data palette — lighter/softer on the dark canvas. */
+    --chart-1: #60a5fa;
+    --chart-2: #2dd4bf;
+    --chart-3: #fbbf24;
+    --chart-4: #a78bfa;
+    --chart-5: #f472b6;
+
     /* Curio brand blue — a touch brighter so it carries on the dark canvas. */
     --color-curio: #4aa8ff;
 
@@ -181,6 +197,12 @@
   --color-accent-subtle: #16233d;
   --color-accent-fg: #0a0a0a;
 
+  --chart-1: #60a5fa;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #f472b6;
+
   --color-curio: #4aa8ff;
   --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
 
@@ -209,6 +231,12 @@
   --color-accent-hover: #1d4ed8;
   --color-accent-subtle: #eff4ff;
   --color-accent-fg: #ffffff;
+
+  --chart-1: #2563eb;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #db2777;
 
   --color-curio: #2e9bf7;
   --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);

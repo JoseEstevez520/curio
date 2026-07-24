@@ -194,9 +194,7 @@ const Comparison = defineComponent({
       )}
       <div
         className="grid gap-3"
-        style={{
-          gridTemplateColumns: `repeat(${Math.max(1, props.columns.length)}, minmax(0, 1fr))`,
-        }}
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
       >
         {props.columns.map((c, i) => (
           <div key={i} className="rounded-lg border border-border p-3">
@@ -273,7 +271,7 @@ const StatRow = defineComponent({
   component: ({ props }) => (
     <div
       className="grid gap-3"
-      style={{ gridTemplateColumns: `repeat(${Math.max(1, props.stats.length)}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}
     >
       {props.stats.map((s, i) => (
         <div key={i} className="rounded-lg border border-border p-3">
@@ -308,8 +306,11 @@ const BarList = defineComponent({
               </span>
               <span className="h-2 flex-1 overflow-hidden rounded-full bg-bg-inset">
                 <span
-                  className="block h-full rounded-full bg-fg-muted"
-                  style={{ width: `${Math.round(((it.value || 0) / max) * 100)}%` }}
+                  className="block h-full rounded-full"
+                  style={{
+                    width: `${Math.round(((it.value || 0) / max) * 100)}%`,
+                    backgroundColor: `var(--chart-${(i % 5) + 1})`,
+                  }}
                 />
               </span>
               <span className="w-14 shrink-0 text-right text-xs tabular-nums text-fg-muted">
@@ -425,7 +426,7 @@ const Panel = defineComponent({
     ),
   }),
   component: ({ props, renderNode }) => (
-    <div className="flex flex-col gap-3">{renderNode(props.children)}</div>
+    <div className="flex flex-col gap-4">{renderNode(props.children)}</div>
   ),
 });
 

@@ -16,8 +16,8 @@ const CHAT_TASK_NOTE = [
   'SandboxHTML with a COMPLETE standalone HTML document (inline all css/js, no external URLs) — never',
   'for plain text, data or lists. CRITICAL: the root MUST wrap ALL pieces in ONE array —',
   '`root = Panel([Heading(...), Prose(...), ...])`. Never pass pieces to Panel as separate arguments.',
-  'Answer in the same language as the user. Be helpful, concise, and factual; do not overload the',
-  'panel — a few well-chosen pieces beat a wall.',
+  'Answer in the same language as the user. Be helpful, concise, and factual. Lay out in a SINGLE',
+  'column of a FEW well-chosen pieces — do not overload the panel; a couple of good pieces beat a wall.',
 ].join(' ');
 
 /** The full system prompt string for generative chat (OpenUI spec + our library + the note). */
