@@ -39,7 +39,9 @@ export default function Message({ message }: MessageProps) {
         // A composed-components reply: the model's OpenUI Lang → our Curio components. Wrapped
         // in ClickableSurface so the words INSIDE those components stay click-to-explain, just
         // like the Markdown reply (the components emit `.entity` word spans via toClickable).
-        <ClickableSurface messageId={message.id} streaming={message.streaming}>
+        <ClickableSurface messageId={message.id}>
+          {/* No streaming caret here: the "|" fits flowing text, not composed components.
+              The Renderer reveals progressively via isStreaming instead. */}
           <Renderer
             response={message.content}
             library={curioLibrary}

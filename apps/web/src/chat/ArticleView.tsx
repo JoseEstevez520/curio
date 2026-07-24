@@ -76,7 +76,7 @@ export default function ArticleView() {
           ) : gen.response ? (
             // The transformed reading: composed components, words still clickable.
             <div className="text-base leading-relaxed text-fg">
-              <ClickableSurface messageId={article.id} streaming={gen.isStreaming}>
+              <ClickableSurface messageId={article.id}>
                 <Renderer
                   response={gen.response}
                   library={curioLibrary}
