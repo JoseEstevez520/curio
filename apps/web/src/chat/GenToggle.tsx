@@ -15,14 +15,12 @@ export default function GenToggle() {
       role="switch"
       aria-checked={genChat}
       onClick={() => setGenChat(!genChat)}
-      title="Respuestas como componentes (OpenUI) en vez de solo texto"
-      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors duration-fast ${
-        genChat
-          ? 'border-border bg-bg-inset text-fg'
-          : 'border-border text-fg-muted hover:text-fg'
+      title="Respuestas como componentes (Gen UI) en vez de solo texto"
+      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors duration-fast ${
+        genChat ? 'bg-bg-inset text-fg' : 'text-fg-muted hover:text-fg'
       }`}
     >
-      ✦ Generativa
+      Gen UI
     </button>
   );
 }

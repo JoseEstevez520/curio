@@ -44,7 +44,11 @@ export function getBrain(role: BrainRole): ActiveBrain {
       }),
       modelId: `groq:${model}`,
       ready: !!model && !!apiKey,
-      reason: !apiKey ? 'Add your Groq API key (header).' : !model ? 'Pick a Groq model.' : undefined,
+      reason: !apiKey
+        ? 'Falta la API key de Groq: ponla en apps/web/.env.local (VITE_GROQ_API_KEY).'
+        : !model
+          ? 'Falta el modelo de Groq (VITE_GROQ_MODEL).'
+          : undefined,
     };
   }
 
