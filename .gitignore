@@ -8,6 +8,7 @@ venv/
 # Entorno
 .env
 .env.*
+!.env.example
 
 # Build
 dist/

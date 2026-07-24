@@ -158,13 +158,27 @@ function lsSet(key: string, value: string): void {
   }
 }
 
+// Initial brain settings: a value set in `.env.local` (VITE_*) WINS, so you can configure the
+// key/model/brain in files and never touch the header. If unset, fall back to what the UI last
+// saved (localStorage), then to defaults.
+const ENV = import.meta.env;
+const initialGroqKey = ENV.VITE_GROQ_API_KEY?.trim() || (lsGet(LS.groqKey) ?? '');
+const initialGroqModel = ENV.VITE_GROQ_MODEL?.trim() || lsGet(LS.groqModel) || DEFAULT_GROQ_MODEL;
+// If a key is provided in the env, default to Groq unless explicitly told otherwise.
+const initialBrain: Brain =
+  ENV.VITE_BRAIN === 'groq' || (ENV.VITE_BRAIN !== 'ollama' && ENV.VITE_GROQ_API_KEY?.trim())
+    ? 'groq'
+    : lsGet(LS.brain) === 'groq'
+      ? 'groq'
+      : 'ollama';
+
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   mode: 'chat',
   article: null,
-  brain: lsGet(LS.brain) === 'groq' ? 'groq' : 'ollama',
-  groqApiKey: lsGet(LS.groqKey) ?? '',
-  groqModel: lsGet(LS.groqModel) ?? DEFAULT_GROQ_MODEL,
+  brain: initialBrain,
+  groqApiKey: initialGroqKey,
+  groqModel: initialGroqModel,
   model: null,
   describeModel: null,
   selection: null,
