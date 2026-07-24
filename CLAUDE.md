@@ -32,14 +32,19 @@ catálogo que el modelo elige y rellena) en vez de texto plano.
   salvo que se pida el detalle técnico.
 - **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia, tipo Linear,
   **sin sombras** ni cajas flotantes — jerarquía con espacio y filetes de 1px. Ver `docs/DESIGN.md`.
-- **Restricción técnica (sagrada, actualizada):** **sin API keys de pago ni servicios cerrados**,
-  siempre con **modelos pequeños**. El "cerebro" es enchufable por superficie: **Ollama** en web y
-  escritorio; en la **extensión**, el **modelo integrado del navegador (Gemini Nano)** con Ollama de
-  reserva. **Datos de referencia de la web abierta y sin clave están permitidos** (p. ej.
-  **Wikipedia/Wikimedia**) para enriquecer el panel "ver más" con foto + hechos + enlace reales —
-  el dueño decidió que Curio no tiene por qué ser 100% local. **Rumbo:** hoy Wikipedia da la base
-  fiable; en el futuro las descripciones serán **personalizadas para el usuario** (generadas), no
-  genéricas. Nada de claves de pago ni nube cerrada.
+- **Restricción técnica (sagrada, actualizada):** el "cerebro" es **enchufable por superficie** y
+  **local por defecto**. **Ollama** en web y escritorio; en la **extensión**, el **modelo integrado
+  del navegador (Gemini Nano)** con Ollama de reserva. **Cerebro cloud permitido como opción
+  "trae-tu-propia-clave"** (`bring-your-own-key`): el dueño decidió que cualquiera pueda enchufar el
+  endpoint/clave que quiera vía la interfaz **compatible con OpenAI** (p. ej. **Groq** por su
+  velocidad, LocalAI, OpenRouter…). La clave la mete el usuario, vive solo en su navegador
+  (localStorage) y **nunca** se commitea. Ollama sigue siendo la base local sin configuración.
+  **No hardcodear claves en el repo.** **Datos de referencia de la web abierta y sin clave
+  permitidos** (p. ej. **Wikipedia/Wikimedia**) para enriquecer "ver más" con foto + hechos + enlace.
+  **Rumbo:** hoy Wikipedia da la base fiable y Ollama el local; el cerebro cloud rápido (Groq) abre
+  la puerta a la **UI generativa de nivel 3** (el modelo autora la interfaz — ver
+  `docs/niveles-generativos.md`), que un modelo pequeño local no da con calidad. Las descripciones
+  serán **personalizadas para el usuario** (generadas), no genéricas.
 
 ## Flujo de trabajo con git — IMPORTANTE
 
