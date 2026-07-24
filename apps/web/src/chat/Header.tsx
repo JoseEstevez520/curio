@@ -4,6 +4,7 @@ import { MASCOT_MORPH } from '@curio/core';
 import BrainControls from './BrainControls';
 import ModeToggle from './ModeToggle';
 import GenToggle from './GenToggle';
+import ThemeToggle from '../theme/ThemeToggle';
 import type { OllamaModel } from '@curio/core';
 
 interface HeaderProps {
@@ -50,6 +51,7 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
           <GenToggle />
           <ModeToggle />
           <BrainControls models={models} />
+          <ThemeToggle />
         </div>
       </div>
     </header>
