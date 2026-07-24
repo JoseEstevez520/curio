@@ -23,6 +23,29 @@ tandas sean comparables.
 
 -->
 
+## 2026-07-24 — OpenUI (nivel 2.5/3) sobre Groq
+- **Rama:** `exp/openui` (no fundida a `main`).
+- **Hipótesis:** OpenUI (openui.com, `@openuidev/react-lang`) permite **el nivel 2.5/3** que
+  buscábamos SIN romper el principio sagrado ("el modelo nunca escribe HTML libre"): el modelo
+  **compone nuestros componentes** (registrados con `defineComponent` + esquema Zod), nunca autora
+  markup. Groq como cerebro rápido debería dar la fluidez que un 3B local no da.
+- **Montaje / eval:** `apps/web/src/openui/` — 7 piezas Curio monocromo (Heading, Prose,
+  DefinitionCard, KeyStat, FactTable, Timeline, Callout) + un `Panel` raíz que agrupa hijos vía
+  `z.array(z.union([...ref]))`. `library.prompt()` → system prompt; Groq (`llama-3.3-70b-versatile`,
+  vía el proveedor OpenAI-compatible del core) → OpenUI Lang en streaming → `<Renderer>` parsea a
+  nuestros componentes. Demo aislada en `/?openui`. Verificado además **headless** el round-trip
+  (prompt → Groq → parseo) sobre 3 términos: Mercurio, Bauhaus, Fotosíntesis.
+- **Números:** tras afinar el prompt (envolver hijos en UN array), **3/3 términos parsean con 0
+  errores**, componiendo 4-6 piezas distintas cada uno. Sin API keys de pago (tier gratis de Groq),
+  clave bring-your-own en localStorage. Compat confirmada: React 18.3.1, Zod 4.4.3.
+- **Aprendizajes:** (1) OpenUI EXIGE un componente raíz (`root = Panel(...)`); Root/Container no son
+  builtins — hay que registrarlos. (2) El modelo tiende a pasar hijos como args sueltos; el prompt
+  debe insistir en el array único. (3) OpenUI Lang ≠ JSON: NO usar el modo JSON del proveedor.
+- **Veredicto:** **encaje excelente y seguro** — es el "puente realista" del doc de niveles, ya hecho
+  en producción. Pendiente antes de fundir: anidar/enriquecer el vocabulario, cablearlo al modal
+  "ver más" (hoy vive en `/?openui`), y decidir el "level 3" restante (autoría) + los nudges.
+- **Qué se funde:** aún nada — spike de validación. Se fundirá cuando esté cableado al flujo real.
+
 ## 2026-07-21 — PoC de escritorio con Tauri
 - **Rama:** `exp/tauri` (empujada a `origin`; **no** se funde a `main`).
 - **Hipótesis:** el núcleo web (salida estática `dist/`) se puede envolver en Tauri sin
