@@ -35,6 +35,14 @@ export const CONTENT_FADE: Transition = { duration: 0.2, ease: [0.16, 1, 0.3, 1]
 export const SCRIM_FADE: Transition = { duration: 0.24, ease: [0.16, 1, 0.3, 1] };
 
 /**
+ * The active-segment indicator sliding between options of a segmented control (Texto/Gen UI,
+ * Chat/Leer, Local/Groq). Register 2 (structural morph) at a small scale — the fill TRAVELS to
+ * the chosen segment ("todo fluye a un lugar", DESIGN §9) instead of popping. Same decelerating
+ * iOS curve as the big morphs, just shorter so a control tap stays crisp. No bounce.
+ */
+export const SEGMENT_SLIDE: Transition = { duration: 0.24, ease: [0.32, 0.72, 0, 1] };
+
+/**
  * Shared `layoutId` for the description surface. The small popover and the "ver más"
  * modal both tag their card with this id, so Framer treats them as ONE object that
  * grows/shrinks between the two — the iOS-style shared-element morph. Only one element
