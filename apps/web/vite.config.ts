@@ -24,6 +24,13 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
+      // Same-origin path to Groq's OpenAI-compatible API → no CORS. The browser only ever
+      // calls `/groq/chat/completions`; the key travels in the Authorization header.
+      '/groq': {
+        target: 'https://api.groq.com/openai/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/groq/, ''),
+      },
     },
   },
 });

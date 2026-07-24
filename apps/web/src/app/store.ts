@@ -4,6 +4,16 @@ import type { Envelope, WikiSummary } from '@curio/core';
 
 export type Role = 'user' | 'assistant';
 
+/**
+ * Which brain answers. 'ollama' is the local default; 'groq' is the cloud escape hatch
+ * (any OpenAI-compatible endpoint, bring-your-own key). See CLAUDE.md — the owner relaxed the
+ * "local only" rule so anyone can plug in whatever key they want.
+ */
+export type Brain = 'ollama' | 'groq';
+
+/** A well-known, fast Groq default; the user can change it in the header. */
+export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
+
 /** The two reading surfaces: the chat, or a pasted article. Both use the same engine. */
 export type Mode = 'chat' | 'read';
 
@@ -76,6 +86,12 @@ interface ChatState {
   mode: Mode;
   /** The article being read in `read` mode, or null before one is pasted. */
   article: Article | null;
+  /** Which brain answers: local Ollama or cloud Groq. Persisted. */
+  brain: Brain;
+  /** Bring-your-own Groq (OpenAI-compatible) API key. Persisted to localStorage. */
+  groqApiKey: string;
+  /** Groq model id, e.g. 'llama-3.3-70b-versatile'. Persisted. */
+  groqModel: string;
   /** Active Ollama model tag for chat replies, or null until one is chosen. */
   model: string | null;
   /** Model tag used by the (separate, fast) describer; falls back to `model`. */
@@ -91,6 +107,9 @@ interface ChatState {
 
   setModel: (model: string | null) => void;
   setDescribeModel: (model: string | null) => void;
+  setBrain: (brain: Brain) => void;
+  setGroqApiKey: (key: string) => void;
+  setGroqModel: (model: string) => void;
 
   /** Switch reading surface (closes any open description). */
   setMode: (mode: Mode) => void;
@@ -120,10 +139,32 @@ function newId(): string {
   return crypto.randomUUID();
 }
 
+/** Keys for the handful of brain settings we persist across reloads. */
+const LS = { brain: 'curio.brain', groqKey: 'curio.groqApiKey', groqModel: 'curio.groqModel' };
+
+function lsGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function lsSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Private mode / quota — settings just won't persist; not worth surfacing.
+  }
+}
+
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   mode: 'chat',
   article: null,
+  brain: lsGet(LS.brain) === 'groq' ? 'groq' : 'ollama',
+  groqApiKey: lsGet(LS.groqKey) ?? '',
+  groqModel: lsGet(LS.groqModel) ?? DEFAULT_GROQ_MODEL,
   model: null,
   describeModel: null,
   selection: null,
@@ -133,6 +174,18 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setModel: (model) => set({ model }),
   setDescribeModel: (describeModel) => set({ describeModel }),
+  setBrain: (brain) => {
+    lsSet(LS.brain, brain);
+    set({ brain });
+  },
+  setGroqApiKey: (groqApiKey) => {
+    lsSet(LS.groqKey, groqApiKey);
+    set({ groqApiKey });
+  },
+  setGroqModel: (groqModel) => {
+    lsSet(LS.groqModel, groqModel);
+    set({ groqModel });
+  },
 
   // Switching surface always closes any open description.
   setMode: (mode) => set({ mode, selection: null, expanded: false }),

@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
-import { generateEnvelope, generateRelated, generateDeep, fetchWikiSummary } from '@curio/core';
+import {
+  generateEnvelopeWith,
+  generateRelatedWith,
+  describeDeepWith,
+  fetchWikiSummary,
+} from '@curio/core';
 import { describeError } from '../chat/useChat';
+import { getBrain, useActiveModelId } from '../llm/brain';
 
 /** The user turn that prompted this reply, trimmed — a little disambiguating context. */
 function conversationContext(messages: Message[], messageId: string): string {
@@ -29,9 +35,9 @@ export function useGenerative(
   context: string,
   fallbackText: string,
 ): GenerativeEntry | undefined {
-  // Structured output needs the more capable model; fall back to the describer's. The model
-  // is part of the cache key, so switching models never serves a component built by another.
-  const model = useChatStore((s) => s.model ?? s.describeModel ?? '');
+  // Structured output uses the capable/chat brain. The brain+model is part of the cache key
+  // (useActiveModelId), so switching never serves a component built by another.
+  const model = useActiveModelId('chat');
   const key = descriptionKey(model, messageId, term);
   const entry = useChatStore((s) => s.generatives[key]);
 
@@ -42,11 +48,9 @@ export function useGenerative(
     if (entry && entry.status !== 'error') return;
 
     const state = useChatStore.getState();
-    if (!model) {
-      state.setGenerative(key, {
-        status: 'error',
-        error: 'No model available. Pull one with `ollama pull llama3.2:3b`.',
-      });
+    const { provider, ready, reason } = getBrain('chat');
+    if (!ready) {
+      state.setGenerative(key, { status: 'error', error: reason ?? 'No brain available.' });
       return;
     }
 
@@ -64,16 +68,15 @@ export function useGenerative(
         // card (real photo + facts + link) — the "living" panel. All parallel, all cached, so
         // "Ver más" opens with everything ready and no extra wait.
         const [deep, envelope, related, wiki] = await Promise.all([
-          generateDeep(model, { term, context, conversation, signal: controller.signal }),
-          generateEnvelope({
-            model,
+          describeDeepWith(provider, { term, context, conversation, signal: controller.signal }),
+          generateEnvelopeWith(provider, {
             term,
             context,
             conversation,
             fallbackText: fallbackText.trim() || term,
             signal: controller.signal,
           }),
-          generateRelated(model, { term, context, conversation, signal: controller.signal }),
+          generateRelatedWith(provider, { term, context, conversation, signal: controller.signal }),
           // Pass a short slice of the surrounding text as a hint so ambiguous terms resolve
           // to the right article (e.g. "Júpiter" → the planet, not the god).
           fetchWikiSummary(term, 'es', controller.signal, context.slice(0, 40)),

@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
-import { chatStream, OllamaError } from '@curio/core';
+import { OllamaError, OpenAIError } from '@curio/core';
 import { CHAT_SYSTEM_PROMPT } from '@curio/core';
+import { getBrain } from '../llm/brain';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
@@ -11,6 +12,7 @@ export function describeError(e: unknown): string {
     }
     return e.message;
   }
+  if (e instanceof OpenAIError) return e.message;
   return e instanceof Error ? e.message : 'Something went wrong.';
 }
 
@@ -22,19 +24,22 @@ export function useSendMessage() {
     const history = useChatStore.getState().messages;
     const assistantId = store.startAssistantMessage();
 
-    const model = useChatStore.getState().model;
-    if (!model) {
-      store.failMessage(
-        assistantId,
-        'No model available. Pull one with `ollama pull llama3.2:3b`.',
-      );
+    const { provider, ready, reason } = getBrain('chat');
+    if (!ready) {
+      store.failMessage(assistantId, reason ?? 'No brain available.');
       return;
     }
 
     try {
       const messages = toChatMessages(history, CHAT_SYSTEM_PROMPT);
-      for await (const delta of chatStream({ model, messages, keepAlive: '10m' })) {
-        useChatStore.getState().appendToMessage(assistantId, delta);
+      // Stream when the brain supports it (Ollama, Groq both do); otherwise render at once.
+      if (provider.completeStream) {
+        for await (const delta of provider.completeStream({ messages })) {
+          useChatStore.getState().appendToMessage(assistantId, delta);
+        }
+      } else {
+        const text = await provider.complete({ messages });
+        useChatStore.getState().appendToMessage(assistantId, text);
       }
       useChatStore.getState().finishMessage(assistantId);
     } catch (e) {

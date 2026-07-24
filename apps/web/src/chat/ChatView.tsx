@@ -15,6 +15,7 @@ import SelectionPopover from '../reading/SelectionPopover';
 export default function ChatView() {
   const messages = useChatStore((s) => s.messages);
   const mode = useChatStore((s) => s.mode);
+  const brain = useChatStore((s) => s.brain);
   const isStreaming = useChatStore((s) => s.messages.some((m) => m.streaming));
   const inspecting = useChatStore((s) => s.selection !== null);
   const { models, status, reload } = useModels();
@@ -37,7 +38,8 @@ export default function ChatView() {
           <ArticleView />
         ) : (
           <div className="mx-auto w-full max-w-2xl px-4 py-10">
-            <OllamaBanner status={status} onRetry={() => void reload()} />
+            {/* Only nag about Ollama when it's the selected brain — Groq users don't need it. */}
+            {brain === 'ollama' && <OllamaBanner status={status} onRetry={() => void reload()} />}
             {!hasMessages ? (
               <div className="text-fg-muted">
                 {/* Same layoutId as the header mascot: sending the first message flips to

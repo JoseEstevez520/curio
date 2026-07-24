@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type DescriptionEntry, type Message } from '../app/store';
-import { chatStream } from '@curio/core';
 import { buildDescribeMessages } from '@curio/core';
 import { cleanDescription } from '@curio/core';
 import { describeError } from '../chat/useChat';
+import { getBrain, useActiveModelId } from '../llm/brain';
 
 /** A little conversation context: the user turn that prompted this reply, trimmed. */
 function conversationContext(messages: Message[], messageId: string): string {
@@ -26,9 +26,10 @@ export function useDescribe(
   term: string,
   context: string,
 ): DescriptionEntry | undefined {
-  // The describer is a separate, faster agent: prefer its small model, fall back to chat's.
-  // The model is part of the cache key, so switching models never serves a stale answer.
-  const model = useChatStore((s) => s.describeModel ?? s.model ?? '');
+  // The describer is a separate, faster agent: for Ollama it prefers the small model, falling
+  // back to chat's; for Groq it's the one selected model. The brain+model is part of the cache
+  // key (see useActiveModelId), so switching never serves a stale answer.
+  const model = useActiveModelId('describe');
   const key = descriptionKey(model, messageId, term);
   const entry = useChatStore((s) => s.descriptions[key]);
 
@@ -39,12 +40,9 @@ export function useDescribe(
     if (entry && entry.status !== 'error') return;
 
     const state = useChatStore.getState();
-    if (!model) {
-      state.setDescription(key, {
-        status: 'error',
-        text: '',
-        error: 'No model available. Pull one with `ollama pull llama3.2:3b`.',
-      });
+    const { provider, ready, reason } = getBrain('describe');
+    if (!ready) {
+      state.setDescription(key, { status: 'error', text: '', error: reason ?? 'No brain available.' });
       return;
     }
 
@@ -55,22 +53,21 @@ export function useDescribe(
     let settled = false;
     state.setDescription(key, { status: 'loading', text: '' });
     const conversation = conversationContext(state.messages, messageId);
+    const messages = buildDescribeMessages(term, context, conversation);
+    const req = { messages, temperature: 0.2, maxTokens: 60, signal: controller.signal };
 
     (async () => {
       try {
         let acc = '';
-        for await (const delta of chatStream({
-          model,
-          messages: buildDescribeMessages(term, context, conversation),
-          temperature: 0.2,
-          numPredict: 60,
-          keepAlive: '10m',
-          signal: controller.signal,
-        })) {
-          acc += delta;
-          useChatStore
-            .getState()
-            .setDescription(key, { status: 'loading', text: cleanDescription(acc) });
+        if (provider.completeStream) {
+          for await (const delta of provider.completeStream(req)) {
+            acc += delta;
+            useChatStore
+              .getState()
+              .setDescription(key, { status: 'loading', text: cleanDescription(acc) });
+          }
+        } else {
+          acc = await provider.complete(req);
         }
         settled = true;
         useChatStore

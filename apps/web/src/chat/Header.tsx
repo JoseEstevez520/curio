@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
 import { MASCOT_MORPH } from '@curio/core';
-import ModelPicker from './ModelPicker';
+import BrainControls from './BrainControls';
 import ModeToggle from './ModeToggle';
 import type { OllamaModel } from '@curio/core';
 
@@ -47,7 +47,7 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
         )}
         <div className="flex items-center gap-3">
           <ModeToggle />
-          <ModelPicker models={models} />
+          <BrainControls models={models} />
         </div>
       </div>
     </header>
