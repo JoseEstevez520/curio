@@ -14,6 +14,14 @@ export type Brain = 'ollama' | 'groq';
 /** A well-known, fast Groq default; the user can change it in the header. */
 export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
 
+/**
+ * Models to fall back to when the primary Groq model fails (typically a 429: its daily token
+ * quota is spent). Each Groq model has its OWN per-day limit, and the lighter instant model has
+ * a far higher one — so when the 70B is exhausted, the 8B still answers. Overridable with
+ * VITE_GROQ_FALLBACK_MODELS (comma-separated) in .env.local.
+ */
+export const DEFAULT_GROQ_FALLBACKS = ['llama-3.1-8b-instant'];
+
 /** The two reading surfaces: the chat, or a pasted article. Both use the same engine. */
 export type Mode = 'chat' | 'read';
 
@@ -177,6 +185,20 @@ function lsSet(key: string, value: string): void {
 const ENV = import.meta.env;
 const initialGroqKey = ENV.VITE_GROQ_API_KEY?.trim() || (lsGet(LS.groqKey) ?? '');
 const initialGroqModel = ENV.VITE_GROQ_MODEL?.trim() || lsGet(LS.groqModel) || DEFAULT_GROQ_MODEL;
+
+const envFallbacks = ENV.VITE_GROQ_FALLBACK_MODELS?.split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+const groqFallbacks = envFallbacks?.length ? envFallbacks : DEFAULT_GROQ_FALLBACKS;
+
+/**
+ * The ordered list of Groq models to try for a single request: the chosen primary first, then
+ * the fallbacks. Deduped (so if you pick the 8B as primary it isn't tried twice) and never empty.
+ */
+export function groqModelChain(primary: string): string[] {
+  const chain = [primary, ...groqFallbacks].map((m) => m.trim()).filter(Boolean);
+  return [...new Set(chain)];
+}
 // If a key is provided in the env, default to Groq unless explicitly told otherwise.
 const initialBrain: Brain =
   ENV.VITE_BRAIN === 'groq' || (ENV.VITE_BRAIN !== 'ollama' && ENV.VITE_GROQ_API_KEY?.trim())

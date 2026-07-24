@@ -11,6 +11,7 @@ export * from './llm/provider';
 export * from './llm/ollama-provider';
 export * from './llm/openai-provider';
 export * from './llm/chrome-ai-provider';
+export * from './llm/fallback-provider';
 export * from './llm/factory';
 
 // Motion tokens (shared-element morph, fades).

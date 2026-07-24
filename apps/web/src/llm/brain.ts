@@ -1,5 +1,5 @@
-import { createBrain, type LlmProvider } from '@curio/core';
-import { useChatStore } from '../app/store';
+import { createBrain, FallbackProvider, type LlmProvider } from '@curio/core';
+import { groqModelChain, useChatStore } from '../app/store';
 
 /**
  * The web app reaches Groq through a same-origin proxy (`/groq` → api.groq.com/openai/v1,
@@ -34,14 +34,14 @@ export function getBrain(role: BrainRole): ActiveBrain {
   if (s.brain === 'groq') {
     const model = s.groqModel.trim();
     const apiKey = s.groqApiKey.trim();
+    // Try the chosen model first, then lighter fallbacks — so a spent daily quota (429) on the
+    // 70B silently drops to the 8B instead of erroring. One model → no wrapper, same as before.
+    const chain = groqModelChain(model);
+    const providers = chain.map((m) =>
+      createBrain({ kind: 'openai', name: 'groq', model: m, apiKey, baseUrl: GROQ_PROXY_BASE }),
+    );
     return {
-      provider: createBrain({
-        kind: 'openai',
-        name: 'groq',
-        model,
-        apiKey,
-        baseUrl: GROQ_PROXY_BASE,
-      }),
+      provider: providers.length > 1 ? new FallbackProvider(providers) : providers[0],
       modelId: `groq:${model}`,
       ready: !!model && !!apiKey,
       reason: !apiKey
