@@ -1,11 +1,13 @@
-import { createBrain, FallbackProvider, type LlmProvider } from '@curio/core';
-import { groqModelChain, useChatStore } from '../app/store';
+import { createBrain, type LlmProvider } from '@curio/core';
+import { useChatStore } from '../app/store';
 
 /**
- * The web app reaches Groq through a same-origin proxy (`/groq` → api.groq.com/openai/v1,
- * see vite.config.ts) so there is no CORS and no user setup — the same trick as `/ollama`.
+ * The cloud brain reaches ANY OpenAI-compatible endpoint through a same-origin dynamic proxy
+ * (`/llm`, see vite.config.ts): the browser POSTs to `/llm/chat/completions` with the real base URL
+ * in `x-llm-base-url`, and the dev server forwards it — no CORS, works with Groq / OpenRouter /
+ * LocalAI / your own server. The user's key rides in the Authorization header as usual.
  */
-const GROQ_PROXY_BASE = '/groq';
+const LLM_PROXY_BASE = '/llm';
 
 /** The two lookup roles: chat replies vs. the (smaller, faster) word describer. */
 export type BrainRole = 'chat' | 'describe';
@@ -34,20 +36,25 @@ export function getBrain(role: BrainRole): ActiveBrain {
   if (s.brain === 'groq') {
     const model = s.groqModel.trim();
     const apiKey = s.groqApiKey.trim();
-    // Try the chosen model first, then lighter fallbacks — so a spent daily quota (429) on the
-    // 70B silently drops to the 8B instead of erroring. One model → no wrapper, same as before.
-    const chain = groqModelChain(model);
-    const providers = chain.map((m) =>
-      createBrain({ kind: 'openai', name: 'groq', model: m, apiKey, baseUrl: GROQ_PROXY_BASE }),
-    );
+    const base = s.cloudBaseUrl.trim().replace(/\/$/, '');
+    // Any OpenAI-compatible endpoint, reached through the dynamic /llm proxy (the real URL travels
+    // in x-llm-base-url). The key is OPTIONAL — a local endpoint (LM Studio / LocalAI) needs none;
+    // if one IS required, the request 401s with a clear message.
     return {
-      provider: providers.length > 1 ? new FallbackProvider(providers) : providers[0],
-      modelId: `groq:${model}`,
-      ready: !!model && !!apiKey,
-      reason: !apiKey
-        ? 'Falta la API key de Groq: ponla en apps/web/.env.local (VITE_GROQ_API_KEY).'
+      provider: createBrain({
+        kind: 'openai',
+        name: 'cloud',
+        model,
+        apiKey,
+        baseUrl: LLM_PROXY_BASE,
+        headers: { 'x-llm-base-url': base },
+      }),
+      modelId: `cloud:${base}:${model}`,
+      ready: !!base && !!model,
+      reason: !base
+        ? 'Falta la URL del endpoint (Ajustes → Cerebro: Nube).'
         : !model
-          ? 'Falta el modelo de Groq (VITE_GROQ_MODEL).'
+          ? 'Falta el modelo (Ajustes → Cerebro: Nube).'
           : undefined,
     };
   }
@@ -65,7 +72,7 @@ export function getBrain(role: BrainRole): ActiveBrain {
 /** Reactive cache identity for `role`, tracking brain + model changes. Use in components/hooks. */
 export function useActiveModelId(role: BrainRole): string {
   return useChatStore((s) => {
-    if (s.brain === 'groq') return `groq:${s.groqModel.trim()}`;
+    if (s.brain === 'groq') return `cloud:${s.cloudBaseUrl.trim()}:${s.groqModel.trim()}`;
     return ((role === 'describe' ? (s.describeModel ?? s.model) : s.model) ?? '') as string;
   });
 }

@@ -24,6 +24,12 @@ export interface OpenAIProviderConfig {
   baseUrl?: string;
   /** Short id for logs; defaults to 'openai'. The web app passes 'groq'. */
   name?: string;
+  /**
+   * Extra request headers, merged over the defaults. The web app uses this to carry the real
+   * upstream base URL (`x-llm-base-url`) when `baseUrl` is a same-origin dev proxy that forwards
+   * to any user-entered OpenAI-compatible endpoint (sidesteps browser CORS).
+   */
+  headers?: Record<string, string>;
 }
 
 /** Error thrown by {@link OpenAICompatibleProvider}; mirrors OllamaError's shape loosely. */
@@ -50,16 +56,18 @@ export class OpenAICompatibleProvider implements LlmProvider {
   private readonly model: string;
   private readonly apiKey: string;
   private readonly baseUrl: string;
+  private readonly extraHeaders: Record<string, string>;
 
   constructor(cfg: OpenAIProviderConfig) {
     this.name = cfg.name ?? 'openai';
     this.model = cfg.model;
     this.apiKey = cfg.apiKey ?? '';
     this.baseUrl = (cfg.baseUrl ?? GROQ_BASE_URL).replace(/\/$/, '');
+    this.extraHeaders = cfg.headers ?? {};
   }
 
   private headers(): Record<string, string> {
-    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    const h: Record<string, string> = { 'Content-Type': 'application/json', ...this.extraHeaders };
     if (this.apiKey) h.Authorization = `Bearer ${this.apiKey}`;
     return h;
   }
@@ -172,4 +180,39 @@ export class OpenAICompatibleProvider implements LlmProvider {
       reader.releaseLock();
     }
   }
+}
+
+export interface ListModelsConfig {
+  baseUrl?: string;
+  apiKey?: string;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+}
+
+/**
+ * List the models an OpenAI-compatible endpoint offers (`GET /models`), so the UI can populate a
+ * picker automatically — the cloud counterpart to Ollama's `/api/tags`. Returns the ids sorted;
+ * throws {@link OpenAIError} on a bad key / unreachable endpoint / endpoint that doesn't implement
+ * `/models` (some don't — the caller falls back to a manual model field).
+ */
+export async function listOpenAIModels(cfg: ListModelsConfig): Promise<string[]> {
+  const base = (cfg.baseUrl ?? GROQ_BASE_URL).replace(/\/$/, '');
+  const h: Record<string, string> = { ...(cfg.headers ?? {}) };
+  if (cfg.apiKey) h.Authorization = `Bearer ${cfg.apiKey}`;
+
+  let response: Response;
+  try {
+    response = await fetch(`${base}/models`, { headers: h, signal: cfg.signal });
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === 'AbortError') throw cause;
+    throw new OpenAIError('Could not reach the endpoint to list models.', { cause });
+  }
+  if (!response.ok) {
+    throw new OpenAIError(`HTTP ${response.status} listing models.`, { status: response.status });
+  }
+  const json = (await response.json().catch(() => null)) as { data?: { id?: string }[] } | null;
+  return (json?.data ?? [])
+    .map((m) => m.id)
+    .filter((id): id is string => typeof id === 'string' && id.length > 0)
+    .sort((a, b) => a.localeCompare(b));
 }

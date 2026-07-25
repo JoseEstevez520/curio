@@ -13,6 +13,8 @@ export interface BrainConfig {
   apiKey?: string;
   /** API base for the cloud brain (ignored by Ollama). */
   baseUrl?: string;
+  /** Extra request headers for the cloud brain (e.g. the dynamic-proxy upstream URL). */
+  headers?: Record<string, string>;
   /** Ollama keep-alive window (ignored by the cloud brain). */
   keepAlive?: string;
   /** Short id for logs. */
@@ -30,6 +32,7 @@ export function createBrain(cfg: BrainConfig): LlmProvider {
       model: cfg.model,
       apiKey: cfg.apiKey,
       baseUrl: cfg.baseUrl,
+      headers: cfg.headers,
       name: cfg.name ?? 'openai',
     });
   }

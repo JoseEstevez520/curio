@@ -1,7 +1,9 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Optional Groq (OpenAI-compatible) API key — set it in .env.local instead of the UI. */
+  /** Optional cloud endpoint base URL (any OpenAI-compatible). Defaults to Groq's base. */
+  readonly VITE_CLOUD_BASE_URL?: string;
+  /** Optional bring-your-own API key for the cloud endpoint — set here instead of the UI. */
   readonly VITE_GROQ_API_KEY?: string;
   /** Optional Groq model id override, e.g. 'llama-3.3-70b-versatile'. */
   readonly VITE_GROQ_MODEL?: string;

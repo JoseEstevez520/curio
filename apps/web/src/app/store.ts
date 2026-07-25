@@ -11,7 +11,11 @@ export type Role = 'user' | 'assistant';
  */
 export type Brain = 'ollama' | 'groq';
 
-/** A well-known, fast Groq default; the user can change it in the header. */
+/** Default cloud endpoint: Groq's OpenAI-compatible base (fast free tier). Any OpenAI-compatible
+ *  endpoint works — the user can change it (presets or a custom URL) in the settings menu. */
+export const DEFAULT_CLOUD_BASE_URL = 'https://api.groq.com/openai/v1';
+
+/** A well-known, fast Groq default model; the user can change it in the settings menu. */
 export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 /**
@@ -96,11 +100,13 @@ interface ChatState {
   mode: Mode;
   /** The article being read in `read` mode, or null before one is pasted. */
   article: Article | null;
-  /** Which brain answers: local Ollama or cloud Groq. Persisted. */
+  /** Which brain answers: local Ollama or a cloud (OpenAI-compatible) endpoint. Persisted. */
   brain: Brain;
-  /** Bring-your-own Groq (OpenAI-compatible) API key. Persisted to localStorage. */
+  /** Base URL of the cloud endpoint, e.g. Groq / OpenRouter / LocalAI / your own. Persisted. */
+  cloudBaseUrl: string;
+  /** Bring-your-own API key for the cloud endpoint. Persisted to localStorage only. */
   groqApiKey: string;
-  /** Groq model id, e.g. 'llama-3.3-70b-versatile'. Persisted. */
+  /** Cloud model id, e.g. 'llama-3.3-70b-versatile'. Persisted. */
   groqModel: string;
   /** Active Ollama model tag for chat replies, or null until one is chosen. */
   model: string | null;
@@ -123,6 +129,7 @@ interface ChatState {
   setModel: (model: string | null) => void;
   setDescribeModel: (model: string | null) => void;
   setBrain: (brain: Brain) => void;
+  setCloudBaseUrl: (url: string) => void;
   setGroqApiKey: (key: string) => void;
   setGroqModel: (model: string) => void;
   setGenUI: (on: boolean) => void;
@@ -158,6 +165,7 @@ function newId(): string {
 /** Keys for the handful of brain settings we persist across reloads. */
 const LS = {
   brain: 'curio.brain',
+  cloudBaseUrl: 'curio.cloudBaseUrl',
   groqKey: 'curio.groqApiKey',
   groqModel: 'curio.groqModel',
   genUI: 'curio.genUI',
@@ -185,6 +193,8 @@ function lsSet(key: string, value: string): void {
 const ENV = import.meta.env;
 const initialGroqKey = ENV.VITE_GROQ_API_KEY?.trim() || (lsGet(LS.groqKey) ?? '');
 const initialGroqModel = ENV.VITE_GROQ_MODEL?.trim() || lsGet(LS.groqModel) || DEFAULT_GROQ_MODEL;
+const initialCloudBaseUrl =
+  ENV.VITE_CLOUD_BASE_URL?.trim() || lsGet(LS.cloudBaseUrl) || DEFAULT_CLOUD_BASE_URL;
 
 const envFallbacks = ENV.VITE_GROQ_FALLBACK_MODELS?.split(',')
   .map((m) => m.trim())
@@ -212,6 +222,7 @@ export const useChatStore = create<ChatState>((set) => ({
   mode: 'chat',
   article: null,
   brain: initialBrain,
+  cloudBaseUrl: initialCloudBaseUrl,
   groqApiKey: initialGroqKey,
   groqModel: initialGroqModel,
   model: null,
@@ -227,6 +238,10 @@ export const useChatStore = create<ChatState>((set) => ({
   setBrain: (brain) => {
     lsSet(LS.brain, brain);
     set({ brain });
+  },
+  setCloudBaseUrl: (cloudBaseUrl) => {
+    lsSet(LS.cloudBaseUrl, cloudBaseUrl);
+    set({ cloudBaseUrl });
   },
   setGroqApiKey: (groqApiKey) => {
     lsSet(LS.groqKey, groqApiKey);
