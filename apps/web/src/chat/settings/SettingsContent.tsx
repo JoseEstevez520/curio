@@ -1,6 +1,5 @@
 import { useChatStore, type Brain } from '../../app/store';
 import Segmented from '../Segmented';
-import CloudConnection from './CloudConnection';
 import type { OllamaModel } from '@curio/core';
 
 const BRAIN_OPTIONS: { value: Brain; label: string }[] = [
@@ -25,9 +24,9 @@ function Section({ label, children }: { label: string; children: React.ReactNode
 }
 
 /**
- * The settings body — Respuesta (Texto/Gen UI), Cerebro (Local/Groq) and Modelo — shared by both
- * candidate shells (anchored popover vs. centered modal) so the comparison is only about the
- * open/close motion, not the contents.
+ * The settings body — Respuesta (Texto/Gen UI), Cerebro (Local/Nube) and Modelo. Local lists the
+ * installed Ollama models; the cloud brain is read-only here (endpoint/key/model live in
+ * `.env.local`, the usual place for a deploy), showing just what's configured.
  */
 export default function SettingsContent({ models }: { models: OllamaModel[] }) {
   const genUI = useChatStore((s) => s.genUI);
@@ -36,6 +35,8 @@ export default function SettingsContent({ models }: { models: OllamaModel[] }) {
   const setBrain = useChatStore((s) => s.setBrain);
   const model = useChatStore((s) => s.model);
   const setModel = useChatStore((s) => s.setModel);
+  const groqModel = useChatStore((s) => s.groqModel);
+  const cloudBaseUrl = useChatStore((s) => s.cloudBaseUrl);
 
   return (
     <div className="flex flex-col gap-3">
@@ -59,7 +60,7 @@ export default function SettingsContent({ models }: { models: OllamaModel[] }) {
         />
       </Section>
 
-      <Section label={brain === 'ollama' ? 'Modelo' : 'Conexión'}>
+      <Section label="Modelo">
         {brain === 'ollama' ? (
           models.length === 0 ? (
             <p className="text-xs leading-relaxed text-fg-muted">
@@ -98,7 +99,13 @@ export default function SettingsContent({ models }: { models: OllamaModel[] }) {
             </div>
           )
         ) : (
-          <CloudConnection />
+          <>
+            <p className="truncate text-xs text-fg">{groqModel || '—'}</p>
+            <p className="mt-1 truncate text-[11px] text-fg-faint">{cloudBaseUrl}</p>
+            <p className="mt-1 leading-relaxed text-[11px] text-fg-faint">
+              Endpoint, clave y modelo se configuran en <code>.env.local</code>.
+            </p>
+          </>
         )}
       </Section>
     </div>
