@@ -4,9 +4,9 @@
 
 # Curio
 
-**Lee, haz clic en una palabra y entiéndela ahí mismo — sin salir del texto.**
+**Read. Get curious about a word. Click it — and the answer is right there.**
 
-_Para curiosos e investigadores. Cerebro local por defecto, sin claves de API._
+_A reading companion for the curious. Local-first, no API keys._
 
 <br />
 
@@ -14,76 +14,83 @@ _Para curiosos e investigadores. Cerebro local por defecto, sin claves de API._
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![Ollama](https://img.shields.io/badge/Ollama-local-000000?logo=ollama&logoColor=white)](https://ollama.com)
-![local-first](https://img.shields.io/badge/local--first-sin_API_keys-18181B)
+![local-first](https://img.shields.io/badge/local--first-no_API_keys-18181B)
 
 <br />
 
-<img src="docs/media/hero-light.png" alt="Curio — estado inicial, tema claro" width="49%" />
-<img src="docs/media/hero-dark.png" alt="Curio — estado inicial, tema oscuro" width="49%" />
+<img src="docs/media/hero-light.png" alt="Curio — empty state, light theme" width="49%" />
+<img src="docs/media/hero-dark.png" alt="Curio — empty state, dark theme" width="49%" />
 
 </div>
 
 ---
 
-## El baile de siempre
+## The same old dance
 
-Has sido curioso toda la vida y siempre ha sido el mismo baile: **copiar, pegar, buscar,
-volver.** Cada vez que aparece una palabra que no conoces tienes que salir del texto, ir a
-buscarla y regresar. Eso no es para nosotros, los curiosos.
+If you've been curious your whole life, you know the dance by heart: **copy, paste, search, come
+back. Copy, paste, search, come back.** Every time a word you don't know shows up, you have to
+leave what you're reading, go hunt it down somewhere else, and find your way back. That's no life
+for the curious.
 
-**Curio** rompe ese bucle. Lees un mensaje de un LLM (o pegas cualquier artículo), haces **clic
-en una palabra** —o **seleccionas una frase**— y aparece una **descripción en contexto** justo
-ahí, en un popover en línea. La misma palabra puede significar cosas distintas según lo que la
-rodea ("Mercurio" en química no es "Mercurio" junto a "planeta"), así que Curio siempre lee la
-frase completa antes de explicarte.
+**Curio** breaks the loop. You read a reply from an LLM (or paste in any article), a word catches
+your eye, you **click it** — or **select a whole phrase** — and a **full explanation appears right
+there**, in place, in context. No tab-hopping. No losing your thread. The word never leaves the
+sentence it lives in — and that matters, because "Mercury" in a chemistry paragraph is not
+"Mercury" next to "planet." Curio always reads the surrounding sentence before it explains.
 
-La curiosidad se **recompensa al clic, no se anuncia**: el texto se lee como prosa normal, sin un
-campo de enlaces subrayados. Pasas el ratón por encima y solo entonces la palabra se ilumina,
-invitándote. Y todo corre **en tu máquina**: por defecto, un modelo pequeño en **Ollama**, sin
-claves de API y sin nube. Si quieres velocidad, puedes **traer tu propia clave** de cualquier
-endpoint compatible con OpenAI (como Groq). Tú decides dónde vive el cerebro.
+Here's the heart of it: **curiosity is rewarded on the click, never advertised.** The text reads
+like plain prose — no field of underlined links shouting "look at me." Nothing is flagged. You
+just read. And the moment a word makes you wonder, you hover, it quietly lights up, you click, and
+Curio hands you exactly what you were curious about. Curiosity isn't nagged out of you; it's met
+the instant it shows up.
 
-<!-- GIF a grabar por el dueño: click en una palabra dentro de una respuesta → aparece la descripción en contexto (el "vistazo"). Guardar en docs/media/click-to-explain.gif -->
-![Haz clic en una palabra y aparece su descripción en contexto](docs/media/click-to-explain.gif)
+And it's **yours**. By default the brain is a small model running on **Ollama**, right on your
+machine — no API keys, no cloud, works offline. Want more speed for richer answers? **Bring your
+own key** to any OpenAI-compatible endpoint (Groq, OpenRouter, LocalAI, your own server). You
+decide where the brain lives; curiosity stays local by default.
 
-> _El GIF de arriba está pendiente de grabar en vivo (requiere un cerebro activo). Mientras tanto,
-> las capturas reales del estado inicial y del modo Leer sí son de la app funcionando._
+<!-- GIF for the owner to record: clicking a word inside a reply → the in-context description (the "glance") appears. Save to docs/media/click-to-explain.gif -->
+![Click a word and its description appears in context](docs/media/click-to-explain.gif)
 
-## Qué puedes hacer
+> _The GIF above is still to be recorded live (it needs an active brain). The screenshots of the
+> empty state and Read mode, though, are real shots of the app running._
 
-- 👆 **Clic en cualquier palabra → descripción en su contexto.** Cada palabra es clicable, pero
-  nada se subraya en reposo: el texto se lee como prosa y la palabra solo se ilumina al pasar el
-  ratón. Curiosidad recompensada, no señalizada.
-- ✍️ **Selecciona una frase** (2+ palabras) y Curio te explica **toda la selección** como una
-  unidad, resaltada en una banda azul continua.
-- 💬 **Chat + modo Leer.** Conversa con un LLM, o cambia a **Leer** y **pega un artículo** para
-  aplicar el mismo "clic → explicación" sobre texto arbitrario.
-- 🔎 **"Ver más" — un panel vivo.** El popover pequeño (el _vistazo_, una frase) tiene un **"Ver
-  más"** que **crece** hasta un modal con la explicación profunda. Cuando el LLM **confirma** que
-  la palabra es una entidad real, el panel se enriquece con **foto y datos de Wikipedia** — la
-  descripción siempre la escribe el modelo; la foto solo aparece si está blindada por esa
-  confirmación.
-- 🎨 **Texto o Gen UI.** En modo **Gen UI**, en vez de un párrafo el modelo **elige un componente
-  de un catálogo** (ficha de definición, línea de tiempo, tabla comparativa, pasos…) y lo rellena
-  con **JSON validado**, con caída a texto si algo falla. Nunca escribe HTML a mano.
-- 🧠 **Cerebro enchufable, local por defecto.** **Ollama** sin configuración, o **cualquier API
-  compatible con OpenAI** con tu clave (Groq, OpenRouter, LocalAI, tu propio servidor…).
-- 🌗 **Temas claro y oscuro**, siguiendo tu sistema o forzados a mano.
-- 🫧 **Mascota viva.** Curio respira, te sigue con la mirada, viaja del centro a la cabecera cuando
-  escribes, se concentra al generar y saca el **monóculo** al inspeccionar un término.
-- 🎛️ **Estética calmada:** monocroma, tipo Linear, **sin sombras** — jerarquía por espacio y
-  filetes de 1px, con micro-animaciones que tienen intención.
+## What you can do
 
-<!-- GIF a grabar por el dueño: el logo/mascota haciendo morph del hero (centro grande) a la cabecera (pequeño) al escribir el primer mensaje. Guardar en docs/media/mascot-morph.gif -->
-![La mascota viaja del hero a la cabecera al empezar a escribir](docs/media/mascot-morph.gif)
+- 👆 **Click any word → an explanation, in its context.** Every word is clickable, yet nothing is
+  underlined at rest: the page reads as prose, and a word only lights up when your cursor rests on
+  it. Curiosity rewarded, never signposted.
+- ✍️ **Select a phrase** (2+ words) and Curio explains **the whole selection** as one unit,
+  highlighted in a single continuous blue band.
+- 💬 **Chat + Read mode.** Have a conversation with an LLM, or switch to **Read** and **paste an
+  article** to bring the same "click → explain" magic to any text you like.
+- 🔎 **"See more" — a living panel.** The small popover (the _glance_, a single sentence) has a
+  **"See more"** action that **grows** into a modal with the deeper explanation. When the model
+  **confirms** the word is a real entity, the panel comes alive with a **photo and facts from
+  Wikipedia** — the description is always written by the model; the photo only shows up once that
+  confirmation vouches for it.
+- 🎨 **Plain text or Gen UI.** In **Gen UI** mode, instead of a paragraph the model **picks a
+  component from a catalog** (definition card, timeline, comparison table, steps…) and fills it
+  with **validated JSON**, falling back to text if anything's off. It never hand-writes markup.
+- 🧠 **A pluggable brain, local by default.** **Ollama** with zero config, or **any
+  OpenAI-compatible API** with your own key (Groq, OpenRouter, LocalAI, your own server…).
+- 🌗 **Light and dark themes**, following your system or forced by hand.
+- 🫧 **A living mascot.** Curio breathes, follows your cursor with its eyes, travels from center
+  stage to the header when you start typing, focuses while it thinks, and pops on a **monocle**
+  when it inspects a term.
+- 🎛️ **A calm aesthetic:** monochrome, Linear-like, **no shadows** — hierarchy from whitespace and
+  1px hairlines, with micro-animations that mean something.
 
-<!-- GIF a grabar por el dueño: componer una respuesta en modo Gen UI (aparece una ficha/tabla del catálogo en vez de texto) y abrir el modal "Ver más" con foto de Wikipedia. Guardar en docs/media/gen-ui-vermas.gif -->
-![Gen UI y el modal "Ver más" con datos de Wikipedia](docs/media/gen-ui-vermas.gif)
+<!-- GIF for the owner to record: the logo/mascot morphing from the hero (large, center) to the header (small) as you type the first message. Save to docs/media/mascot-morph.gif -->
+![The mascot travels from the hero to the header as you start typing](docs/media/mascot-morph.gif)
 
-## Arranque rápido
+<!-- GIF for the owner to record: composing a reply in Gen UI mode (a catalog card/table appears instead of text) and opening the "See more" modal with the Wikipedia photo. Save to docs/media/gen-ui-vermas.gif -->
+![Gen UI and the "See more" modal with Wikipedia facts](docs/media/gen-ui-vermas.gif)
 
-**Requisitos:** **Node 18+**. Para el cerebro local, **[Ollama](https://ollama.com)** corriendo
-en tu máquina (opcional si vas a usar la nube).
+## Quick start
+
+**Requirements:** **Node 18+**. For the local brain, **[Ollama](https://ollama.com)** running on
+your machine (optional if you'll use the cloud).
 
 ```bash
 git clone https://github.com/JoseEstevez520/curio.git
@@ -92,128 +99,127 @@ npm install
 npm run dev            # http://localhost:5173
 ```
 
-### Opción A — Local con Ollama (sin claves, por defecto)
+### Option A — Local with Ollama (no keys, the default)
 
-Arranca Ollama y descarga un modelo pequeño; la app arranca sola en **Local**:
+Start Ollama and pull a small model; the app boots straight into **Local**:
 
 ```bash
-ollama serve                 # daemon en http://localhost:11434
-ollama pull llama3.2:3b      # o qwen2.5:3b-instruct; en equipos flojos, qwen2.5:1.5b
+ollama serve                 # daemon at http://localhost:11434
+ollama pull llama3.2:3b      # or qwen2.5:3b-instruct; on lean machines, qwen2.5:1.5b
 ```
 
-El frontend habla con Ollama a través del proxy **`/ollama`** del dev server de Vite: **sin CORS,
-sin tocar `OLLAMA_ORIGINS`**. Funciona offline una vez descargado el modelo.
+The frontend talks to Ollama through the Vite dev server's **`/ollama`** proxy: **no CORS, no
+touching `OLLAMA_ORIGINS`.** Once the model is pulled, it works offline.
 
-### Opción B — Nube con tu propia clave (rápido)
+### Option B — Cloud with your own key (fast)
 
-Para inferencia veloz (útil para la **Gen UI de más nivel**), enchufa **cualquier endpoint
-compatible con OpenAI**. Puedes hacerlo desde **Ajustes → Cerebro: Nube** dentro de la app, o por
-variables de entorno para desarrollo:
+For speedy inference (handy for **higher-level Gen UI**), plug in **any OpenAI-compatible
+endpoint**. Do it from **Settings → Brain: Cloud** inside the app, or via environment variables
+for development:
 
 ```bash
-cp apps/web/.env.example apps/web/.env.local   # .env.local está gitignored
+cp apps/web/.env.example apps/web/.env.local   # .env.local is gitignored
 ```
 
 ```ini
-# Cualquier API compatible con OpenAI (Groq recomendado por su velocidad)
+# Any OpenAI-compatible API (Groq recommended for its speed)
 VITE_CLOUD_BASE_URL=https://api.groq.com/openai/v1
-VITE_GROQ_API_KEY=tu_clave_aqui
+VITE_GROQ_API_KEY=your_key_here
 VITE_GROQ_MODEL=llama-3.3-70b-versatile
-VITE_BRAIN=groq                                 # arranca en la nube; sin clave, arranca en Ollama
+VITE_BRAIN=groq                                 # boot into the cloud; without a key, boots on Ollama
 ```
 
-> **Tus claves son tuyas.** Viven solo en tu navegador (localStorage) o en tu `.env.local`, que
-> **nunca** se commitea. No hay claves en el repo. Nota: las variables `VITE_*` se incrustan en el
-> bundle al compilar, así que trátalas como dev-only y **nunca** publiques un build con una clave
-> real dentro.
+> **Your keys are yours.** They live only in your browser (localStorage) or your `.env.local`,
+> which is **never** committed. There are no keys in the repo. Note: `VITE_*` variables are inlined
+> into the bundle at build time, so treat them as dev-only and **never** ship a production build
+> with a real key baked in.
 
-### Otros scripts
+### Other scripts
 
-| Script              | Qué hace                             |
-| ------------------- | ------------------------------------ |
-| `npm run build`     | Build de producción (`tsc` + Vite)   |
-| `npm run preview`   | Sirve el build de producción         |
-| `npm run test`      | Tests con Vitest (`test:watch` mira) |
-| `npm run lint`      | ESLint (`lint:fix` para arreglar)    |
-| `npm run typecheck` | Chequeo de tipos con TypeScript      |
-| `npm run build:ext` | Build de la extensión de navegador   |
+| Script              | What it does                          |
+| ------------------- | ------------------------------------- |
+| `npm run build`     | Production build (`tsc` + Vite)       |
+| `npm run preview`   | Serve the production build            |
+| `npm run test`      | Tests with Vitest (`test:watch` too)  |
+| `npm run lint`      | ESLint (`lint:fix` to autofix)        |
+| `npm run typecheck` | TypeScript type checking              |
+| `npm run build:ext` | Build the browser extension           |
 
-## Cómo funciona por dentro
+## How it works under the hood
 
-El corazón de Curio es una **costura ("seam") del cerebro**: todo el motor habla con un
-`LlmProvider` abstracto, y por debajo hay dos implementaciones intercambiables — **Ollama** (local)
-y **OpenAI-compatible** (nube). La nube se alcanza por un **proxy dinámico de dev** (`/llm`): el
-navegador manda la URL real del endpoint en una cabecera y el dev server la reenvía, así que **no
-hay CORS** y sirve igual para Groq, OpenRouter, LocalAI o tu propio servidor. Cambiar de cerebro no
-sirve nunca una respuesta cacheada de otro: la clave de caché incluye la identidad del modelo.
+At Curio's core is a **brain seam**: the whole engine talks to an abstract `LlmProvider`, and
+underneath sit two interchangeable implementations — **Ollama** (local) and **OpenAI-compatible**
+(cloud). The cloud is reached through a **dynamic dev proxy** (`/llm`): the browser sends the real
+endpoint URL in a header and the dev server forwards it, so there's **no CORS** and it works the
+same for Groq, OpenRouter, LocalAI, or your own server. Switching brains never serves a cached
+answer from a different one: the cache key includes the model's identity.
 
-El resto de piezas:
+The rest of the pieces:
 
-- **Entidades + lazy loading.** Cualquier palabra (o selección) es clicable, pero **nada se
-  calcula por adelantado**: la descripción se genera **bajo demanda** al hacer clic o hover, con la
-  palabra + la frase de contexto, y se transmite en streaming al popover.
-- **Wikipedia como enriquecimiento blindado.** En "Ver más", la foto y los hechos de Wikipedia solo
-  aparecen cuando el LLM **confirma** la entidad — datos de referencia de la web abierta, sin clave,
-  para dar base fiable; la descripción siempre es del modelo.
-- **Catálogo de componentes (Gen UI).** El modelo hace **clasificar + rellenar**, nunca escribir
-  markup: elige un `type` de un catálogo fijo y devuelve `data` en JSON. Todo se valida con **Zod**
-  antes de renderizar; si algo no cuadra, **cae a texto plano** y la UI nunca se rompe.
-- **Monorepo.** El "clic → descripción" vive en un **núcleo portable** que comparten las
-  superficies:
+- **Entities + lazy loading.** Any word (or selection) is clickable, but **nothing is computed
+  ahead of time**: the description is generated **on demand** on click or hover, from the word plus
+  its context sentence, and streamed into the popover. Curiosity costs nothing until you spend it.
+- **Wikipedia as a vouched enrichment.** In "See more," the Wikipedia photo and facts only appear
+  once the model **confirms** the entity — open-web reference data, no key required, to give a
+  reliable footing; the description is always the model's.
+- **A component catalog (Gen UI).** The model's job is **classify + fill**, never author markup: it
+  picks a `type` from a fixed catalog and returns `data` as JSON. Everything is validated with
+  **Zod** before rendering; if anything's off, it **falls back to plain text** and the UI never
+  breaks.
+- **Monorepo.** The "click → description" lives in a **portable core** shared across surfaces:
 
   ```
-  packages/core   @curio/core — el motor: seam del cerebro (Ollama / OpenAI-compat), catálogo Zod,
-                  prompts, generación en dos etapas, cliente de Wikipedia, tokenizador.
-  apps/web        La app web (chat + modo Leer). Consume @curio/core.
-  apps/extension  Extensión de navegador (MV3): clic → descripción en cualquier página.
+  packages/core   @curio/core — the engine: brain seam (Ollama / OpenAI-compat), Zod catalog,
+                  prompts, two-stage generation, Wikipedia client, tokenizer.
+  apps/web        The web app (chat + Read mode). Consumes @curio/core.
+  apps/extension  Browser extension (MV3): click → description on any page.
   ```
 
-Detalle completo en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## Modo Leer
+## Read mode
 
-Cambia el toggle a **Leer**, pega un artículo y aplica el mismo motor de "clic → explicación" sobre
-texto arbitrario. Activa **Gen UI** para leerlo de forma más amena.
+Flip the toggle to **Read**, paste an article, and the same "click → explain" engine works on any
+text you throw at it. Turn on **Gen UI** to read it in a friendlier shape.
 
 <div align="center">
 
-<img src="docs/media/read-light.png" alt="Modo Leer — pega un texto y haz clic sobre él (tema claro)" width="49%" />
-<img src="docs/media/read-dark.png" alt="Modo Leer — tema oscuro" width="49%" />
+<img src="docs/media/read-light.png" alt="Read mode — paste a text and click through it (light theme)" width="49%" />
+<img src="docs/media/read-dark.png" alt="Read mode — dark theme" width="49%" />
 
 </div>
 
-## Estilo y filosofía de diseño
+## Design & philosophy
 
-Curio es **monocromo, tipo Linear, sin sombras**: la jerarquía la dan el **espacio** y los
-**filetes de 1px**, no las cajas flotantes. El movimiento sigue una idea — **"todo fluye a un
-lugar"**: los elementos **se transforman y viajan** unos en otros (el popover **crece** hasta el
-modal, la mascota **viaja** del hero a la cabecera) en vez de aparecer y desaparecer de golpe. La
-profundidad la da el movimiento, nunca la sombra. El sistema completo está en
-[`docs/DESIGN.md`](docs/DESIGN.md).
+Curio is **monochrome, Linear-like, shadow-free**: hierarchy comes from **whitespace** and **1px
+hairlines**, not floating boxes. Motion follows one idea — **"everything flows to one place"**:
+elements **transform and travel** into one another (the popover **grows** into the modal, the
+mascot **travels** from hero to header) instead of popping in and out. Depth comes from movement,
+never from a shadow. The full system lives in [`docs/DESIGN.md`](docs/DESIGN.md).
 
-## Estado y roadmap
+## Status & roadmap
 
-- ✅ **v0** — descripción en texto plano al clic, todo el bucle en local vía Ollama.
-- ✅ **v1** — el chat bien hecho: **"poquito → más"** (popover → modal) + **UI generativa** con
-  catálogo de componentes validados por Zod.
-- 🔜 **v2** — **detección de entidades** y **prefetch** en ocioso para que el clic sea instantáneo.
-- 🔭 **Rumbo:** **Gen UI de nivel 3** (el modelo autora la interfaz, apoyándose en el cerebro cloud
-  rápido), **descripciones personalizadas** para cada usuario, y una **app de escritorio** con
-  vault de conocimiento.
+- ✅ **v0** — plain-text explanation on click, the whole loop running locally via Ollama.
+- ✅ **v1** — the chat done right: **"a little → more"** (popover → modal) + **generative UI** with
+  a Zod-validated component catalog.
+- 🔜 **v2** — **entity detection** and idle **prefetch** so the click feels instant.
+- 🔭 **Where it's headed:** **level-3 Gen UI** (the model authoring the interface, leaning on the
+  fast cloud brain), **personalized descriptions** for each reader, and a **desktop app** with a
+  knowledge vault.
 
-Detalle y slices en [`docs/ROADMAP.md`](docs/ROADMAP.md). Más contexto:
+Detail and slices in [`docs/ROADMAP.md`](docs/ROADMAP.md). More context:
 [`IDEA.md`](IDEA.md) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) ·
 [`docs/DESIGN.md`](docs/DESIGN.md) · [`docs/niveles-generativos.md`](docs/niveles-generativos.md) ·
 [`CHANGELOG.md`](CHANGELOG.md) · [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
-## Contribuir
+## Contributing
 
-Se trabaja por **slices pequeños** (un slice = un commit con mensaje claro) y `main` siempre queda
-demoable. Antes de un PR: `npm run lint && npm run typecheck && npm run test`. Si tocas el estilo,
-respeta lo **sagrado** (monocromo, sin sombras, local por defecto) — ver `docs/DESIGN.md` y
-`CLAUDE.md`.
+Work happens in **small slices** (one slice = one commit with a clear message) and `main` always
+stays demoable. Before a PR: `npm run lint && npm run typecheck && npm run test`. If you touch the
+styling, respect what's **sacred** (monochrome, no shadows, local by default) — see `docs/DESIGN.md`
+and `CLAUDE.md`.
 
-## Licencia
+## License
 
-Aún sin definir (se baraja **MIT** para un POC abierto — decisión del dueño). Hasta que se añada un
-fichero `LICENSE`, todos los derechos reservados por defecto.
+Not settled yet (**MIT** is on the table for an open POC — the owner's call). Until a `LICENSE`
+file lands, all rights reserved by default.
