@@ -36,6 +36,9 @@ export default function SettingsContent({ models }: { models: OllamaModel[] }) {
   const model = useChatStore((s) => s.model);
   const setModel = useChatStore((s) => s.setModel);
   const groqModel = useChatStore((s) => s.groqModel);
+  const setGroqModel = useChatStore((s) => s.setGroqModel);
+  const groqApiKey = useChatStore((s) => s.groqApiKey);
+  const setGroqApiKey = useChatStore((s) => s.setGroqApiKey);
 
   return (
     <div className="flex flex-col gap-3">
@@ -98,12 +101,31 @@ export default function SettingsContent({ models }: { models: OllamaModel[] }) {
             </div>
           )
         ) : (
-          <>
-            <p className="truncate text-xs text-fg">{groqModel}</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-fg-faint">
-              Clave y modelo se configuran en <code>.env.local</code>.
+          <div className="flex flex-col gap-2">
+            <input
+              type="password"
+              value={groqApiKey}
+              onChange={(e) => setGroqApiKey(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              aria-label="API key de Groq"
+              placeholder="API key (gsk_…)"
+              className="rounded-md border border-border bg-bg-subtle px-2 py-1.5 text-xs text-fg outline-none transition-colors duration-fast placeholder:text-fg-faint focus:border-border-strong"
+            />
+            <input
+              type="text"
+              value={groqModel}
+              onChange={(e) => setGroqModel(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              aria-label="Modelo de Groq"
+              placeholder="Modelo (p. ej. llama-3.3-70b-versatile)"
+              className="rounded-md border border-border bg-bg-subtle px-2 py-1.5 text-xs text-fg outline-none transition-colors duration-fast placeholder:text-fg-faint focus:border-border-strong"
+            />
+            <p className="text-[11px] leading-relaxed text-fg-faint">
+              Se guarda solo en tu navegador. Consigue una clave en console.groq.com.
             </p>
-          </>
+          </div>
         )}
       </Section>
     </div>
