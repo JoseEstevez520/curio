@@ -132,6 +132,8 @@
    selector below overrides it so a manual toggle can force dark. */
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
+
     /* Surfaces */
     --color-bg: #0a0a0a; /* app canvas */
     --color-bg-subtle: #111112; /* assistant message zone, panels */
@@ -178,6 +180,10 @@
 
 /* Manual override: force dark regardless of system preference. */
 :root[data-theme='dark'] {
+  /* Match native controls (textarea caret, scrollbar, selection) to the theme, so toggling
+     doesn't leave the "Leer" text box rendering in the old scheme for a beat. */
+  color-scheme: dark;
+
   --color-bg: #0a0a0a;
   --color-bg-subtle: #111112;
   --color-bg-muted: #18181b;
@@ -213,6 +219,8 @@
 
 /* Manual override: force light so it wins over the media query too. */
 :root[data-theme='light'] {
+  color-scheme: light;
+
   --color-bg: #ffffff;
   --color-bg-subtle: #fafafa;
   --color-bg-muted: #f4f4f5;
@@ -249,6 +257,17 @@
 /* ===== Base — §3 ===== */
 :root {
   color-scheme: light dark;
+}
+
+/* Flipping the theme swaps every color token at once. Without this, elements with
+   `transition-colors` would ANIMATE from the old color to the new one — most are monochrome so
+   it's subtle, but the accent-blue send button visibly cross-fades between its two blues, reading
+   as a "blue flash". While the toggle applies (one frame, see useTheme), we kill all transitions
+   so the theme switch is instant and crisp. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
 }
 
 html {

@@ -26,12 +26,20 @@ export function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(getInitial);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    const el = document.documentElement;
+    // Suppress transitions for this one swap so nothing cross-fades between themes (the blue send
+    // button in particular). Re-enable after two frames, once the new colors have painted.
+    el.classList.add('theme-switching');
+    el.dataset.theme = theme;
+    const raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() => el.classList.remove('theme-switching')),
+    );
     try {
       localStorage.setItem(KEY, theme);
     } catch {
       // private mode / quota — the choice just won't persist
     }
+    return () => cancelAnimationFrame(raf);
   }, [theme]);
 
   const toggle = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
