@@ -18,6 +18,14 @@ import Reveal from './Reveal';
  * spike — the model composes them as a top-level sequence; nesting/refs come later.
  */
 
+/**
+ * Coerce a possibly-malformed model value to an array. A small/fallback model sometimes leaves a
+ * required list null or hands us a single object instead of an array, and OpenUI's parser passes
+ * that through — so `.map` would throw and blank the whole panel. This makes a bad list a no-op
+ * (the component then drops itself when empty) instead of a crash.
+ */
+const asArray = <T,>(v: unknown): T[] => (Array.isArray(v) ? v : []);
+
 const Heading = defineComponent({
   name: 'Heading',
   description: 'A short section title for the panel. Use at most once, at the top.',
@@ -78,7 +86,10 @@ const FactTable = defineComponent({
     title: z.string().optional(),
     rows: z.array(z.object({ label: z.string(), value: z.string() })),
   }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const rows = asArray<{ label: string; value: string }>(props.rows);
+    if (!rows.length) return null;
+    return (
     <div className="rounded-lg border border-border">
       {props.title && (
         <div className="border-b border-border px-3 py-2 text-xs font-medium text-fg-muted">
@@ -86,7 +97,7 @@ const FactTable = defineComponent({
         </div>
       )}
       <dl className="divide-y divide-border">
-        {props.rows.map((r, i) => (
+        {rows.map((r, i) => (
           <div key={i} className="flex items-baseline justify-between gap-4 px-3 py-2">
             <dt className="text-xs text-fg-muted">{toClickable(r.label)}</dt>
             <dd className="text-sm text-fg">{toClickable(r.value)}</dd>
@@ -94,7 +105,8 @@ const FactTable = defineComponent({
         ))}
       </dl>
     </div>
-  ),
+    );
+  },
 });
 
 const Timeline = defineComponent({
@@ -106,13 +118,16 @@ const Timeline = defineComponent({
       z.object({ date: z.string(), label: z.string(), detail: z.string().optional() }),
     ),
   }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const events = asArray<{ date: string; label: string; detail?: string }>(props.events);
+    if (!events.length) return null;
+    return (
     <div>
       {props.title && (
         <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
       )}
       <ol className="border-l border-border">
-        {props.events.map((e, i) => (
+        {events.map((e, i) => (
           <li key={i} className="relative pb-3 pl-4 last:pb-0">
             <span className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full bg-fg-muted" />
             <div className="flex items-baseline gap-2">
@@ -124,7 +139,8 @@ const Timeline = defineComponent({
         ))}
       </ol>
     </div>
-  ),
+    );
+  },
 });
 
 const Callout = defineComponent({
@@ -148,6 +164,8 @@ const BulletList = defineComponent({
     items: z.array(z.string()),
   }),
   component: ({ props }) => {
+    const items = asArray<string>(props.items);
+    if (!items.length) return null;
     const List = props.ordered ? 'ol' : 'ul';
     return (
       <div>
@@ -159,7 +177,7 @@ const BulletList = defineComponent({
             props.ordered ? 'list-decimal' : 'list-disc'
           }`}
         >
-          {props.items.map((it, i) => (
+          {items.map((it, i) => (
             <li key={i}>{toClickable(it)}</li>
           ))}
         </List>
@@ -190,7 +208,10 @@ const Comparison = defineComponent({
     title: z.string().optional(),
     columns: z.array(z.object({ heading: z.string(), points: z.array(z.string()) })),
   }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const columns = asArray<{ heading: string; points: string[] }>(props.columns);
+    if (!columns.length) return null;
+    return (
     <div>
       {props.title && (
         <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
@@ -199,11 +220,11 @@ const Comparison = defineComponent({
         className="grid gap-3"
         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
       >
-        {props.columns.map((c, i) => (
+        {columns.map((c, i) => (
           <div key={i} className="rounded-lg border border-border p-3">
             <div className="mb-1.5 text-sm font-semibold text-fg">{toClickable(c.heading)}</div>
             <ul className="list-disc space-y-1 pl-4 text-xs text-fg-secondary">
-              {c.points.map((p, j) => (
+              {asArray<string>(c.points).map((p, j) => (
                 <li key={j}>{toClickable(p)}</li>
               ))}
             </ul>
@@ -211,7 +232,8 @@ const Comparison = defineComponent({
         ))}
       </div>
     </div>
-  ),
+    );
+  },
 });
 
 const Steps = defineComponent({
@@ -222,13 +244,16 @@ const Steps = defineComponent({
     title: z.string().optional(),
     steps: z.array(z.object({ title: z.string(), detail: z.string().optional() })),
   }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const steps = asArray<{ title: string; detail?: string }>(props.steps);
+    if (!steps.length) return null;
+    return (
     <div>
       {props.title && (
         <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
       )}
       <ol className="space-y-2">
-        {props.steps.map((s, i) => (
+        {steps.map((s, i) => (
           <li key={i} className="flex gap-3">
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-xs tabular-nums text-fg-muted">
               {i + 1}
@@ -241,7 +266,8 @@ const Steps = defineComponent({
         ))}
       </ol>
     </div>
-  ),
+    );
+  },
 });
 
 const CodeBlock = defineComponent({
@@ -271,19 +297,23 @@ const StatRow = defineComponent({
   props: z.object({
     stats: z.array(z.object({ value: z.string(), label: z.string() })),
   }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const stats = asArray<{ value: string; label: string }>(props.stats);
+    if (!stats.length) return null;
+    return (
     <div
       className="grid gap-3"
       style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}
     >
-      {props.stats.map((s, i) => (
+      {stats.map((s, i) => (
         <div key={i} className="rounded-lg border border-border p-3">
           <div className="text-xl font-semibold tracking-tight text-fg">{toClickable(s.value)}</div>
           <div className="mt-0.5 text-xs text-fg-muted">{toClickable(s.label)}</div>
         </div>
       ))}
     </div>
-  ),
+    );
+  },
 });
 
 const BarList = defineComponent({
@@ -295,14 +325,16 @@ const BarList = defineComponent({
     items: z.array(z.object({ label: z.string(), value: z.number() })),
   }),
   component: ({ props }) => {
-    const max = Math.max(1, ...props.items.map((it) => it.value || 0));
+    const items = asArray<{ label: string; value: number }>(props.items);
+    if (!items.length) return null;
+    const max = Math.max(1, ...items.map((it) => it.value || 0));
     return (
       <div>
         {props.title && (
           <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
         )}
         <div className="space-y-1.5">
-          {props.items.map((it, i) => (
+          {items.map((it, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="w-28 shrink-0 truncate text-xs text-fg-secondary">
                 {toClickable(it.label)}
@@ -331,9 +363,12 @@ const Tags = defineComponent({
   name: 'Tags',
   description: 'A row of short keyword chips — related terms, topics or labels to skim or click.',
   props: z.object({ items: z.array(z.string()) }),
-  component: ({ props }) => (
+  component: ({ props }) => {
+    const items = asArray<string>(props.items);
+    if (!items.length) return null;
+    return (
     <div className="flex flex-wrap gap-2">
-      {props.items.map((t, i) => (
+      {items.map((t, i) => (
         <span
           key={i}
           className="rounded-full border border-border px-2.5 py-0.5 text-xs text-fg-secondary"
@@ -342,7 +377,8 @@ const Tags = defineComponent({
         </span>
       ))}
     </div>
-  ),
+    );
+  },
 });
 
 const Divider = defineComponent({
@@ -371,15 +407,18 @@ const LineChart = defineComponent({
     title: z.string().optional(),
     points: z.array(z.object({ label: z.string(), value: z.number() })),
   }),
-  component: ({ props }) =>
-    props.points.length >= 2 ? (
+  component: ({ props }) => {
+    const points = asArray<{ label: string; value: number }>(props.points);
+    if (points.length < 2) return null;
+    return (
       <div>
         {props.title && (
           <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
         )}
-        <SvgLineChart data={props.points} />
+        <SvgLineChart data={points} />
       </div>
-    ) : null,
+    );
+  },
 });
 
 const Donut = defineComponent({
@@ -390,15 +429,18 @@ const Donut = defineComponent({
     title: z.string().optional(),
     slices: z.array(z.object({ label: z.string(), value: z.number() })),
   }),
-  component: ({ props }) =>
-    props.slices.length >= 1 ? (
+  component: ({ props }) => {
+    const slices = asArray<{ label: string; value: number }>(props.slices);
+    if (!slices.length) return null;
+    return (
       <div>
         {props.title && (
           <div className="mb-2 text-xs font-medium text-fg-muted">{toClickable(props.title)}</div>
         )}
-        <SvgDonut slices={props.slices} />
+        <SvgDonut slices={slices} />
       </div>
-    ) : null,
+    );
+  },
 });
 
 const SandboxHTML = defineComponent({
