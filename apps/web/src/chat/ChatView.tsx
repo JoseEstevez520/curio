@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useChatStore } from '../app/store';
 import { MASCOT_MORPH } from '@curio/core';
@@ -23,6 +24,31 @@ export default function ChatView() {
   const hasMessages = messages.length > 0;
   const reading = mode === 'read';
 
+  // Auto-scroll (the chat standard): stay pinned to the bottom as a reply streams in, but never
+  // yank the reader down if they've scrolled up to reread — we only re-stick once they're back
+  // near the bottom. A brand-new message (you send, or the reply begins) always scrolls down.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const atBottomRef = useRef(true);
+  const prevCountRef = useRef(0);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // "Near" the bottom, not exactly — an 80px slack tolerates the last line's leading.
+    atBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const isNewMessage = messages.length > prevCountRef.current;
+    prevCountRef.current = messages.length;
+    if (isNewMessage || atBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
+      atBottomRef.current = true;
+    }
+  }, [messages]);
+
   return (
     <div className="flex h-screen flex-col bg-bg">
       <Header
@@ -33,7 +59,7 @@ export default function ChatView() {
         thinking={isStreaming}
         inspecting={inspecting}
       />
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
         {reading ? (
           <ArticleView />
         ) : (
