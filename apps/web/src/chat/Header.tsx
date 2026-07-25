@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
 import { MASCOT_MORPH } from '@curio/core';
-import BrainControls from './BrainControls';
+import SettingsMenu from './SettingsMenu';
 import ModeToggle from './ModeToggle';
-import GenToggle from './GenToggle';
 import ThemeToggle from '../theme/ThemeToggle';
 import type { OllamaModel } from '@curio/core';
 
@@ -48,9 +47,8 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
           <span aria-hidden="true" />
         )}
         <div className="flex items-center gap-3">
-          <GenToggle />
           <ModeToggle />
-          <BrainControls models={models} />
+          <SettingsMenu models={models} />
           <ThemeToggle />
         </div>
       </div>
