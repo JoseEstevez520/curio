@@ -391,33 +391,3 @@
     }
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .entity[aria-expanded='true'],
-  .curio-popover {
-    animation: none;
-  }
-  /* No bounce — show three steady, evenly muted dots instead. */
-  .curio-dots > span {
-    animation: none;
-    opacity: 0.55;
-    transform: none;
-  }
-  /* The mascot holds still: no breathing/wobble/squish/sway/scan, no blink squash.
-     The monocle still appears when inspecting — just without the spring/scan. */
-  .curio-logo-alive,
-  .curio-logo-thinking,
-  .curio-logo-squish,
-  .curio-logo-sway,
-  .curio-logo.is-inspecting .curio-pupil {
-    animation: none;
-  }
-  .curio-logo.is-blinking .curio-eye {
-    transform: none;
-  }
-  /* Skeleton holds still — a flat muted bar, no sweep. */
-  .curio-skeleton-bar {
-    animation: none;
-    background: var(--color-bg-muted);
-  }
-}

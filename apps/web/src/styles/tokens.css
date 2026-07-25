@@ -275,13 +275,3 @@ body {
   background-color: var(--color-selection);
   color: var(--color-fg);
 }
-
-/* Respect reduced motion (§7) */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}

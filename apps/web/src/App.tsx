@@ -1,4 +1,3 @@
-import { MotionConfig } from 'framer-motion';
 import ChatView from './chat/ChatView';
 import OpenUIDemo from './openui/OpenUIDemo';
 import Gallery from './openui/Gallery';
@@ -11,11 +10,7 @@ const openuiDemo = params?.has('openui');
 const gallery = params?.has('gallery');
 
 export default function App() {
-  // reducedMotion="user" makes Framer honor prefers-reduced-motion everywhere:
-  // layout/transform animations are skipped for those users.
-  return (
-    <MotionConfig reducedMotion="user">
-      {gallery ? <Gallery /> : openuiDemo ? <OpenUIDemo /> : <ChatView />}
-    </MotionConfig>
-  );
+  // Curio's motions are deliberately small and short (§7), so they always play — we don't gate
+  // them on the OS "reduce" setting.
+  return gallery ? <Gallery /> : openuiDemo ? <OpenUIDemo /> : <ChatView />;
 }

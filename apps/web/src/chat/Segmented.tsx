@@ -18,9 +18,8 @@ interface SegmentedProps<T extends string | boolean> {
 /**
  * A monochrome, hairline segmented control (DESIGN §4/§6). The active fill is a shared element:
  * on change it SLIDES to the chosen segment (SEGMENT_SLIDE, register 2 — "todo fluye a un lugar",
- * §9) rather than popping. Under prefers-reduced-motion the layout animation is skipped (the app's
- * MotionConfig honors it), so it simply snaps — exactly the reduced-motion contract. One control
- * for Texto/Gen UI, Chat/Leer and Local/Groq, so the whole header shares one motion language.
+ * §9) rather than popping. One control for Texto/Gen UI, Chat/Leer and Local/Groq, so the whole
+ * header shares one motion language.
  */
 export default function Segmented<T extends string | boolean>({
   id,

@@ -28,7 +28,7 @@ interface CurioLogoProps {
  *
  * Only transform/opacity animate, so everything rides the compositor. Idle motion
  * is gated behind `alive`/`track`; `thinking` reacts to generation and a click
- * squishes the blob. All of it honors prefers-reduced-motion.
+ * squishes the blob.
  */
 
 // Eye centers as a percentage of the blob box.
@@ -38,10 +38,6 @@ const EYE_RIGHT_X = 58.5;
 // Pupil diameter and max travel, as a fraction of `size`.
 const PUPIL_RATIO = 0.105;
 const MOVE_RATIO = 0.0175;
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 
 export default function CurioLogo({
   size = 72,
@@ -61,7 +57,7 @@ export default function CurioLogo({
   // Pupils follow the cursor: nudge each pupil toward the pointer, capped at a
   // small fraction of the blob so the gaze stays subtle. Throttled to one rAF.
   useEffect(() => {
-    if (!track || prefersReducedMotion()) return;
+    if (!track) return;
     const max = size * MOVE_RATIO;
     let frame = 0;
     let mx = 0;
@@ -100,7 +96,7 @@ export default function CurioLogo({
 
   // Life: an occasional blink on a randomized cadence (2–5s), like the prototype.
   useEffect(() => {
-    if (!alive || prefersReducedMotion()) return;
+    if (!alive) return;
     let blinkTimer = 0;
     let openTimer = 0;
     const schedule = () => {
@@ -171,9 +167,7 @@ export default function CurioLogo({
     <div
       className={classes}
       style={{ width: `${size}px`, height: `${size}px` }}
-      onClick={() => {
-        if (!prefersReducedMotion()) setSquishing(true);
-      }}
+      onClick={() => setSquishing(true)}
       onAnimationEnd={(e) => {
         if (e.animationName === 'curio-squish') setSquishing(false);
       }}
