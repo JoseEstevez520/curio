@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
 import { MASCOT_MORPH } from '@curio/core';
-import SettingsCenteredModal from './settings/SettingsCenteredModal';
+import SettingsMenu from './SettingsMenu';
 import ModeToggle from './ModeToggle';
 import ThemeToggle from '../theme/ThemeToggle';
 import type { OllamaModel } from '@curio/core';
@@ -48,7 +48,7 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
         )}
         <div className="flex items-center gap-3">
           <ModeToggle />
-          <SettingsCenteredModal models={models} />
+          <SettingsMenu models={models} />
           <ThemeToggle />
         </div>
       </div>
