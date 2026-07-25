@@ -19,7 +19,9 @@ export default function ChatView() {
   const brain = useChatStore((s) => s.brain);
   const isStreaming = useChatStore((s) => s.messages.some((m) => m.streaming));
   const inspecting = useChatStore((s) => s.selection !== null);
-  const { models, status, reload } = useModels();
+  // useModels still runs for its side effect (auto-selecting an installed Ollama model) and for the
+  // banner status; the header no longer shows a model picker, so we don't need the list here.
+  const { status, reload } = useModels();
   const send = useSendMessage();
   const hasMessages = messages.length > 0;
   const reading = mode === 'read';
@@ -52,7 +54,6 @@ export default function ChatView() {
   return (
     <div className="flex h-screen flex-col bg-bg">
       <Header
-        models={models}
         // In read mode the hero is gone, so the header carries the brand (and the mascot
         // morphs between the two whenever you switch surface).
         showBrand={hasMessages || reading}

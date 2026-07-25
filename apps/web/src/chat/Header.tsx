@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
 import { MASCOT_MORPH } from '@curio/core';
-import SettingsMenu from './SettingsMenu';
+import GenToggle from './GenToggle';
 import ModeToggle from './ModeToggle';
 import ThemeToggle from '../theme/ThemeToggle';
-import type { OllamaModel } from '@curio/core';
 
 interface HeaderProps {
-  models: OllamaModel[];
   /** Show the mascot + wordmark. Hidden on the empty state, where the hero owns the
    *  brand; the mascot morphs up into this slot once the conversation starts. */
   showBrand: boolean;
@@ -17,8 +15,9 @@ interface HeaderProps {
   inspecting: boolean;
 }
 
-/** Slim, borderless top bar: the mascot + wordmark, and the model picker. */
-export default function Header({ models, showBrand, thinking, inspecting }: HeaderProps) {
+/** Slim, borderless top bar: the mascot + wordmark, the reading-surface toggle and the format
+ *  toggle. Brain/model are deploy config (env), not header controls. */
+export default function Header({ showBrand, thinking, inspecting }: HeaderProps) {
   return (
     <header className="bg-bg px-4 py-3">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3">
@@ -47,8 +46,8 @@ export default function Header({ models, showBrand, thinking, inspecting }: Head
           <span aria-hidden="true" />
         )}
         <div className="flex items-center gap-3">
+          <GenToggle />
           <ModeToggle />
-          <SettingsMenu models={models} />
           <ThemeToggle />
         </div>
       </div>
