@@ -57,8 +57,13 @@ function llmProxy(): Plugin {
               res.end();
             })
             .catch((e: unknown) => {
-              res.statusCode = 502;
-              res.end(`LLM proxy error: ${(e as Error).message}`);
+              // A server-side `fetch` rejection ("fetch failed") is usually transient (the upstream
+              // reset the connection or timed out). Surface the real cause (e.g. ECONNRESET,
+              // ETIMEDOUT, ENOTFOUND) so it's clear it's a network hiccup, not a proxy bug.
+              const err = e as Error & { cause?: { code?: string; message?: string } };
+              const detail = err.cause?.code ?? err.cause?.message ?? err.message;
+              if (!res.headersSent) res.statusCode = 502;
+              res.end(`LLM proxy error (transitorio): ${detail} — reintenta`);
             });
         });
       });
