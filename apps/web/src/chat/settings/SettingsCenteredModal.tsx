@@ -4,20 +4,16 @@ import { SCRIM_FADE, type OllamaModel } from '@curio/core';
 import SettingsContent from './SettingsContent';
 import SlidersIcon from './SlidersIcon';
 
-// Improved shared-element transform. A LONE icon flying to the centre felt orphaned; in the video
-// what travels is icon + label TOGETHER — a coherent group. So the trigger is a small "⚙ Ajustes"
-// chip and that whole group is the shared element (layoutId): on open it flies from the header and
-// grows into the dialog's title. The modal box appears on its own (scale + fade, no box-morph, so
-// nothing stretches). Framer's layoutId is our GSAP+FLIP.
-const TITLE_ID = 'curio-settings-title';
-const TITLE_MORPH: Transition = { type: 'spring', bounce: 0, duration: 0.5 };
-const DIALOG_IN: Transition = { type: 'spring', bounce: 0, duration: 0.42 };
+// No shared-element travel here: the trigger sits in the corner and the dialog is centred, so any
+// morph has to cross half the screen — a long diagonal that reads as awkward however clean the
+// FLIP is. Shared-element transforms only feel right when origin and destination are close. So the
+// dialog just APPEARS: a subtle scale from its own centre + fade behind a flat scrim. Crisp, calm,
+// no odd journey.
+const DIALOG_IN: Transition = { type: 'spring', bounce: 0, duration: 0.34 };
 
 /**
- * Candidate B (improved) — centered modal opened as a shared-element transform where the icon+label
- * group travels as a unit. Scrim dims the screen; the dialog scales+fades in at the centre while
- * the "⚙ Ajustes" chip flies from the header and becomes the dialog title. Its body fades in on top.
- * Closes on scrim click or Escape, the title flying back to the chip.
+ * Candidate B — a plain centered modal. Clicking dims the screen with a flat scrim (never a shadow,
+ * §5) and the dialog scales + fades into the centre. Closes on scrim click or Escape.
  */
 export default function SettingsCenteredModal({ models }: { models: OllamaModel[] }) {
   const [open, setOpen] = useState(false);
@@ -31,30 +27,19 @@ export default function SettingsCenteredModal({ models }: { models: OllamaModel[
 
   return (
     <>
-      {/* Fixed footprint so the header row doesn't shift when the chip flies to the centre. */}
-      <div className="flex h-7 w-[92px] items-center justify-end">
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-label="Ajustes"
-          title="Ajustes"
-          onClick={() => setOpen(true)}
-          className="flex h-7 items-center gap-1.5 rounded-full px-2 text-xs text-fg-muted transition-colors duration-fast hover:text-fg"
-        >
-          {/* The icon+label group lives here when closed; when open it flies to the dialog title. */}
-          {!open && (
-            <motion.span
-              layoutId={TITLE_ID}
-              transition={TITLE_MORPH}
-              className="flex items-center gap-1.5"
-            >
-              <SlidersIcon size={15} />
-              <span className="font-medium">Ajustes</span>
-            </motion.span>
-          )}
-        </button>
-      </div>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label="Ajustes"
+        title="Ajustes"
+        onClick={() => setOpen(true)}
+        className={`grid h-7 w-7 place-items-center rounded-full transition-colors duration-fast ${
+          open ? 'text-fg' : 'text-fg-muted hover:text-fg'
+        }`}
+      >
+        <SlidersIcon />
+      </button>
 
       <AnimatePresence>
         {open && (
@@ -72,31 +57,17 @@ export default function SettingsCenteredModal({ models }: { models: OllamaModel[
               role="dialog"
               aria-modal="true"
               aria-label="Ajustes"
-              initial={{ scale: 0.96, y: 8 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.97, y: 6, opacity: 0 }}
+              initial={{ opacity: 0, scale: 0.95, y: 6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 4 }}
               transition={DIALOG_IN}
-              style={{ borderRadius: 16 }}
-              className="relative z-10 w-80 max-w-[calc(100vw-2rem)] border border-border bg-bg p-5"
+              className="relative z-10 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-bg p-5"
             >
-              {/* The same group, landed as the title — layoutId animates it here from the chip. */}
-              <motion.span
-                layoutId={TITLE_ID}
-                transition={TITLE_MORPH}
-                className="mb-3 flex items-center gap-2 text-fg"
-              >
+              <div className="mb-3 flex items-center gap-2 text-fg">
                 <SlidersIcon size={17} />
                 <span className="text-sm font-semibold tracking-tight">Ajustes</span>
-              </motion.span>
-
-              {/* Body fades in on top so it doesn't ride the title's morph. */}
-              <motion.div
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0, transition: { duration: 0.24, delay: 0.12 } }}
-                exit={{ opacity: 0, transition: { duration: 0.1 } }}
-              >
-                <SettingsContent models={models} />
-              </motion.div>
+              </div>
+              <SettingsContent models={models} />
             </motion.div>
           </div>
         )}

@@ -55,8 +55,8 @@ export default function SettingsDemo() {
           </Card>
 
           <Card
-            title="B · Modal centrado (grupo que viaja)"
-            note="El disparador es un chip «⚙ Ajustes» y ese grupo (icono + texto) viaja junto hasta el título del modal, que aparece en el centro con el fondo atenuado. Ya no vuela un icono solitario. Al cerrar, el título vuelve al chip. Cierra con clic fuera o Escape."
+            title="B · Modal centrado"
+            note="Diálogo centrado que simplemente aparece: escala suave desde su centro + fade, con el fondo atenuado. Sin viajes raros de esquina a centro. Cierra con clic fuera o Escape."
           >
             <SettingsCenteredModal models={models} />
           </Card>
