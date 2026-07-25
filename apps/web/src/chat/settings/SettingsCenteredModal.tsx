@@ -4,18 +4,22 @@ import { SCRIM_FADE, type OllamaModel } from '@curio/core';
 import SettingsContent from './SettingsContent';
 import SlidersIcon from './SlidersIcon';
 
-// Shared-element transition (Material Design / srD4vo): the trigger and the centered dialog share
-// ONE id, so opening MORPHS the little icon — it travels from the header and grows into the modal
-// at the centre of the screen (and shrinks back to the icon on close). Framer's layoutId is our
-// GSAP+FLIP. A bounce-free spring, a touch slower than the anchored one since it travels further.
-const SURFACE_ID = 'curio-settings-modal-surface';
-const MORPH: Transition = { type: 'spring', bounce: 0, duration: 0.5 };
+// The CLEAN shared-element recipe (Material Design / srD4vo's data-shared-item, confirmed against
+// Motion's shared-layout docs + Maxime Heckel's layout-animation pitfalls): DON'T morph the whole
+// box — a 28px button stretched into a 320px modal distorts because the aspect ratio changes too
+// much. Instead the modal appears on its own (subtle scale + fade, never stretched), and only the
+// small ICON is shared: it travels from the header into the modal's title, its real position
+// animating via layoutId (our GSAP+FLIP). That's the "el icono transiciona hacia su posición
+// final" from the video, without the ugly box-morph.
+const ICON_ID = 'curio-settings-icon';
+const ICON_MORPH: Transition = { type: 'spring', bounce: 0, duration: 0.5 };
+const DIALOG_IN: Transition = { type: 'spring', bounce: 0, duration: 0.4 };
 
 /**
- * Candidate B — centered modal, opened as a shared-element transform. Clicking dims the screen with
- * a flat scrim (never a shadow, §5) while the settings icon itself grows and flies to the centre,
- * becoming the dialog; its contents fade in on top so they don't squash mid-morph. Closes on scrim
- * click or Escape, morphing back into the icon.
+ * Candidate B — centered modal, opened as a shared-element transform done right. Clicking dims the
+ * screen with a flat scrim (never a shadow, §5); the dialog scales+fades in at the centre while the
+ * settings icon flies from the header into the dialog's title. Closes on scrim click or Escape,
+ * the icon flying back.
  */
 export default function SettingsCenteredModal({ models }: { models: OllamaModel[] }) {
   const [open, setOpen] = useState(false);
@@ -29,28 +33,22 @@ export default function SettingsCenteredModal({ models }: { models: OllamaModel[
 
   return (
     <>
-      {/* Reserve the icon's footprint so the header row doesn't jump when it flies to the centre. */}
-      <div className="h-7 w-7">
-        <AnimatePresence initial={false}>
-          {!open && (
-            <motion.button
-              layoutId={SURFACE_ID}
-              key="trigger"
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={open}
-              aria-label="Ajustes"
-              title="Ajustes"
-              onClick={() => setOpen(true)}
-              transition={MORPH}
-              style={{ borderRadius: 9999 }}
-              className="grid h-7 w-7 place-items-center text-fg-muted transition-colors duration-fast hover:text-fg"
-            >
-              <SlidersIcon />
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label="Ajustes"
+        title="Ajustes"
+        onClick={() => setOpen(true)}
+        className="grid h-7 w-7 place-items-center rounded-full text-fg-muted transition-colors duration-fast hover:text-fg"
+      >
+        {/* The icon lives here when closed; when open it flies into the dialog title (same id). */}
+        {!open && (
+          <motion.span layoutId={ICON_ID} transition={ICON_MORPH} className="grid place-items-center">
+            <SlidersIcon />
+          </motion.span>
+        )}
+      </button>
 
       <AnimatePresence>
         {open && (
@@ -65,28 +63,28 @@ export default function SettingsCenteredModal({ models }: { models: OllamaModel[
               style={{ background: 'var(--color-scrim)' }}
             />
             <motion.div
-              layoutId={SURFACE_ID}
-              key="dialog"
               role="dialog"
               aria-modal="true"
               aria-label="Ajustes"
-              transition={MORPH}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 6 }}
+              transition={DIALOG_IN}
               style={{ borderRadius: 16 }}
-              className="relative z-10 w-80 max-w-[calc(100vw-2rem)] overflow-hidden border border-border bg-bg"
+              className="relative z-10 w-80 max-w-[calc(100vw-2rem)] border border-border bg-bg p-5"
             >
-              <motion.div
-                initial={{ opacity: 0, filter: 'blur(6px)' }}
-                animate={{
-                  opacity: 1,
-                  filter: 'blur(0px)',
-                  transition: { duration: 0.22, delay: 0.12 },
-                }}
-                exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                className="p-5"
-              >
-                <div className="mb-3 text-sm font-semibold tracking-tight text-fg">Ajustes</div>
-                <SettingsContent models={models} />
-              </motion.div>
+              <div className="mb-3 flex items-center gap-2">
+                {/* The same icon, now landed in the title — layoutId animates it here from the header. */}
+                <motion.span
+                  layoutId={ICON_ID}
+                  transition={ICON_MORPH}
+                  className="grid place-items-center text-fg-muted"
+                >
+                  <SlidersIcon />
+                </motion.span>
+                <span className="text-sm font-semibold tracking-tight text-fg">Ajustes</span>
+              </div>
+              <SettingsContent models={models} />
             </motion.div>
           </div>
         )}
