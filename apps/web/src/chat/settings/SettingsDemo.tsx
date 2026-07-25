@@ -55,8 +55,8 @@ export default function SettingsDemo() {
           </Card>
 
           <Card
-            title="B · Modal centrado"
-            note="El icono abre un diálogo centrado en la pantalla con fondo atenuado. Entra escalando y fundiéndose. Más contundente y enfocado. Cierra con clic fuera o Escape."
+            title="B · Modal centrado (con transformación)"
+            note="El propio icono se transforma en el diálogo: viaja desde el header y crece hasta el centro de la pantalla (elemento compartido, como el vídeo), con el fondo atenuándose detrás. Al cerrar vuelve a encogerse hacia el icono. Cierra con clic fuera o Escape."
           >
             <SettingsCenteredModal models={models} />
           </Card>
