@@ -17,8 +17,8 @@ import { MASCOT_MORPH } from '@curio/core';
  * Cada instancia anima desde el tamaño de la OTRA superficie hacia el suyo, así el morph
  * funciona en ambos sentidos (hero→header y header→hero) sin estado compartido.
  */
-const HERO = { fontSize: '1.5rem', fontWeight: 700 }; // = text-2xl font-bold
-const HEADER = { fontSize: '0.875rem', fontWeight: 600 }; // = text-sm font-semibold
+const HERO_SIZE = '1.5rem'; // = text-2xl
+const HEADER_SIZE = '0.875rem'; // = text-sm
 
 // El wordmark aparece QUIETO en la primera carga (como el mascota) y solo morphea en los
 // cambios de superficie posteriores. Este pestillo a nivel de módulo se cierra tras el
@@ -26,8 +26,9 @@ const HEADER = { fontSize: '0.875rem', fontWeight: 600 }; // = text-sm font-semi
 let hasAppeared = false;
 
 export default function Wordmark({ variant }: { variant: 'hero' | 'header' }) {
-  const self = variant === 'hero' ? HERO : HEADER;
-  const other = variant === 'hero' ? HEADER : HERO;
+  const isHero = variant === 'hero';
+  const selfSize = isHero ? HERO_SIZE : HEADER_SIZE;
+  const otherSize = isHero ? HEADER_SIZE : HERO_SIZE;
   // Capturamos "¿es la primera aparición?" en el primer render de esta instancia; el
   // efecto cierra el pestillo para las siguientes.
   const first = useRef(!hasAppeared);
@@ -35,14 +36,17 @@ export default function Wordmark({ variant }: { variant: 'hero' | 'header' }) {
     hasAppeared = true;
   }, []);
 
+  // MÁS SUTIL: el logo lleva el morph; el texto solo lo ACOMPAÑA. Sigue viajando (layout="position",
+  // nítido porque animamos fontSize y no scale), pero se ATENÚA mientras viaja (opacity 0.5→1), así
+  // no roba atención. El grosor ya no cambia (estático por variante) para quitarle "morphiness".
   return (
     <motion.span
       layoutId="curio-wordmark"
       layout="position"
-      initial={first.current ? false : other}
-      animate={self}
+      initial={first.current ? false : { fontSize: otherSize, opacity: 0.5 }}
+      animate={{ fontSize: selfSize, opacity: 1 }}
       transition={MASCOT_MORPH}
-      className="inline-block tracking-tight text-fg"
+      className={`inline-block tracking-tight text-fg ${isHero ? 'font-bold' : 'font-semibold'}`}
     >
       Curio
     </motion.span>
