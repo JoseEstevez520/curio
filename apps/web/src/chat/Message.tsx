@@ -3,6 +3,7 @@ import type { Message as MessageModel } from '../app/store';
 import MarkdownMessage from '../reading/MarkdownMessage';
 import ClickableSurface from '../reading/clickable';
 import { curioLibrary } from '../openui/library';
+import { isRenderableLang } from '../openui/renderable';
 
 interface MessageProps {
   message: MessageModel;
@@ -37,7 +38,7 @@ export default function Message({ message }: MessageProps) {
 
   return (
     <div className="mb-6 text-base leading-relaxed text-fg">
-      {message.generative ? (
+      {message.generative && isRenderableLang(message.content) ? (
         // A composed-components reply: the model's OpenUI Lang → our Curio components. Wrapped
         // in ClickableSurface so the words INSIDE those components stay click-to-explain, just
         // like the Markdown reply (the components emit `.entity` word spans via toClickable).
@@ -47,6 +48,9 @@ export default function Message({ message }: MessageProps) {
           <Renderer response={message.content} library={curioLibrary} isStreaming={false} />
         </ClickableSurface>
       ) : (
+        // Plain text — either a normal reply, or a Gen UI reply where the brain (often a small
+        // local model) didn't produce a valid Panel. Degrade to Markdown so the answer still
+        // reads, instead of a blank panel. MarkdownMessage brings its own clickable words.
         <MarkdownMessage
           messageId={message.id}
           content={message.content}

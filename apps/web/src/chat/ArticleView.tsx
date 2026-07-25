@@ -4,6 +4,7 @@ import { useChatStore } from '../app/store';
 import MarkdownMessage from '../reading/MarkdownMessage';
 import ClickableSurface from '../reading/clickable';
 import { curioLibrary } from '../openui/library';
+import { isRenderableLang } from '../openui/renderable';
 import { openUIArticleSystemPrompt } from '../openui/chatPrompt';
 import { useGenUI } from '../openui/useGenUI';
 
@@ -54,12 +55,18 @@ export default function ArticleView() {
               <span aria-hidden="true" />
               <span aria-hidden="true" />
             </div>
-          ) : (
+          ) : isRenderableLang(gen.response) ? (
             // The transformed reading: composed components, words still clickable.
             <div className="text-base leading-relaxed text-fg">
               <ClickableSurface messageId={article.id}>
                 <Renderer response={gen.response} library={curioLibrary} isStreaming={false} />
               </ClickableSurface>
+            </div>
+          ) : (
+            // The brain (often a small local model) didn't produce a valid Panel — fall back to
+            // the original article as Markdown so the reading still works, words still clickable.
+            <div className="text-base leading-relaxed text-fg">
+              <MarkdownMessage messageId={article.id} content={article.content} />
             </div>
           )
         ) : (
