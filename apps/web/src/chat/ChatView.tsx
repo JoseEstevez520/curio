@@ -59,7 +59,14 @@ export default function ChatView() {
         thinking={isStreaming}
         inspecting={inspecting}
       />
-      <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
+      {/* Scroll clips its top edge, which would cut the mascot as it morphs down from the header
+          into the hero (Leer → Chat vacío). The empty state has nothing to scroll, so drop the clip
+          there; restore it once there's a conversation or an article to scroll. */}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className={`flex-1 ${hasMessages || reading ? 'overflow-y-auto' : 'overflow-visible'}`}
+      >
         {reading ? (
           <ArticleView />
         ) : (
