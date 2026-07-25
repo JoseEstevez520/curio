@@ -5,6 +5,7 @@ import { MASCOT_MORPH } from '@curio/core';
 import { useSendMessage } from './useChat';
 import { useModels } from './useModels';
 import CurioLogo from '../branding/CurioLogo';
+import Wordmark from '../branding/Wordmark';
 import Header from './Header';
 import OllamaBanner from './OllamaBanner';
 import Message from './Message';
@@ -86,7 +87,10 @@ export default function ChatView() {
                 >
                   <CurioLogo size={112} alive track decorative />
                 </motion.div>
-                <h1 className="text-2xl font-bold tracking-tight text-fg">Curio</h1>
+                {/* Mismo layoutId que el wordmark del header: al cambiar de superficie
+                  Framer lo hace VIAJAR (posición + tamaño nítido) hasta su hueco allí. */}
+                <Wordmark variant="hero" />
+
                 <p className="mt-2 text-base">
                   Ask something below. In a reply, hover or click any word to see it explained
                   inline.

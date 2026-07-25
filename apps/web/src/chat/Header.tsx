@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import CurioLogo from '../branding/CurioLogo';
+import Wordmark from '../branding/Wordmark';
 import { MASCOT_MORPH } from '@curio/core';
 import GenToggle from './GenToggle';
 import ModeToggle from './ModeToggle';
@@ -31,16 +32,10 @@ export default function Header({ showBrand, thinking, inspecting }: HeaderProps)
             >
               <CurioLogo size={30} thinking={thinking} inspecting={inspecting} decorative />
             </motion.div>
-            {/* The wordmark isn't morphed (scaling text reads badly); it just fades in
-                once the mascot has settled. */}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.25, delay: 0.25 }}
-              className="text-sm font-semibold tracking-tight text-fg"
-            >
-              Curio
-            </motion.span>
+            {/* El wordmark también morphea: comparte layoutId con el del hero y VIAJA
+                entre las dos superficies. Nítido porque animamos fontSize (no scale) —
+                ver Wordmark.tsx. Sin fade con delay: pelearía con el morph. */}
+            <Wordmark variant="header" />
           </div>
         ) : (
           <span aria-hidden="true" />
