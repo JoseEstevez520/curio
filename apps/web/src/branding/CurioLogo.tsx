@@ -35,9 +35,11 @@ interface CurioLogoProps {
 const EYE_Y = 54;
 const EYE_LEFT_X = 33;
 const EYE_RIGHT_X = 58.5;
-// Pupil diameter and max travel, as a fraction of `size`.
+// Pupil diameter and max travel, as a fraction of `size`. The travel is a touch generous so the
+// gaze reads clearly on BOTH sides — with the logo sitting left of centre, a tiny travel made the
+// rightward look feel static (the pupils just "pointed" right without a visible sweep).
 const PUPIL_RATIO = 0.105;
-const MOVE_RATIO = 0.0175;
+const MOVE_RATIO = 0.032;
 
 export default function CurioLogo({
   size = 72,
@@ -75,7 +77,7 @@ export default function CurioLogo({
       const dx = mx - cx;
       const dy = my - cy;
       const dist = Math.hypot(dx, dy) || 1;
-      const ratio = Math.min(dist, 320) / 320;
+      const ratio = Math.min(dist, 240) / 240;
       const transform = `translate(${(dx / dist) * max * ratio}px, ${(dy / dist) * max * ratio}px)`;
       if (leftPupil.current) leftPupil.current.style.transform = transform;
       if (rightPupil.current) rightPupil.current.style.transform = transform;
