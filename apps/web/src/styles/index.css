@@ -1,5 +1,7 @@
 /* @import must precede all other statements, so tokens load before Tailwind. */
 @import './tokens.css';
+/* PRUEBA de estilo — SF Pro vía CDN (fuente de Apple; solo para probar, no para producción). */
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
 
 @tailwind base;
 @tailwind components;

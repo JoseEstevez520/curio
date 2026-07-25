@@ -39,7 +39,7 @@ const EYE_RIGHT_X = 58.5;
 // gaze reads clearly on BOTH sides — with the logo sitting left of centre, a tiny travel made the
 // rightward look feel static (the pupils just "pointed" right without a visible sweep).
 const PUPIL_RATIO = 0.105;
-const MOVE_RATIO = 0.032;
+const MOVE_RATIO = 0.045;
 
 export default function CurioLogo({
   size = 72,
@@ -65,19 +65,21 @@ export default function CurioLogo({
     let mx = 0;
     let my = 0;
 
-    // Read the pupil rect once per animation frame (not per event) so a burst of
-    // mousemove events triggers at most one layout read.
+    // Read the rect once per animation frame (not per event). Measure from the EYE SOCKET (the
+    // pupil's parent), NOT the pupil: the pupil already carries the tracking transform, so reading
+    // its own rect would feed the offset back into the next frame (a drifting reference). The
+    // socket is stable, so the gaze is measured from a fixed point and reads the same both ways.
     const apply = () => {
       frame = 0;
-      const el = leftPupil.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
+      const eye = leftPupil.current?.parentElement;
+      if (!eye) return;
+      const r = eye.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2;
       const dx = mx - cx;
       const dy = my - cy;
       const dist = Math.hypot(dx, dy) || 1;
-      const ratio = Math.min(dist, 240) / 240;
+      const ratio = Math.min(dist, 180) / 180;
       const transform = `translate(${(dx / dist) * max * ratio}px, ${(dy / dist) * max * ratio}px)`;
       if (leftPupil.current) leftPupil.current.style.transform = transform;
       if (rightPupil.current) rightPupil.current.style.transform = transform;
