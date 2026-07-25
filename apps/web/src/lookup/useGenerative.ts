@@ -4,7 +4,8 @@ import {
   generateEnvelopeWith,
   generateRelatedWith,
   describeDeepWith,
-  fetchWikiSummary,
+  resolveWikiEntityWith,
+  fetchWikiByExactTitle,
 } from '@curio/core';
 import { describeError } from '../chat/useChat';
 import { getBrain, useActiveModelId } from '../llm/brain';
@@ -64,9 +65,25 @@ export function useGenerative(
     (async () => {
       try {
         // Fan out every source at once (prefetched on word click): the local deep explanation
-        // (fallback text), an optional visual component, the related links, AND Wikipedia's
-        // card (real photo + facts + link) — the "living" panel. All parallel, all cached, so
+        // (the description, always LLM-authored and in-context), an optional visual component, the
+        // related links, AND — for the photo — the Wikipedia card. All parallel, all cached, so
         // "Ver más" opens with everything ready and no extra wait.
+        //
+        // The photo is gated by the LLM: it first decides the canonical entity IN CONTEXT (or that
+        // the word isn't a specific entity at all), and only then do we fetch Wikipedia by that
+        // EXACT title. So a common/ambiguous word never pulls a random article/photo — if there's
+        // no clear entity (or the exact title misses), there's simply no photo.
+        const wikiPromise = (async () => {
+          const entity = await resolveWikiEntityWith(provider, {
+            term,
+            context,
+            conversation,
+            signal: controller.signal,
+          });
+          if (!entity.title) return null;
+          return fetchWikiByExactTitle(entity.title, entity.lang, controller.signal);
+        })();
+
         const [deep, envelope, related, wiki] = await Promise.all([
           describeDeepWith(provider, { term, context, conversation, signal: controller.signal }),
           generateEnvelopeWith(provider, {
@@ -77,9 +94,7 @@ export function useGenerative(
             signal: controller.signal,
           }),
           generateRelatedWith(provider, { term, context, conversation, signal: controller.signal }),
-          // Pass a short slice of the surrounding text as a hint so ambiguous terms resolve
-          // to the right article (e.g. "Júpiter" → the planet, not the god).
-          fetchWikiSummary(term, 'es', controller.signal, context.slice(0, 40)),
+          wikiPromise,
         ]);
         settled = true;
         useChatStore

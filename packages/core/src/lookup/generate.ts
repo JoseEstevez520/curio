@@ -4,6 +4,7 @@ import {
   buildDescribeMessages,
   buildDeepDescribeMessages,
   buildRelatedMessages,
+  buildWikiEntityMessages,
 } from '../ollama/prompts';
 import { typeChoiceJsonSchema, dataJsonSchema } from '../catalog/jsonSchema';
 import { coerceFromParts } from '../catalog/coerce';
@@ -244,4 +245,65 @@ export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions)
 /** Ollama wrapper for {@link describeDeepWith}. */
 export function generateDeep(model: string, opts: DeepOptions): Promise<string> {
   return describeDeepWith(new OllamaProvider(model), opts);
+}
+
+export interface WikiEntity {
+  /** Canonical Wikipedia article title, or null when the term isn't a specific entity. */
+  title: string | null;
+  /** Wikipedia language code, e.g. 'es'. */
+  lang: string;
+}
+
+const WIKI_ENTITY_SCHEMA: OllamaFormat = {
+  type: 'object',
+  properties: { title: { type: 'string' }, lang: { type: 'string' } },
+  required: ['title', 'lang'],
+  additionalProperties: false,
+};
+
+export interface EntityOptions {
+  term: string;
+  context: string;
+  conversation?: string;
+  signal?: AbortSignal;
+}
+
+/**
+ * Resolve, IN CONTEXT, the Wikipedia entity a term refers to — or null when it isn't a specific
+ * entity. This drives the modal's photo: only a real, correctly-disambiguated entity gets one, so
+ * a common/ambiguous word never pulls a random article. Uses any provider (JSON-constrained).
+ * Never throws except on cancellation; on any failure returns `{ title: null }`, so the modal just
+ * shows no photo — the LLM's own in-context description is always the source of truth.
+ */
+export async function resolveWikiEntityWith(
+  provider: LlmProvider,
+  opts: EntityOptions,
+): Promise<WikiEntity> {
+  try {
+    const raw = await provider.complete({
+      messages: buildWikiEntityMessages(opts.term, opts.context, opts.conversation),
+      format: WIKI_ENTITY_SCHEMA,
+      temperature: 0,
+      maxTokens: 60,
+      signal: opts.signal,
+    });
+    const parsed = tryParse(raw) as { title?: unknown; lang?: unknown } | undefined;
+    const title =
+      parsed && typeof parsed.title === 'string' && parsed.title.trim()
+        ? parsed.title.trim()
+        : null;
+    const lang =
+      parsed && typeof parsed.lang === 'string' && /^[a-z]{2,3}$/i.test(parsed.lang.trim())
+        ? parsed.lang.trim().toLowerCase()
+        : 'es';
+    return { title, lang };
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return { title: null, lang: 'es' };
+  }
+}
+
+/** Ollama wrapper for {@link resolveWikiEntityWith}. */
+export function resolveWikiEntity(model: string, opts: EntityOptions): Promise<WikiEntity> {
+  return resolveWikiEntityWith(new OllamaProvider(model), opts);
 }

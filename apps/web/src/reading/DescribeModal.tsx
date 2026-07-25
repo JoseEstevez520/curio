@@ -48,7 +48,7 @@ export default function DescribeModal({
   const related = gen?.related ?? [];
   const wiki = gen?.wiki ?? null;
   const showComponent =
-    gen?.status === 'done' && !wiki && gen.envelope && gen.envelope.type !== 'plain-text';
+    gen?.status === 'done' && gen.envelope && gen.envelope.type !== 'plain-text';
 
   // Escape closes; focus moves to the close button on open and returns to the trigger on
   // close; Tab is trapped inside the dialog (DESIGN §8). Capture phase so Escape/Tab reach us
@@ -131,10 +131,13 @@ export default function DescribeModal({
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
-            {gen?.status === 'done' && wiki ? (
-              // The "living" panel: a real photo + a reliable summary + a link to go deeper.
-              <div>
-                {wiki.thumbnail && (
+            {gen?.status === 'done' ? (
+              // The "living" panel. The DESCRIPTION is always the LLM's in-context explanation
+              // (Wikipedia is context-blind, so its text is the part that misled). Wikipedia only
+              // contributes the PHOTO + a link, and only when the LLM confirmed a real entity — so
+              // the image, when present, is right; when there's no clear entity, there's just text.
+              <>
+                {wiki?.thumbnail && (
                   <img
                     src={wiki.thumbnail.source}
                     alt={wiki.title}
@@ -142,29 +145,21 @@ export default function DescribeModal({
                     className="mb-4 h-[180px] w-full rounded-lg border border-border object-cover"
                   />
                 )}
-                {wiki.description && (
-                  <p className="mb-1 text-xs uppercase tracking-[0.03em] text-fg-muted">
-                    {wiki.description}
-                  </p>
-                )}
-                <p className="whitespace-pre-wrap">{wiki.extract}</p>
-                <a
-                  href={wiki.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-block text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
-                >
-                  Ver más en Wikipedia →
-                </a>
-              </div>
-            ) : gen?.status === 'done' ? (
-              // No Wikipedia article — fall back to the local, in-context explanation (+ visual).
-              <>
                 <p className="whitespace-pre-wrap">{gen.deep || gloss?.text || ''}</p>
                 {showComponent && gen.envelope && (
                   <div className="mt-5">
                     <CatalogRenderer envelope={gen.envelope} />
                   </div>
+                )}
+                {wiki && (
+                  <a
+                    href={wiki.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
+                  >
+                    Ver más en Wikipedia →
+                  </a>
                 )}
               </>
             ) : (

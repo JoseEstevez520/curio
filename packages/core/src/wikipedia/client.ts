@@ -52,6 +52,27 @@ async function summaryOf(
 }
 
 /**
+ * Strict lookup by an EXACT title — what the LLM entity resolver returns. Only the REST summary
+ * (follows redirects), NO fuzzy search fallback, so we never surface a wrong article: if the title
+ * isn't a real article (or is a disambiguation), returns null and the modal shows no photo. Never
+ * throws except on cancellation.
+ */
+export async function fetchWikiByExactTitle(
+  title: string,
+  lang = 'es',
+  signal?: AbortSignal,
+): Promise<WikiSummary | null> {
+  const t = title.trim();
+  if (!t) return null;
+  try {
+    return await summaryOf(lang, t, signal);
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return null;
+  }
+}
+
+/**
  * Candidate article titles for a free-text term, best first (used when the exact title misses
  * or is a disambiguation). A `hint` (a few context words) is appended so an ambiguous term like
  * "Júpiter" resolves to the article the reader means ("Júpiter (planeta)") instead of the god.

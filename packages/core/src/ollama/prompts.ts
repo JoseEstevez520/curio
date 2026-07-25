@@ -45,6 +45,41 @@ export function buildDescribeMessages(
 }
 
 /**
+ * Build the messages for the WIKIPEDIA ENTITY RESOLVER — a tiny classification that decides, IN
+ * CONTEXT, whether the term names a real encyclopedic entity with its own Wikipedia article, and
+ * if so its canonical title + language. This is what lets the modal show a photo ONLY for a real,
+ * correctly-disambiguated entity (never a random article for a common word). The model has the
+ * context, so it disambiguates far better than a blind Wikipedia search.
+ */
+export function buildWikiEntityMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  const convo = conversation?.trim()
+    ? `For a little context (do not explain this part): "${conversation.trim()}"\n\n`
+    : '';
+  return [
+    {
+      role: 'system',
+      content:
+        'You decide whether a term, AS USED in the given text, names a specific real-world ENTITY ' +
+        'that has its own Wikipedia article — a person, place, organization, work, event, species, ' +
+        'named concept, etc. Reply ONLY with a JSON object {"title": string, "lang": string}. ' +
+        '"title": the EXACT canonical Wikipedia article title for that entity, in the language of ' +
+        'the text (e.g. "Júpiter (planeta)", "Muhammad Ali", "Boxeo"). If the term is a common ' +
+        'word, a generic or abstract term, a function word, or does not refer to one specific ' +
+        'article-worthy entity, set "title" to an EMPTY STRING. "lang": the Wikipedia language ' +
+        'code matching the text ("es", "en", …). Do not invent titles; when unsure, use "".',
+    },
+    {
+      role: 'user',
+      content: `${convo}Term: "${term}"\nText: "${sentence}"`,
+    },
+  ];
+}
+
+/**
  * Build the messages for the DEEP explanation — the fuller read a reader gets on "Ver más".
  * Where {@link buildDescribeMessages} is a one-line glimpse for the popover, this is a proper
  * few-sentence explanation (what it is, a key aspect or two, something genuinely interesting),
