@@ -110,9 +110,14 @@ touching `OLLAMA_ORIGINS`.** Once the model is pulled, it works offline.
 
 ### Option B — Cloud with your own key (fast)
 
-For speedy inference (handy for **higher-level Gen UI**), plug in **any OpenAI-compatible
-endpoint**. Do it from **Settings → Brain: Cloud** inside the app, or via environment variables
-for development:
+Plug in **any OpenAI-compatible endpoint**. Do it from **Settings → Brain: Cloud** inside the app,
+or via environment variables for development:
+
+> 💡 **For the snappiest experience, point it at a fast endpoint — [Groq](https://groq.com) is the
+> recommendation** (its inference is _quick_, so descriptions land almost instantly and it makes
+> **Gen UI** genuinely pleasant). Other fast OpenAI-compatible options (OpenRouter, Together, your
+> own server…) work just as well. Local Ollama stays great for private, offline use — just a touch
+> slower.
 
 ```bash
 cp apps/web/.env.example apps/web/.env.local   # .env.local is gitignored
