@@ -15,8 +15,9 @@ export type Brain = 'ollama' | 'groq';
  *  endpoint works — the user can change it (presets or a custom URL) in the settings menu. */
 export const DEFAULT_CLOUD_BASE_URL = 'https://api.groq.com/openai/v1';
 
-/** A well-known, fast Groq default model; the user can change it in the settings menu. */
-export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
+/** A fast, current Groq default (`llama-3.3-70b-versatile`/`llama-3.1-8b-instant` were deprecated
+ *  on 2026-06-17). Groq's lineup changes often — check console.groq.com/docs/models. Overridable. */
+export const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-20b';
 
 /**
  * Models to fall back to when the primary Groq model fails (typically a 429: its daily token

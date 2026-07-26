@@ -144,7 +144,7 @@ cp apps/web/.env.example apps/web/.env.local   # .env.local is gitignored
 # Any OpenAI-compatible API (Groq recommended for its speed)
 VITE_CLOUD_BASE_URL=https://api.groq.com/openai/v1
 VITE_GROQ_API_KEY=your_key_here
-VITE_GROQ_MODEL=llama-3.3-70b-versatile
+VITE_GROQ_MODEL=openai/gpt-oss-20b              # Groq's lineup changes — see console.groq.com/docs/models
 VITE_BRAIN=groq                                 # boot into the cloud; without a key, boots on Ollama
 ```
 
