@@ -46,11 +46,13 @@ The brain behind it is pluggable — it can run locally on **Ollama** or on any 
 endpoint with your own key — but that's a setup detail (see [Quick start](#quick-start)), not the
 point. The point is the click.
 
-<!-- GIF for the owner to record: clicking a word inside a reply → the in-context description (the "glance") appears. Save to docs/media/click-to-explain.gif -->
-![Click a word and its description appears in context](docs/media/click-to-explain.gif)
+<div align="center">
 
-> _The GIF above is still to be recorded live (it needs an active brain). The screenshots of the
-> empty state and Read mode, though, are real shots of the app running._
+<img src="docs/media/click-to-explain.png" alt="Click 'Galileo' and its description appears inline, in context, with a 'See more' link" width="88%" />
+
+<em>Click a word — here, <strong>Galileo</strong> — and the explanation appears right there, in context.</em>
+
+</div>
 
 ## What you can do
 
@@ -81,8 +83,23 @@ point. The point is the click.
 <!-- GIF for the owner to record: the logo/mascot morphing from the hero (large, center) to the header (small) as you type the first message. Save to docs/media/mascot-morph.gif -->
 ![The mascot travels from the hero to the header as you start typing](docs/media/mascot-morph.gif)
 
-<!-- GIF for the owner to record: composing a reply in Gen UI mode (a catalog card/table appears instead of text) and opening the "See more" modal with the Wikipedia photo. Save to docs/media/gen-ui-vermas.gif -->
-![Gen UI and the "See more" modal with Wikipedia facts](docs/media/gen-ui-vermas.gif)
+**"See more" opens a living panel** — the model's deeper explanation, plus a photo and facts pulled
+from Wikipedia once the entity is confirmed, and related terms to keep exploring:
+
+<div align="center">
+
+<img src="docs/media/see-more.png" alt="The 'See more' modal for Galileo: Wikipedia photo, a full explanation, a link to Wikipedia, and related concepts" width="70%" />
+
+</div>
+
+**Gen UI composes real components**, not paragraphs — here the model picks a fact table and fills it,
+ranking the eight planets by size:
+
+<div align="center">
+
+<img src="docs/media/gen-ui.png" alt="Gen UI mode: a composed fact-table ranking the eight planets by diameter" width="88%" />
+
+</div>
 
 ## Quick start
 
