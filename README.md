@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/media/curio-body.png" alt="Curio" width="128" height="128" />
+<img src="docs/media/curio.png" alt="Curio" width="128" height="128" />
 
 # Curio
 
@@ -160,9 +160,11 @@ The rest of the pieces:
   once the model **confirms** the entity — open-web reference data, no key required, to give a
   reliable footing; the description is always the model's.
 - **A component catalog (Gen UI).** The model's job is **classify + fill**, never author markup: it
-  picks a `type` from a fixed catalog and returns `data` as JSON. Everything is validated with
-  **Zod** before rendering; if anything's off, it **falls back to plain text** and the UI never
-  breaks.
+  picks a `type` from a fixed catalog and returns `data` as JSON, validated with **Zod** before
+  rendering; if anything's off, it **falls back to plain text** and the UI never breaks. The chat's
+  Gen UI mode composes Curio's registered components through
+  **[OpenUI](https://www.openui.com)** ([`@openuidev/react-lang`](https://github.com/thesysdev/openui))
+  — the model assembles vetted pieces, still never raw HTML.
 - **Monorepo.** The "click → description" lives in a **portable core** shared across surfaces:
 
   ```
