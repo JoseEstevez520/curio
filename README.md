@@ -6,15 +6,13 @@
 
 **Read. Get curious about a word. Click it — and the answer is right there.**
 
-_A reading companion for the curious. Local-first, no API keys._
+_A reading companion for the curious._
 
 <br />
 
 [![React](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev)
-[![Ollama](https://img.shields.io/badge/Ollama-local-000000?logo=ollama&logoColor=white)](https://ollama.com)
-![local-first](https://img.shields.io/badge/local--first-no_API_keys-18181B)
 
 <br />
 
@@ -44,10 +42,9 @@ just read. And the moment a word makes you wonder, you hover, it quietly lights 
 Curio hands you exactly what you were curious about. Curiosity isn't nagged out of you; it's met
 the instant it shows up.
 
-And it's **yours**. By default the brain is a small model running on **Ollama**, right on your
-machine — no API keys, no cloud, works offline. Want more speed for richer answers? **Bring your
-own key** to any OpenAI-compatible endpoint (Groq, OpenRouter, LocalAI, your own server). You
-decide where the brain lives; curiosity stays local by default.
+The brain behind it is pluggable — it can run locally on **Ollama** or on any **OpenAI-compatible**
+endpoint with your own key — but that's a setup detail (see [Quick start](#quick-start)), not the
+point. The point is the click.
 
 <!-- GIF for the owner to record: clicking a word inside a reply → the in-context description (the "glance") appears. Save to docs/media/click-to-explain.gif -->
 ![Click a word and its description appears in context](docs/media/click-to-explain.gif)
@@ -72,8 +69,8 @@ decide where the brain lives; curiosity stays local by default.
 - 🎨 **Plain text or Gen UI.** In **Gen UI** mode, instead of a paragraph the model **picks a
   component from a catalog** (definition card, timeline, comparison table, steps…) and fills it
   with **validated JSON**, falling back to text if anything's off. It never hand-writes markup.
-- 🧠 **A pluggable brain, local by default.** **Ollama** with zero config, or **any
-  OpenAI-compatible API** with your own key (Groq, OpenRouter, LocalAI, your own server…).
+- 🧠 **A pluggable brain.** Runs on **Ollama** (local) or any **OpenAI-compatible API** with your
+  own key (Groq, OpenRouter, LocalAI, your own server…) — swap freely.
 - 🌗 **Light and dark themes**, following your system or forced by hand.
 - 🫧 **A living mascot.** Curio breathes, follows your cursor with its eyes, travels from center
   stage to the header when you start typing, focuses while it thinks, and pops on a **monocle**
