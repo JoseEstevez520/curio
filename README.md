@@ -4,7 +4,7 @@
 
 # Curio
 
-**Read. Get curious about a word. Click it — and the answer is right there.**
+**Read. Get curious about a word. Click it and the answer is right there.**
 
 _A reading companion for the curious._
 
