@@ -130,17 +130,11 @@ export default function SelectionPopover() {
           className="z-50"
           {...getFloatingProps()}
         >
-          {!expanded && (
-            <motion.div
-              layout
-              transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-              className={POPOVER_CLASS}
-            >
+{!expanded && (
+            <div className={POPOVER_CLASS}>
               <DescriptionBody entry={entry} />
-              {/* "Ver más" only once the gloss is ready — showing it over the loading dots
-                  (nothing to expand yet) reads as broken. Hidden while loading and on error. */}
               {entry?.status === 'done' && <VerMasButton onClick={() => setExpanded(true)} />}
-            </motion.div>
+            </div>
           )}
         </div>
       </FloatingPortal>

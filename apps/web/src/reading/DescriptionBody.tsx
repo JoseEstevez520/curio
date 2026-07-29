@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { DescriptionEntry } from '../app/store';
 
 const EASE = [0.32, 0.72, 0, 1] as const;
@@ -17,35 +17,36 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
   }
 
   return (
-    <div style={{ position: 'relative', minHeight: 24 }}>
-      <AnimatePresence mode="wait">
-        {hasText ? (
-          <motion.p
-            key="text"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: EASE }}
-            className="whitespace-pre-wrap"
-            style={{ margin: 0 }}
-          >
-            {entry!.text}
-            {loading && <span className="curio-caret" aria-hidden="true" />}
-          </motion.p>
-        ) : (
-          <motion.div
-            key="dots"
-            exit={{ opacity: 0, scale: 0.5, y: -6 }}
-            transition={{ duration: 0.22, ease: EASE }}
-            className="curio-dots"
-            role="status"
-            aria-label="Cargando descripción"
-          >
-            <span aria-hidden="true" />
-            <span aria-hidden="true" />
-            <span aria-hidden="true" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div style={{ position: 'relative' }}>
+      {/* Text — occupies real space (relative) so the popover has its height from the
+          first token. Enters with a soft fade + slide. */}
+      {hasText ? (
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          className="whitespace-pre-wrap"
+          style={{ margin: 0 }}
+        >
+          {entry!.text}
+          {loading && <span className="curio-caret" aria-hidden="true" />}
+        </motion.p>
+      ) : (
+        /* Dots — absolute so they don't steal height; crossfade out as text arrives. */
+        <motion.div
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.6, y: -4 }}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="curio-dots"
+          style={{ position: 'absolute', top: 0, left: 0 }}
+          role="status"
+          aria-label="Cargando descripción"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </motion.div>
+      )}
     </div>
   );
 }
