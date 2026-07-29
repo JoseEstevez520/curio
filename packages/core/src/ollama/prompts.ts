@@ -133,14 +133,14 @@ export function buildTypeChoiceMessages(
     {
       role: 'system',
       content:
-        "You are Curio's presenter. A reader clicked a term while reading and will already see " +
-        'a short written description. Your job is to decide whether a VISUAL adds something the ' +
-        'sentence cannot. Catalog:\n' +
+        "You are Curio's presenter. A reader clicked a term while reading. Your job is to choose " +
+        'the BEST component type to explain it. Catalog:\n' +
         `${menu}\n\n` +
-        'Choose a visual type — chart, concept-diagram, timeline, comparison, steps — ONLY when ' +
-        'the term genuinely has that structure (real quantities to compare, real dated events, ' +
-        'a real process, clear connections). If a visual would be forced, generic, or just ' +
-        'repeat the sentence, choose "plain-text". When in doubt, choose "plain-text". ' +
+        'ALWAYS choose a structured type. Use "definition-card" for general concepts, people, ' +
+        'places, or things. Use "fact-table" for things with key properties or specs. Use ' +
+        '"timeline" for things with dated events. Use "chart" for things with quantities. Use ' +
+        '"concept-diagram" for things with relationships. Use "comparison" for things that contrast. ' +
+        'Use "steps" for processes. Only choose "plain-text" if absolutely nothing else fits. ' +
         'Report your confidence 0-1. Choose only — do not write the description yet.',
     },
     {
@@ -178,6 +178,63 @@ export function buildFillMessages(
     {
       role: 'user',
       content: `${termContextBlock(term, sentence, conversation)}Fill the schema to describe the term.`,
+    },
+  ];
+}
+
+/**
+ * Build the messages for the CONTEXTUALIZER — explains what role this term plays in THIS
+ * specific document. Not "what is X" (the definer does that) but "why does X appear here,
+ * what claim depends on it, what would be lost without it". 2-3 sentences, plain prose.
+ */
+export function buildContextualizerMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's contextualizer. The reader already knows WHAT the term is — your job is " +
+        'to explain what role it plays in THIS specific text. Why does the author mention it here? ' +
+        'What claim or argument depends on it? What would be lost if you removed it from the text? ' +
+        'Write 2 to 3 short sentences of plain prose — no headings, no markdown, no labels. ' +
+        'CRITICAL: you MUST answer in the SAME LANGUAGE as the text. If the text is in Spanish, ' +
+        'answer entirely in Spanish. If in English, answer in English. Never mix languages.',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}Explain why this term appears here.`,
+    },
+  ];
+}
+
+/**
+ * Build the messages for the CONNECTOR — identifies which other terms in the text relate to
+ * this one, and how. Not a list of generic associations but specific relationships within
+ * this document. 2-3 sentences, plain prose.
+ */
+export function buildConnectorMessages(
+  term: string,
+  sentence: string,
+  conversation?: string,
+): ChatMessage[] {
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's connector. The reader already knows what the term IS and why the author " +
+        'mentions it. Your job is to explain which OTHER terms or ideas in the same text relate ' +
+        'to this one, and HOW — does it depend on them, contradict them, extend them, exemplify ' +
+        'them? Name the specific terms and describe the relationship in 2 to 3 short sentences ' +
+        'of plain prose — no headings, no markdown, no labels. ' +
+        'CRITICAL: you MUST answer in the SAME LANGUAGE as the text. If the text is in Spanish, ' +
+        'answer entirely in Spanish. If in English, answer in English. Never mix languages.',
+    },
+    {
+      role: 'user',
+      content: `${termContextBlock(term, sentence, conversation)}What relates to this term in this text?`,
     },
   ];
 }

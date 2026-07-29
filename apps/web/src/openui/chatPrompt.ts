@@ -27,6 +27,50 @@ export function openUIChatSystemPrompt(): string {
 }
 
 /**
+ * Task note for FOLLOW-UP questions inside the description modal: the same DSL contract as
+ * the panel generator (see useOpenUI's TASK_NOTE), but the job is answering ONE specific
+ * question — short, grounded in the text, never repeating the panel the reader already sees.
+ */
+const FOLLOWUP_TASK_NOTE = [
+  "You are Curio, answering a reader's follow-up question inside an explanation modal.",
+  "The user's message is ALWAYS a conversational QUESTION about the term or the text — never",
+  'a term to define. Even a bare fragment ("por qué", "ejemplo", "y eso?") asks something:',
+  'interpret it against the conversation and the text ("por qué" → why what was just said',
+  'holds / why the term matters here; "ejemplo" → give a concrete example) and answer THAT.',
+  'Never define, translate or explain the words OF the message itself.',
+  'Answer ONLY what was asked. The reader already sees a full panel about the term',
+  '(never repeat or re-explain it) and the original text (never re-list what it already enumerates).',
+  'Ground the answer in the given text whenever it is relevant; add outside knowledge only when',
+  'the text does not cover it. Write everything in the same language as the text (default Spanish).',
+  'FORMAT CONTRACT — overrides everything:',
+  'Your ENTIRE reply MUST be OpenUI Lang code starting with `root = Panel([...])`.',
+  'NEVER markdown, NEVER plain text outside the code.',
+  'Use 2 or more different component types to structure the answer (e.g. a KeyStat + Prose,',
+  'Comparison + Prose, BulletList + Prose, Heading + Prose, FactTable + Prose — match the',
+  'shape to the question). A plain single Prose is not acceptable.',
+  'No `Heading` that restates the topic.',
+  'Example of the expected shape, for "cuál es el más popular?":',
+  '`root = Panel([KeyStat({value:"Python",label:"más usado"}), Prose("El texto menciona que...")])`',
+].join(' ');
+
+/**
+ * System prompt for generative follow-up answers inside the description modal. Reuses the
+ * same library prompt as the modal's main panel. The already-shown panel is sent as a
+ * SUMMARY of component TYPES instead of raw DSL code, so the model doesn't get distracted
+ * by a long code blob that dilutes the format contract.
+ */
+export function openUIFollowUpSystemPrompt(
+  term: string,
+  context: string,
+  panelComponentTypes: string | null,
+): string {
+  const shown = panelComponentTypes
+    ? `\nThe reader already sees a panel about "${term}" containing: ${panelComponentTypes}. Never repeat or re-explain anything from it.`
+    : '';
+  return `${curioLibrary.prompt()}\n\nThe reader is exploring "${term}" in this text: "${context}".${shown}\n\n${FOLLOWUP_TASK_NOTE}`;
+}
+
+/**
  * Task note for TRANSFORMING an article/text into Gen UI: same components, but the job is to
  * re-express the given text as a lively, skimmable panel — never to invent facts.
  */

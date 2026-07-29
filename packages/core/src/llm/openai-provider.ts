@@ -54,16 +54,30 @@ interface ChatCompletionBody {
 export class OpenAICompatibleProvider implements LlmProvider {
   readonly name: string;
   private readonly model: string;
-  private readonly apiKey: string;
+  private readonly apiKeys: string[];
+  private currentKeyIndex: number;
   private readonly baseUrl: string;
   private readonly extraHeaders: Record<string, string>;
 
   constructor(cfg: OpenAIProviderConfig) {
     this.name = cfg.name ?? 'openai';
     this.model = cfg.model;
-    this.apiKey = cfg.apiKey ?? '';
+    // Support multiple keys separated by comma, or a single key.
+    const keys = (cfg.apiKey ?? '').split(',').map((k) => k.trim()).filter(Boolean);
+    this.apiKeys = keys.length > 0 ? keys : [''];
+    this.currentKeyIndex = 0;
     this.baseUrl = (cfg.baseUrl ?? GROQ_BASE_URL).replace(/\/$/, '');
     this.extraHeaders = cfg.headers ?? {};
+  }
+
+  private get apiKey(): string {
+    return this.apiKeys[this.currentKeyIndex] ?? '';
+  }
+
+  private rotateKey(): boolean {
+    if (this.apiKeys.length <= 1) return false;
+    this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+    return true;
   }
 
   private headers(): Record<string, string> {
@@ -99,33 +113,48 @@ export class OpenAICompatibleProvider implements LlmProvider {
   }
 
   private async post(req: CompletionRequest, stream: boolean): Promise<Response> {
-    let response: Response;
-    try {
-      response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify(this.buildBody(req, stream)),
-        signal: req.signal,
-      });
-    } catch (cause) {
-      if (cause instanceof DOMException && cause.name === 'AbortError') throw cause;
-      throw new OpenAIError('Could not reach the model endpoint. Check the base URL / network.', {
-        cause,
-      });
+    const body = JSON.stringify(this.buildBody(req, stream));
+    const maxAttempts = this.apiKeys.length + 1;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      let response: Response;
+      try {
+        response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: this.headers(),
+          body,
+          signal: req.signal,
+        });
+      } catch (cause) {
+        if (cause instanceof DOMException && cause.name === 'AbortError') throw cause;
+        throw new OpenAIError('Could not reach the model endpoint. Check the base URL / network.', {
+          cause,
+        });
+      }
+
+      // Rate limited — try the next key if available.
+      if (response.status === 429 && this.rotateKey()) {
+        continue;
+      }
+
+      if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        const hint =
+          response.status === 401
+            ? ' — check your API key.'
+            : response.status === 404
+              ? ' — check the model id / base URL.'
+              : response.status === 429
+                ? ' — rate limited on all keys.'
+                : '';
+        throw new OpenAIError(`API returned HTTP ${response.status}${hint} ${detail}`.trim(), {
+          status: response.status,
+        });
+      }
+      return response;
     }
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      const hint =
-        response.status === 401
-          ? ' — check your API key.'
-          : response.status === 404
-            ? ' — check the model id / base URL.'
-            : '';
-      throw new OpenAIError(`API returned HTTP ${response.status}${hint} ${detail}`.trim(), {
-        status: response.status,
-      });
-    }
-    return response;
+
+    throw new OpenAIError('Rate limited on all API keys.', { status: 429 });
   }
 
   async complete(req: CompletionRequest): Promise<string> {

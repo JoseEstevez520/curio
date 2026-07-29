@@ -87,6 +87,16 @@
     }
   }
 
+  /* Generic one-shot fade — used for loading→content swaps and popover entries. */
+  @keyframes curio-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   /* Streaming caret — a thin, modern blinking bar (not a chunky block). */
   .curio-caret {
     display: inline-block;

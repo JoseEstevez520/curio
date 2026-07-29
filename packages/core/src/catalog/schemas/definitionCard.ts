@@ -7,11 +7,11 @@ import { z } from 'zod';
  */
 export const definitionCardData = z.object({
   term: z.string(),
-  definition: z.string().max(600),
+  definition: z.string(),
   /** e.g. "noun", "verb", "sustantivo" — free-form, model's language. */
-  partOfSpeech: z.string().max(40).optional(),
-  examples: z.array(z.string().max(240)).max(3).optional(),
-  synonyms: z.array(z.string().max(60)).max(6).optional(),
+  partOfSpeech: z.string().optional(),
+  examples: z.array(z.string()).max(5).optional(),
+  synonyms: z.array(z.string()).max(8).optional(),
 });
 
 export type DefinitionCardData = z.infer<typeof definitionCardData>;

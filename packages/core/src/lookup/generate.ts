@@ -3,6 +3,8 @@ import {
   buildFillMessages,
   buildDescribeMessages,
   buildDeepDescribeMessages,
+  buildContextualizerMessages,
+  buildConnectorMessages,
   buildRelatedMessages,
   buildWikiEntityMessages,
 } from '../ollama/prompts';
@@ -82,6 +84,7 @@ export async function generateEnvelopeWith(
   let type: CatalogType = 'plain-text';
   let confidence = 0;
   const choice = tryParse(choiceRaw);
+  console.log('[Curio GenUI] Stage 1 raw:', choiceRaw, '→ parsed:', choice);
   if (choice && typeof choice === 'object') {
     const c = choice as { type?: unknown; confidence?: unknown };
     if (typeof c.type === 'string' && (CATALOG_TYPES as readonly string[]).includes(c.type)) {
@@ -89,12 +92,10 @@ export async function generateEnvelopeWith(
     }
     if (typeof c.confidence === 'number') confidence = c.confidence;
   }
+  console.log('[Curio GenUI] Stage 1 chose:', type, 'confidence:', confidence);
 
-  // The modal's middle slot earns its place only when the type is genuinely VISUAL/structured
-  // — something the reader's gloss can't convey (a chart, a map, a timeline…). Text-shaped
-  // types (definition-card, fact-table) would just restate the gloss, so we route them — and
-  // plain-text — to the gloss alone (no second call, no middle block). See DescribeModal.
-  if (!VISUAL_TYPES.has(type)) {
+  // plain-text skips stage 2 — everything else gets filled via its schema.
+  if (type === 'plain-text') {
     return { type: 'plain-text', confidence, data: { text: fallbackText } };
   }
 
@@ -107,7 +108,12 @@ export async function generateEnvelopeWith(
     signal,
   });
 
-  return coerceFromParts(type, confidence, tryParse(fillRaw), fallbackText);
+  console.log('[Curio GenUI] Stage 2 raw:', fillRaw);
+  const fillParsed = tryParse(fillRaw);
+  console.log('[Curio GenUI] Stage 2 parsed:', fillParsed);
+  const result = coerceFromParts(type, confidence, fillParsed, fallbackText);
+  console.log('[Curio GenUI] Final envelope:', result.type);
+  return result;
 }
 
 /**
@@ -245,6 +251,44 @@ export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions)
 /** Ollama wrapper for {@link describeDeepWith}. */
 export function generateDeep(model: string, opts: DeepOptions): Promise<string> {
   return describeDeepWith(new OllamaProvider(model), opts);
+}
+
+/**
+ * Produce the CONTEXTUALIZER text — why this term appears in THIS text, what depends on it.
+ * 2-3 sentences, plain prose. Never throws except on cancellation.
+ */
+export async function contextualizeWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
+  try {
+    const text = await provider.complete({
+      messages: buildContextualizerMessages(opts.term, opts.context, opts.conversation),
+      temperature: 0.3,
+      maxTokens: 250,
+      signal: opts.signal,
+    });
+    return cleanDescription(text);
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return '';
+  }
+}
+
+/**
+ * Produce the CONNECTOR text — which other terms in the text relate to this one, and how.
+ * 2-3 sentences, plain prose. Never throws except on cancellation.
+ */
+export async function connectWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
+  try {
+    const text = await provider.complete({
+      messages: buildConnectorMessages(opts.term, opts.context, opts.conversation),
+      temperature: 0.3,
+      maxTokens: 250,
+      signal: opts.signal,
+    });
+    return cleanDescription(text);
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') throw e;
+    return '';
+  }
 }
 
 export interface WikiEntity {

@@ -8,16 +8,17 @@ import { useChatStore } from '../app/store';
  * popover anchors to. Previously lived inside MarkdownMessage.
  */
 
-const BLOCK_SELECTOR = 'p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th,dd,dt';
+export const BLOCK_SELECTOR = 'p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th,dd,dt';
 
 // Word characters, including the internal apostrophe/hyphen the tokenizer keeps.
 const WORD_CHAR = /[\p{L}\p{N}'’-]/u;
 
 /**
  * Smart snap: grow each end of the selection out to a whole word, so half-selecting a
- * word still describes (and highlights) the complete word.
+ * word still describes (and highlights) the complete word. Exported for DescribeModal,
+ * which replicates the same drag-to-select flow inside the "Ver más" modal.
  */
-function expandRangeToWords(range: Range): void {
+export function expandRangeToWords(range: Range): void {
   const { startContainer, endContainer } = range;
   if (startContainer.nodeType === Node.TEXT_NODE) {
     const t = startContainer.textContent ?? '';
