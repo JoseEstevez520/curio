@@ -1,4 +1,7 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import type { DescriptionEntry } from '../app/store';
+
+const EASE = [0.32, 0.72, 0, 1] as const;
 
 /** Shared rendering of a description entry (loading / streaming / done / error). */
 export default function DescriptionBody({ entry }: { entry?: DescriptionEntry }) {
@@ -15,32 +18,34 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
 
   return (
     <div style={{ position: 'relative', minHeight: 24 }}>
-      {/* Loading dots — fade out when text arrives */}
-      <div
-        className="curio-dots"
-        role="status"
-        aria-label="Cargando descripción"
-        style={{
-          opacity: hasText ? 0 : 1,
-          position: hasText ? 'absolute' : 'relative',
-          transition: 'opacity 0.25s ease',
-          pointerEvents: hasText ? 'none' : 'auto',
-        }}
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </div>
-      {/* Text — fade in when it arrives */}
-      {hasText && (
-        <p
-          className="whitespace-pre-wrap"
-          style={{ animation: 'curio-fade-in 0.3s ease' }}
-        >
-          {entry!.text}
-          {loading && <span className="curio-caret" aria-hidden="true" />}
-        </p>
-      )}
+      <AnimatePresence mode="wait">
+        {hasText ? (
+          <motion.p
+            key="text"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="whitespace-pre-wrap"
+            style={{ margin: 0 }}
+          >
+            {entry!.text}
+            {loading && <span className="curio-caret" aria-hidden="true" />}
+          </motion.p>
+        ) : (
+          <motion.div
+            key="dots"
+            exit={{ opacity: 0, scale: 0.5, y: -6 }}
+            transition={{ duration: 0.22, ease: EASE }}
+            className="curio-dots"
+            role="status"
+            aria-label="Cargando descripción"
+          >
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
