@@ -5,16 +5,16 @@ import { z } from 'zod';
  * a country's capital…). Two columns: a label and its value, a handful of rows.
  */
 export const factTableData = z.object({
-  title: z.string().max(120).optional(),
+  title: z.string().optional(),
   facts: z
     .array(
       z.object({
-        label: z.string().max(80),
-        value: z.string().max(200),
+        label: z.string(),
+        value: z.string(),
       }),
     )
     .min(1)
-    .max(8),
+    .max(12),
 });
 
 export type FactTableData = z.infer<typeof factTableData>;

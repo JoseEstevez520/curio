@@ -16,7 +16,8 @@ import { useChatStore } from '../app/store';
 import { SCRIM_FADE } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
 import { useGenerative } from '../lookup/useGenerative';
-import DescriptionBody, { POPOVER_CLASS } from './DescriptionBody';
+import { useOpenUI } from '../openui/useOpenUI';
+import DescriptionBody, { POPOVER_CLASS, VerMasButton } from './DescriptionBody';
 import DescribeModal from './DescribeModal';
 
 /** Sticky composer height reserved at the bottom so the popover never opens over it. */
@@ -106,14 +107,11 @@ export default function SelectionPopover() {
     selection?.context ?? '',
   );
 
-  // Prefetch the rich component + related links the moment a word is selected, so opening
-  // "Ver más" shows a ready result instead of a spinner — no waiting on the user's part.
-  useGenerative(
+  // Prefetch OpenUI generation — the modal's main content. Only this + describe on click.
+  useOpenUI(
     Boolean(selection),
-    selection?.messageId ?? '',
     selection?.text ?? '',
     selection?.context ?? '',
-    entry?.text ?? '',
   );
 
   if (!selection) return null;
@@ -137,15 +135,7 @@ export default function SelectionPopover() {
               <DescriptionBody entry={entry} />
               {/* "Ver más" only once the gloss is ready — showing it over the loading dots
                   (nothing to expand yet) reads as broken. Hidden while loading and on error. */}
-              {entry?.status === 'done' && (
-                <button
-                  type="button"
-                  onClick={() => setExpanded(true)}
-                  className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
-                >
-                  Ver más
-                </button>
-              )}
+              {entry?.status === 'done' && <VerMasButton onClick={() => setExpanded(true)} />}
             </div>
           )}
         </div>

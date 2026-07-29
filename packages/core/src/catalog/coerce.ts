@@ -10,6 +10,7 @@ import { envelope, type Envelope } from './schemas';
 export function coerceEnvelope(raw: unknown, fallbackText: string): Envelope {
   const parsed = envelope.safeParse(raw);
   if (parsed.success) return parsed.data;
+  console.warn('[Curio coerce] Zod rejected envelope, falling back to plain-text:', envelope.safeParse(raw).error?.issues);
   return { type: 'plain-text', confidence: 0, data: { text: fallbackText } };
 }
 

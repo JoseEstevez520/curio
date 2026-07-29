@@ -37,16 +37,18 @@ function mergeIntoLines(rects: DOMRect[]): LineRect[] {
 }
 
 /**
- * Paints the selected phrase as a soft, rounded, continuous band behind the text.
+ * Paints a selection range as a soft, rounded, continuous band behind the text.
  *
  * We can't use the CSS Custom Highlight API here — `::highlight()` supports neither
  * padding nor border-radius. Instead we measure the range's client rects (one per
  * wrapped line) and draw a translucent rounded rectangle for each, in a body portal,
  * re-measuring on scroll/resize so the band tracks the text. The native selection is
  * cleared on mouse-up (see MarkdownMessage), so this is the only band on screen.
+ *
+ * Exported on its own so DescribeModal can paint the SAME band for selections made
+ * inside the "Ver más" modal (which keeps its own local selection state).
  */
-export default function PhraseHighlight() {
-  const range = useChatStore((s) => s.selection?.range ?? null);
+export function PhraseBand({ range, zIndex }: { range: Range | null; zIndex?: number }) {
   const [rects, setRects] = useState<LineRect[]>([]);
 
   useEffect(() => {
@@ -76,7 +78,9 @@ export default function PhraseHighlight() {
   if (!range || rects.length === 0) return null;
 
   return createPortal(
-    <div className="curio-phrase-layer" aria-hidden="true">
+    // zIndex is opt-in: the main chat leaves the layer unstacked (so the "Ver más" modal
+    // covers the main-page band), while the modal passes one so ITS band paints above it.
+    <div className="curio-phrase-layer" aria-hidden="true" style={zIndex === undefined ? undefined : { zIndex }}>
       {rects.map((r, i) => (
         <span
           key={i}
@@ -92,4 +96,10 @@ export default function PhraseHighlight() {
     </div>,
     document.body,
   );
+}
+
+/** The main-chat band: reads the global selection and paints it with PhraseBand. */
+export default function PhraseHighlight() {
+  const range = useChatStore((s) => s.selection?.range ?? null);
+  return <PhraseBand range={range} />;
 }

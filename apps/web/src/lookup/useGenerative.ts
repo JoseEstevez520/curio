@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useChatStore, descriptionKey, type GenerativeEntry, type Message } from '../app/store';
 import {
-  generateEnvelopeWith,
   generateRelatedWith,
-  describeDeepWith,
   resolveWikiEntityWith,
   fetchWikiByExactTitle,
 } from '@curio/core';
@@ -84,22 +82,15 @@ export function useGenerative(
           return fetchWikiByExactTitle(entity.title, entity.lang, controller.signal);
         })();
 
-        const [deep, envelope, related, wiki] = await Promise.all([
-          describeDeepWith(provider, { term, context, conversation, signal: controller.signal }),
-          generateEnvelopeWith(provider, {
-            term,
-            context,
-            conversation,
-            fallbackText: fallbackText.trim() || term,
-            signal: controller.signal,
-          }),
+        // Only related + wiki — OpenUI handles the description now.
+        const [related, wiki] = await Promise.all([
           generateRelatedWith(provider, { term, context, conversation, signal: controller.signal }),
           wikiPromise,
         ]);
         settled = true;
         useChatStore
           .getState()
-          .setGenerative(key, { status: 'done', envelope, related, deep, wiki });
+          .setGenerative(key, { status: 'done', related, wiki });
       } catch (e) {
         if (e instanceof DOMException && e.name === 'AbortError') return;
         settled = true;

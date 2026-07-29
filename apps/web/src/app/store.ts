@@ -75,6 +75,10 @@ export interface GenerativeEntry {
   wiki?: WikiSummary | null;
   /** Short related concepts to explore next — clickable links in the modal. */
   related?: string[];
+  /** Contextualizer: why this term appears in THIS text, what depends on it. */
+  whyHere?: string;
+  /** Connector: which other terms in the text relate to this one, and how. */
+  connections?: string;
   error?: string;
 }
 
@@ -192,6 +196,7 @@ function lsSet(key: string, value: string): void {
 // key/model/brain in files and never touch the header. If unset, fall back to what the UI last
 // saved (localStorage), then to defaults.
 const ENV = import.meta.env;
+// GROQ API keys — comma-separated for rotation on rate limit.
 const initialGroqKey = ENV.VITE_GROQ_API_KEY?.trim() || (lsGet(LS.groqKey) ?? '');
 const initialGroqModel = ENV.VITE_GROQ_MODEL?.trim() || lsGet(LS.groqModel) || DEFAULT_GROQ_MODEL;
 const initialCloudBaseUrl =
