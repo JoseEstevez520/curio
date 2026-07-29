@@ -352,9 +352,7 @@ export default function DescribeModal({
                 e.g. in follow-up answers). */}
             {hoveredWord && (
               <FloatingPortal>
-                <motion.div
-                  layout
-                  transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                <div
                   ref={refs.setFloating}
                   className={POPOVER_CLASS}
                   style={{
@@ -374,7 +372,7 @@ export default function DescribeModal({
                       }}
                     />
                   )}
-                </motion.div>
+                </div>
               </FloatingPortal>
             )}
 
