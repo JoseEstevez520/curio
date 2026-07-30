@@ -55,7 +55,7 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
 
 /** Shared popover container styling (rounded, hairline, no shadow). */
 export const POPOVER_CLASS =
-  'curio-popover z-50 max-w-[320px] overflow-y-auto overscroll-contain rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
+  'curio-popover z-50 max-w-[320px] overflow-y-auto overflow-x-hidden overscroll-contain rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
 
 /** Shared "Ver más" button — the same everywhere a gloss can be expanded. */
 export function VerMasButton({ onClick }: { onClick: () => void }) {
