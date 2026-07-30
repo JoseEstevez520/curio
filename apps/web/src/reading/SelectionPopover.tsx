@@ -131,15 +131,10 @@ export default function SelectionPopover() {
           {...getFloatingProps()}
         >
 {!expanded && (
-            <motion.div
-              layout
-              transition={{ layout: { duration: 0.3, ease: [0.32, 0.72, 0, 1] }, opacity: { duration: 0.25 } }}
-              className={POPOVER_CLASS}
-              style={{ position: 'relative' }}
-            >
+            <div className={POPOVER_CLASS}>
               <DescriptionBody entry={entry} />
               {entry?.status === 'done' && <VerMasButton onClick={() => setExpanded(true)} />}
-            </motion.div>
+            </div>
           )}
         </div>
       </FloatingPortal>
