@@ -24,47 +24,50 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
     );
   }
 
-  // Text has arrived: morph the popover container from dot-height to a generous cap,
-  // then stream inside. overflow-hidden + max-height transition gives the "search box"
-  // morph — no jitter because max-height goes to 200px on the FIRST token and stays there.
+  // Text has arrived: morph via CSS grid row (0fr → 1fr). The grid expands at a
+  // consistent pace (unlike max-height which rushes through intermediate values),
+  // revealing the text top-to-bottom. Dots overlay and fade as the generation settles.
   return (
-    <div
-      style={{
-        overflow: 'hidden',
-        maxHeight: hasText ? 200 : 24,
-        transition: 'max-height 0.38s cubic-bezier(0.32, 0.72, 0, 1)',
-      }}
-    >
-      <div style={{ position: 'relative' }}>
-        {/* Dots — overlay, fade as the text settles */}
-        <div
-          className="curio-dots"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            opacity: loading ? 1 : 0,
-            transition: 'opacity 0.22s ease',
-            pointerEvents: loading ? 'auto' : 'none',
-          }}
-          aria-hidden={!loading}
-        >
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
+    <div style={{ position: 'relative' }}>
+      {/* Dots — overlaid, fade out when generation completes */}
+      <div
+        className="curio-dots"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          opacity: loading ? 1 : 0,
+          transition: 'opacity 0.22s ease',
+          pointerEvents: loading ? 'auto' : 'none',
+        }}
+        aria-hidden={!loading}
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </div>
+
+      {/* Grid row morph — smooth consistent expansion */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: hasText ? '1fr' : '0fr',
+          transition: 'grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
+        }}
+      >
+        <div style={{ overflow: 'hidden', minHeight: 0 }}>
+          <p
+            className="whitespace-pre-wrap"
+            style={{
+              opacity: loading ? 0.5 : 1,
+              transition: 'opacity 0.3s ease 0.15s',
+              margin: 0,
+            }}
+          >
+            {entry!.text}
+            {loading && <span className="curio-caret" aria-hidden="true" />}
+          </p>
         </div>
-        {/* Text — streams inside the expanded container; fades in through the morph */}
-        <p
-          className="whitespace-pre-wrap"
-          style={{
-            opacity: loading ? 0.4 : 1,
-            transition: 'opacity 0.3s ease 0.1s',
-            margin: 0,
-          }}
-        >
-          {entry!.text}
-          {loading && <span className="curio-caret" aria-hidden="true" />}
-        </p>
       </div>
     </div>
   );
