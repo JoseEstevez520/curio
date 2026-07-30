@@ -14,38 +14,30 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
   }
 
   return (
-    <div style={{ position: 'relative', minHeight: 48 }}>
-      {/* Dots — overlaid, crossfade out when text settles */}
+    <div style={{ position: 'relative', minHeight: 24 }}>
+      {/* Loading dots — fade out when text arrives */}
       <div
         className="curio-dots"
         role="status"
         aria-label="Cargando descripción"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          opacity: loading && !hasText ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          pointerEvents: 'none',
+          opacity: hasText ? 0 : 1,
+          position: hasText ? 'absolute' : 'relative',
+          transition: 'opacity 0.25s ease',
+          pointerEvents: hasText ? 'none' : 'auto',
         }}
       >
         <span aria-hidden="true" />
         <span aria-hidden="true" />
         <span aria-hidden="true" />
       </div>
-
-      {/* Text — occupies space; fades in as it streams */}
+      {/* Text — fade in when it arrives */}
       {hasText && (
         <p
           className="whitespace-pre-wrap"
-          style={{
-            opacity: loading ? 0 : 1,
-            transition: 'opacity 0.35s ease',
-            margin: 0,
-          }}
+          style={{ animation: 'curio-fade-in 0.3s ease' }}
         >
           {entry!.text}
-          {loading && <span className="curio-caret" aria-hidden="true" />}
         </p>
       )}
     </div>
@@ -54,7 +46,7 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
 
 /** Shared popover container styling (rounded, hairline, no shadow). */
 export const POPOVER_CLASS =
-  'curio-popover z-50 max-w-[320px] overflow-y-auto overflow-x-hidden overscroll-contain rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
+  'curio-popover z-50 max-w-[320px] overflow-y-auto overscroll-contain rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
 
 /** Shared "Ver más" button — the same everywhere a gloss can be expanded. */
 export function VerMasButton({ onClick }: { onClick: () => void }) {
