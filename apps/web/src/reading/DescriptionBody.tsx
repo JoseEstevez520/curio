@@ -13,62 +13,41 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
     );
   }
 
-  // Only dots while waiting for the first token — the popover stays small.
-  if (!hasText) {
-    return (
-      <div className="curio-dots" role="status" aria-label="Cargando descripción" style={{ padding: '3px 0' }}>
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </div>
-    );
-  }
-
-  // Text has arrived: morph via CSS grid row (0fr → 1fr). The grid expands at a
-  // consistent pace (unlike max-height which rushes through intermediate values),
-  // revealing the text top-to-bottom. Dots overlay and fade as the generation settles.
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Dots — overlaid, fade out when generation completes */}
+    <div style={{ position: 'relative', minHeight: 48 }}>
+      {/* Dots — overlaid, crossfade out when text settles */}
       <div
         className="curio-dots"
+        role="status"
+        aria-label="Cargando descripción"
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
-          opacity: loading ? 1 : 0,
-          transition: 'opacity 0.22s ease',
-          pointerEvents: loading ? 'auto' : 'none',
+          opacity: loading && !hasText ? 1 : 0,
+          transition: 'opacity 0.3s ease',
+          pointerEvents: 'none',
         }}
-        aria-hidden={!loading}
       >
         <span aria-hidden="true" />
         <span aria-hidden="true" />
         <span aria-hidden="true" />
       </div>
 
-      {/* Grid row morph — smooth consistent expansion */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateRows: hasText ? '1fr' : '0fr',
-          transition: 'grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
-        }}
-      >
-        <div style={{ overflow: 'hidden', minHeight: 0 }}>
-          <p
-            className="whitespace-pre-wrap"
-            style={{
-              opacity: loading ? 0.5 : 1,
-              transition: 'opacity 0.3s ease 0.15s',
-              margin: 0,
-            }}
-          >
-            {entry!.text}
-            {loading && <span className="curio-caret" aria-hidden="true" />}
-          </p>
-        </div>
-      </div>
+      {/* Text — occupies space; fades in as it streams */}
+      {hasText && (
+        <p
+          className="whitespace-pre-wrap"
+          style={{
+            opacity: loading ? 0 : 1,
+            transition: 'opacity 0.35s ease',
+            margin: 0,
+          }}
+        >
+          {entry!.text}
+          {loading && <span className="curio-caret" aria-hidden="true" />}
+        </p>
+      )}
     </div>
   );
 }
