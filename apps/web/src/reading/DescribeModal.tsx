@@ -361,7 +361,6 @@ export default function DescribeModal({
                     ...floatingStyles,
                     zIndex: 60,
                     visibility: isPositioned ? 'visible' : 'hidden',
-                    position: 'relative',
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
