@@ -2,7 +2,6 @@ import type { DescriptionEntry } from '../app/store';
 
 /** Shared rendering of a description entry (loading / streaming / done / error). */
 export default function DescriptionBody({ entry }: { entry?: DescriptionEntry }) {
-  const loading = !entry || entry.status === 'loading';
   const hasText = !!entry?.text;
 
   if (entry?.status === 'error') {
