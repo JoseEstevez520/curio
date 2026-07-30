@@ -360,7 +360,7 @@ export default function DescribeModal({
                     zIndex: 60,
                     visibility: isPositioned ? 'visible' : 'hidden',
                   }}
-                  onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); setHoveredWord(null); }}
                 >
                   <DescriptionBody entry={hoverGloss} />
                   {hoverGloss?.status === 'done' && (
