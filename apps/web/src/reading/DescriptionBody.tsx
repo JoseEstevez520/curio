@@ -1,7 +1,4 @@
-import { motion } from 'framer-motion';
 import type { DescriptionEntry } from '../app/store';
-
-const EASE = [0.32, 0.72, 0, 1] as const;
 
 /** Shared rendering of a description entry (loading / streaming / done / error). */
 export default function DescriptionBody({ entry }: { entry?: DescriptionEntry }) {
@@ -17,35 +14,32 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Text — occupies real space (relative) so the popover has its height from the
-          first token. Enters with a soft fade + slide. */}
-      {hasText ? (
-        <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: EASE }}
+    <div style={{ position: 'relative', minHeight: 24 }}>
+      {/* Loading dots — fade out when text arrives */}
+      <div
+        className="curio-dots"
+        role="status"
+        aria-label="Cargando descripción"
+        style={{
+          opacity: hasText ? 0 : 1,
+          position: hasText ? 'absolute' : 'relative',
+          transition: 'opacity 0.25s ease',
+          pointerEvents: hasText ? 'none' : 'auto',
+        }}
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </div>
+      {/* Text — fade in when it arrives */}
+      {hasText && (
+        <p
           className="whitespace-pre-wrap"
-          style={{ margin: 0 }}
+          style={{ animation: 'curio-fade-in 0.3s ease' }}
         >
           {entry!.text}
           {loading && <span className="curio-caret" aria-hidden="true" />}
-        </motion.p>
-      ) : (
-        /* Dots — absolute so they don't steal height; crossfade out as text arrives. */
-        <motion.div
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.6, y: -4 }}
-          transition={{ duration: 0.2, ease: EASE }}
-          className="curio-dots"
-          style={{ position: 'absolute', top: 0, left: 0 }}
-          role="status"
-          aria-label="Cargando descripción"
-        >
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
-          <span aria-hidden="true" />
-        </motion.div>
+        </p>
       )}
     </div>
   );
