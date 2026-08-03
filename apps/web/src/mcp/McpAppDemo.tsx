@@ -4,7 +4,8 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-const SERVER_URL = 'https://mcp.excalidraw.com/mcp';
+const REMOTE_SERVER_URL = 'https://mcp.excalidraw.com/mcp';
+const LOCAL_SERVER_URL = '/excalidraw-mcp';
 const RESOURCE_URI = 'ui://excalidraw/mcp-app.html';
 
 const DEMO_ELEMENTS = [
@@ -61,7 +62,11 @@ export default function McpAppDemo() {
   useEffect(() => {
     let cancelled = false;
     const client = new Client({ name: 'curio-mcp-app-host', version: '0.1.0' });
-    const transport = new StreamableHTTPClientTransport(new URL(SERVER_URL));
+    // The remote server does not answer browser preflight requests. During this local spike,
+    // Vite forwards this same-origin path to the remote MCP endpoint.
+    const transport = new StreamableHTTPClientTransport(
+      new URL(LOCAL_SERVER_URL, window.location.origin),
+    );
     clientRef.current = client;
     setStatus('connecting');
 
@@ -139,7 +144,7 @@ export default function McpAppDemo() {
             />
           ) : (
             <div className="flex h-40 items-center justify-center text-sm text-fg-muted">
-              Conectando con {SERVER_URL}...
+              Conectando con {REMOTE_SERVER_URL} a través del proxy local...
             </div>
           )}
         </div>

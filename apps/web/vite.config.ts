@@ -88,6 +88,13 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
+      // The Excalidraw MCP server does not currently allow browser preflight requests. Keep the
+      // experiment same-origin and let Vite forward MCP traffic during local development.
+      '/excalidraw-mcp': {
+        target: 'https://mcp.excalidraw.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/excalidraw-mcp/, '/mcp'),
+      },
     },
   },
 });

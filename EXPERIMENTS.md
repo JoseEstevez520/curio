@@ -20,12 +20,12 @@ tandas sean comparables.
   `ui://excalidraw/mcp-app.html`, la monta en un iframe `sandbox="allow-scripts"` y conecta
   `AppBridge` con `PostMessageTransport`. Después envía un diagrama mínimo y reenvía el resultado
   de `create_view` a la View.
-- **Números:** build de la integración pendiente de verificación en un entorno con el servidor
-  remoto accesible desde el navegador. El typecheck del repositorio ya tenía errores no relacionados
-  en `useGenerative.ts`, `SelectionPopover.tsx` y `packages/core/src/lookup/generate.ts`.
-- **Veredicto:** **spike implementado, aún no validado end-to-end**. La frontera técnica queda clara:
-  Curio puede ser host, pero necesita un endpoint MCP accesible por CORS y una política de sandbox
-  compatible con la View.
+- **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
+  correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
+  completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en
+  `useGenerative.ts`, `SelectionPopover.tsx` y `packages/core/src/lookup/generate.ts`.
+- **Veredicto:** **funciona en desarrollo local mediante proxy**. Para producción haría falta un proxy
+  propio o que el servidor remoto habilite CORS para clientes browser.
 - **Qué se funde:** nada. La rama conserva la prueba para decidir si esta superficie merece entrar
   en el producto o quedarse como host experimental.
 
