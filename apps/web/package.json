@@ -13,6 +13,7 @@
   "dependencies": {
     "@curio/core": "*",
     "@floating-ui/react": "^0.27.20",
+    "@modelcontextprotocol/ext-apps": "^1.7.5",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@openuidev/react-lang": "^0.2.8",
     "framer-motion": "^12.42.2",

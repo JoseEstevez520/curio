@@ -11,6 +11,24 @@ tandas sean comparables.
 
 ---
 
+## 2026-08-04 — MCP Apps con Excalidraw
+- **Rama:** `exp/mcp-app`.
+- **Hipótesis:** Curio puede actuar como host MCP Apps y reutilizar una View interactiva externa sin
+  convertirla en un componente propio ni romper la superficie principal.
+- **Montaje / eval:** `apps/web/src/mcp/McpAppDemo.tsx`, accesible con `/?mcp-app`. El host conecta
+  por Streamable HTTP a `https://mcp.excalidraw.com/mcp`, descubre `create_view`, lee la resource
+  `ui://excalidraw/mcp-app.html`, la monta en un iframe `sandbox="allow-scripts"` y conecta
+  `AppBridge` con `PostMessageTransport`. Después envía un diagrama mínimo y reenvía el resultado
+  de `create_view` a la View.
+- **Números:** build de la integración pendiente de verificación en un entorno con el servidor
+  remoto accesible desde el navegador. El typecheck del repositorio ya tenía errores no relacionados
+  en `useGenerative.ts`, `SelectionPopover.tsx` y `packages/core/src/lookup/generate.ts`.
+- **Veredicto:** **spike implementado, aún no validado end-to-end**. La frontera técnica queda clara:
+  Curio puede ser host, pero necesita un endpoint MCP accesible por CORS y una política de sandbox
+  compatible con la View.
+- **Qué se funde:** nada. La rama conserva la prueba para decidir si esta superficie merece entrar
+  en el producto o quedarse como host experimental.
+
 <!-- Plantilla para cada entrada:
 
 ## [FECHA] Exx — Título
