@@ -10,15 +10,24 @@ const MCP_PATH = '/excalidraw-mcp';
 const RESOURCE_URI = 'ui://excalidraw/mcp-app.html';
 
 const DIAGRAM_FORMAT = {
-  type: 'array',
-  items: { type: 'object' },
+  type: 'object',
+  properties: {
+    elements: { type: 'array', items: { type: 'object' } },
+  },
+  required: ['elements'],
+  additionalProperties: false,
 };
 
 function extractJson(value: string): unknown[] {
   const withoutFence = value.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
   const parsed: unknown = JSON.parse(withoutFence);
-  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('La IA no generó un diagrama válido.');
-  return parsed;
+  const elements = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === 'object' && 'elements' in parsed && Array.isArray(parsed.elements)
+      ? parsed.elements
+      : null;
+  if (!elements?.length) throw new Error('La IA no generó un diagrama válido.');
+  return elements;
 }
 
 interface Props {
@@ -49,7 +58,7 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
         {
           role: 'system',
           content:
-            'You create Excalidraw diagrams to explain a concept. Return ONLY a compact JSON array of elements. Start with one cameraUpdate using an exact 4:3 size. Use large labeled rectangles, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.',
+            'You create Excalidraw diagrams to explain a concept. Return ONLY a JSON object with an "elements" array. Start with one cameraUpdate using an exact 4:3 size. Use large labeled rectangles, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.',
         },
         {
           role: 'user',
