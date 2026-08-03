@@ -35,6 +35,7 @@ export default function McpAppDemo() {
   const [html, setHtml] = useState<string>();
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
+  const [retry, setRetry] = useState(0);
 
   const drawDemo = async () => {
     const client = clientRef.current;
@@ -90,7 +91,7 @@ export default function McpAppDemo() {
       client.close();
       clientRef.current = null;
     };
-  }, []);
+  }, [retry]);
 
   const connectIframe = async () => {
     const iframe = iframeRef.current;
@@ -152,6 +153,19 @@ export default function McpAppDemo() {
           >
             Dibujar prueba
           </button>
+          {status === 'error' && (
+            <button
+              type="button"
+              onClick={() => {
+                setHtml(undefined);
+                setMessage('');
+                setRetry((value) => value + 1);
+              }}
+              className="rounded-full border border-border px-4 py-2 text-sm text-fg-secondary"
+            >
+              Reintentar conexión
+            </button>
+          )}
           <a
             href="https://github.com/excalidraw/excalidraw-mcp"
             target="_blank"
