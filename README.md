@@ -48,9 +48,10 @@ point. The point is the click.
 
 <div align="center">
 
-<img src="docs/media/click-to-explain.png" alt="Click 'Galileo' and its description appears inline, in context, with a 'See more' link" width="88%" />
+<img src="docs/media/click-to-explain.png" alt="Click 'heliocentric' inside a composed reply and its description appears inline, in context, with a 'Ver más' link" width="88%" />
 
-<em>Click a word — here, <strong>Galileo</strong> — and the explanation appears right there, in context.</em>
+<em>Click a word — here, <strong>heliocentric</strong> — and the explanation appears right there, in
+context. Every word is clickable, whether the reply is prose or, as here, composed of components.</em>
 
 </div>
 
@@ -63,41 +64,70 @@ point. The point is the click.
   highlighted in a single continuous blue band.
 - 💬 **Chat + Read mode.** Have a conversation with an LLM, or switch to **Read** and **paste an
   article** to bring the same "click → explain" magic to any text you like.
-- 🔎 **"See more" — a living panel.** The small popover (the _glance_, a single sentence) has a
-  **"See more"** action that **grows** into a modal with the deeper explanation. When the model
-  **confirms** the word is a real entity, the panel comes alive with a **photo and facts from
-  Wikipedia** — the description is always written by the model; the photo only shows up once that
-  confirmation vouches for it.
-- 🎨 **Plain text or Gen UI.** In **Gen UI** mode, instead of a paragraph the model **picks a
-  component from a catalog** (definition card, timeline, comparison table, steps…) and fills it
-  with **validated JSON**, falling back to text if anything's off. It never hand-writes markup.
+- 🔎 **"See more" — a panel the model composes.** The small popover (the _glance_, a single
+  sentence) has a **"Ver más"** action that **grows** into a panel — and the panel isn't a
+  paragraph, it's **built** for the term out of Curio's components: a heading, the explanation,
+  a definition card, a key figure, and — always last — a **callout that says what the term is
+  doing in _this_ text**, not in general.
+- 🕳️ **The explanation is itself explorable.** Any word inside the panel is clickable too: its own
+  bubble opens right there, and "Ver más" **goes one level deeper**, with a back arrow and a
+  **breadcrumb trail** of where your curiosity took you. You can drag-select a phrase inside the
+  panel as well.
+- 💭 **Ask a follow-up without leaving.** There's a composer at the bottom of the panel. Ask
+  anything about the term or the text and the answer comes back **as components too** — and its
+  words stay clickable, so the thread never dead-ends.
+- 🎨 **Plain text or Gen UI.** In **Gen UI** mode the model **picks components from a catalog**
+  instead of writing a paragraph — definition card, fact table, timeline, steps, comparison,
+  bullet list, quote, code block, key stat, callout, tags, **bar list, line chart and donut** — and
+  fills them with **validated data**, falling back to text if anything's off. For something that
+  genuinely has to be interactive, it can return a **sandboxed HTML document**. It never
+  hand-writes markup into the page. _The screenshots throughout are taken with **Gen UI** on._
 - 🧠 **A pluggable brain.** Runs on **Ollama** (local) or any **OpenAI-compatible API** with your
   own key (Groq, OpenRouter, LocalAI, your own server…) — swap freely.
 - 🌗 **Light and dark themes**, following your system or forced by hand.
 - 🫧 **A living mascot.** Curio breathes, follows your cursor with its eyes, travels from center
-  stage to the header when you start typing, focuses while it thinks, and pops on a **monocle**
-  when it inspects a term.
+  stage to the header when the conversation starts, focuses while it thinks, and pops on a
+  **monocle** when it inspects a term.
 - 🎛️ **A calm aesthetic:** monochrome, Linear-like, **no shadows** — hierarchy from whitespace and
   1px hairlines, with micro-animations that mean something.
 
-<!-- GIF for the owner to record: the logo/mascot morphing from the hero (large, center) to the header (small) as you type the first message. Save to docs/media/mascot-morph.gif -->
-![The mascot travels from the hero to the header as you start typing](docs/media/mascot-morph.gif)
+![The mascot travels from the hero to the header when the conversation starts](docs/media/mascot-morph.gif)
 
-**"See more" opens a living panel** — the model's deeper explanation, plus a photo and facts pulled
-from Wikipedia once the entity is confirmed, and related terms to keep exploring:
+**"See more" grows into a composed panel** — the model picks the pieces that suit the term and
+closes with what it's doing in the text you're reading:
 
 <div align="center">
 
-<img src="docs/media/see-more.png" alt="The 'See more' modal for Galileo: Wikipedia photo, a full explanation, a link to Wikipedia, and related concepts" width="70%" />
+<img src="docs/media/see-more.png" alt="The 'See more' panel for heliocentric: heading, explanation, a definition card, a fact table and a closing 'En este texto' callout" width="70%" />
 
 </div>
 
-**Gen UI composes real components**, not paragraphs — here the model picks a fact table and fills it,
-ranking the eight planets by size:
+**And the panel is explorable.** Click a word inside it — here **geocéntrico** — and its own bubble
+opens in place; "Ver más" walks you one level deeper, leaving a breadcrumb behind:
 
 <div align="center">
 
-<img src="docs/media/gen-ui.png" alt="Gen UI mode: a composed fact-table ranking the eight planets by diameter" width="88%" />
+<img src="docs/media/modal-inline-popover.png" alt="Inside the panel, the word geocéntrico is lit up with its own popover and a 'Ver más' link" width="49%" />
+<img src="docs/media/modal-breadcrumb.png" alt="One level deeper: a new panel for geocéntrico, with a back arrow and the breadcrumb heliocentric › geocéntrico" width="49%" />
+
+</div>
+
+**Or just ask.** The composer at the bottom of the panel answers in components too, without ever
+taking you out of the text:
+
+<div align="center">
+
+<img src="docs/media/modal-followup.png" alt="A follow-up question answered inside the panel, composed as components" width="70%" />
+
+</div>
+
+**Gen UI composes real components**, not paragraphs — here the model reaches for stat cards to rank
+the eight planets, and for a line chart plus a donut when the answer is a trend and a share:
+
+<div align="center">
+
+<img src="docs/media/gen-ui.png" alt="Gen UI mode: stat cards ranking the eight planets by diameter" width="49%" />
+<img src="docs/media/gen-ui-chart.png" alt="Gen UI mode: a line chart of world population growth and a donut of the urban share" width="49%" />
 
 </div>
 
@@ -127,8 +157,8 @@ touching `OLLAMA_ORIGINS`.** Once the model is pulled, it works offline.
 
 ### Option B — Cloud with your own key (fast)
 
-Plug in **any OpenAI-compatible endpoint**. Do it from **Settings → Brain: Cloud** inside the app,
-or via environment variables for development:
+Plug in **any OpenAI-compatible endpoint**. The brain is **configuration, not a header control** —
+set it in `.env.local` and the app boots into it:
 
 > 💡 **For the snappiest experience, point it at a fast endpoint — [Groq](https://groq.com) is the
 > recommendation** (its inference is _quick_, so descriptions land almost instantly and it makes
@@ -148,6 +178,11 @@ VITE_GROQ_MODEL=openai/gpt-oss-20b              # Groq's lineup changes — see 
 VITE_BRAIN=groq                                 # boot into the cloud; without a key, boots on Ollama
 ```
 
+**Hitting a rate limit needn't stop you.** `VITE_GROQ_API_KEY` accepts **several keys,
+comma-separated**, and Curio **rotates to the next one** on a `429`, retrying the same request —
+handy on free tiers with a daily allowance. Only when every key is limited does it surface the
+error.
+
 > **Your keys are yours.** They live only in your browser (localStorage) or your `.env.local`,
 > which is **never** committed. There are no keys in the repo. Note: `VITE_*` variables are inlined
 > into the bundle at build time, so treat them as dev-only and **never** ship a production build
@@ -164,6 +199,9 @@ VITE_BRAIN=groq                                 # boot into the cloud; without a
 | `npm run typecheck` | TypeScript type checking              |
 | `npm run build:ext` | Build the browser extension           |
 
+Two extra surfaces live behind URL flags, handy while working on the catalog:
+**`/?gallery`** renders every component at once, **`/?openui`** is a bare composition playground.
+
 ## How it works under the hood
 
 At Curio's core is a **brain seam**: the whole engine talks to an abstract `LlmProvider`, and
@@ -176,22 +214,24 @@ answer from a different one: the cache key includes the model's identity.
 The rest of the pieces:
 
 - **Entities + lazy loading.** Any word (or selection) is clickable, but **nothing is computed
-  ahead of time**: the description is generated **on demand** on click or hover, from the word plus
-  its context sentence, and streamed into the popover. Curiosity costs nothing until you spend it.
-- **Wikipedia as a vouched enrichment.** In "See more," the Wikipedia photo and facts only appear
-  once the model **confirms** the entity — open-web reference data, no key required, to give a
-  reliable footing; the description is always the model's.
+  ahead of time**: the one-sentence glance is generated **on demand** when you click, from the word
+  plus its context sentence. The deeper panel starts generating the moment the glance opens, so
+  "Ver más" usually has it ready. Curiosity costs nothing until you spend it.
 - **A component catalog (Gen UI).** The model's job is **classify + fill**, never author markup: it
-  picks a `type` from a fixed catalog and returns `data` as JSON, validated with **Zod** before
-  rendering; if anything's off, it **falls back to plain text** and the UI never breaks. The chat's
-  Gen UI mode composes Curio's registered components through
+  picks pieces from a fixed catalog and returns their data, validated with **Zod** before
+  rendering; if anything's off, it **falls back to plain text** and the UI never breaks. Curio's
+  components are composed through
   **[OpenUI](https://www.openui.com)** ([`@openuidev/react-lang`](https://github.com/thesysdev/openui))
-  — the model assembles vetted pieces, still never raw HTML.
+  — the model assembles vetted pieces, still never raw HTML. Every piece emits clickable word
+  spans, which is why a generated panel is as explorable as a paragraph.
+- **Follow-ups stay in the format.** A follow-up answer must come back as components too; if the
+  brain replies in prose, Curio retries once with the format contract and, as a last resort, wraps
+  the prose in a component itself — so the answer always renders, and its words stay clickable.
 - **Monorepo.** The "click → description" lives in a **portable core** shared across surfaces:
 
   ```
   packages/core   @curio/core — the engine: brain seam (Ollama / OpenAI-compat), Zod catalog,
-                  prompts, two-stage generation, Wikipedia client, tokenizer.
+                  prompts, two-stage generation, tokenizer.
   apps/web        The web app (chat + Read mode). Consumes @curio/core.
   apps/extension  Browser extension (MV3): click → description on any page.
   ```
@@ -201,12 +241,14 @@ Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Read mode
 
 Flip the toggle to **Read**, paste an article, and the same "click → explain" engine works on any
-text you throw at it. Turn on **Gen UI** to read it in a friendlier shape.
+text you throw at it. With **Gen UI** on, the reader doesn't just show your text — it **re-expresses
+it**: the same facts, laid out as a definition card, a key figure, a timeline, a pull quote. Nothing
+invented, only rearranged for skimming — and every word still clickable.
 
 <div align="center">
 
-<img src="docs/media/read-light.png" alt="Read mode — paste a text and click through it (light theme)" width="49%" />
-<img src="docs/media/read-dark.png" alt="Read mode — dark theme" width="49%" />
+<img src="docs/media/read-light.png" alt="Read mode — a pasted article re-expressed as components, with a word clicked and explained in place (light theme)" width="49%" />
+<img src="docs/media/read-dark.png" alt="The same re-expressed reading in the dark theme" width="49%" />
 
 </div>
 
@@ -214,19 +256,28 @@ text you throw at it. Turn on **Gen UI** to read it in a friendlier shape.
 
 Curio is **monochrome, Linear-like, shadow-free**: hierarchy comes from **whitespace** and **1px
 hairlines**, not floating boxes. Motion follows one idea — **"everything flows to one place"**:
-elements **transform and travel** into one another (the popover **grows** into the modal, the
+elements **transform and travel** into one another (the popover **grows** into the panel, the
 mascot **travels** from hero to header) instead of popping in and out. Depth comes from movement,
 never from a shadow. The full system lives in [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Status & roadmap
 
 - ✅ **v0** — plain-text explanation on click, the whole loop running locally via Ollama.
-- ✅ **v1** — the chat done right: **"a little → more"** (popover → modal) + **generative UI** with
-  a Zod-validated component catalog.
-- 🔜 **v2** — **entity detection** and idle **prefetch** so the click feels instant.
-- 🔭 **Where it's headed:** **level-3 Gen UI** (the model authoring the interface, leaning on the
-  fast cloud brain), **personalized descriptions** for each reader, and a **desktop app** with a
+- ✅ **v1** — the chat done right: **"a little → more"** (popover → panel) + **generative UI** with
+  a validated component catalog.
+- ✅ **Explorable explanations** — the panel is a surface of its own: click deeper, breadcrumb back,
+  ask follow-ups in place, all still composed.
+- 🔜 **Next** — **entity detection** and idle **prefetch** beyond the current one, so the very first
+  click feels instant.
+- 🔭 **Where it's headed:** **level-3 Gen UI** — the model authoring the interface, not just filling
+  it; the sandboxed HTML piece is the first step in, and a fast cloud brain is what makes it
+  viable. Then **personalized descriptions** for each reader, and a **desktop app** with a
   knowledge vault.
+
+One note on where things stand: the panel is **entirely model-composed** today. The
+Wikipedia client (photo + facts + link) still ships in `@curio/core`, but nothing in the UI calls
+it — the composed panel replaced it. Re-wiring it as a vouched enrichment inside the panel is on
+the table.
 
 Detail and slices in [`docs/ROADMAP.md`](docs/ROADMAP.md). More context:
 [`IDEA.md`](IDEA.md) · [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) ·
