@@ -1,6 +1,6 @@
 import { OpenAIError } from './openai-provider';
 import type { CompletionRequest, LlmProvider } from './provider';
-import type { ToolCompletionRequest, ToolCompletionResponse } from './tools';
+import type { ToolCompletionRequest, ToolCompletionResponse, ToolStreamSink } from './tools';
 
 /**
  * Whether an error is worth trying the next provider for. Rate limits (429) and server errors
@@ -81,5 +81,24 @@ export class FallbackProvider implements LlmProvider {
       lastError ??
       new Error('Ningún proveedor del fallback soporta tool-calling en este momento.')
     );
+  }
+
+  async *completeWithToolsStream(req: ToolCompletionRequest, sink: ToolStreamSink): AsyncGenerator<string> {
+    for (let i = 0; i < this.providers.length; i++) {
+      const provider = this.providers[i];
+      if (!provider.completeWithToolsStream) continue;
+      let started = false;
+      try {
+        for await (const delta of provider.completeWithToolsStream(req, sink)) {
+          started = true;
+          yield delta;
+        }
+        return;
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') throw e;
+        if (started || i === this.providers.length - 1 || !isRetriable(e)) throw e;
+      }
+    }
+    throw new Error('Ningún proveedor del fallback soporta tool-calling streaming.');
   }
 }

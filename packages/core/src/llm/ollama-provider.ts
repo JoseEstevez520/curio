@@ -1,6 +1,6 @@
-import { chat, chatStream, chatWithTools } from '../ollama/client';
+import { chat, chatStream, chatWithTools, chatWithToolsStream } from '../ollama/client';
 import type { CompletionRequest, LlmProvider } from './provider';
-import type { ToolCompletionRequest, ToolCompletionResponse } from './tools';
+import type { ToolCompletionRequest, ToolCompletionResponse, ToolStreamSink } from './tools';
 
 /**
  * The Ollama brain: completes via the local daemon (base set by `configureOllama`). Used by
@@ -48,5 +48,19 @@ export class OllamaProvider implements LlmProvider {
       keepAlive: this.keepAlive,
       signal: req.signal,
     });
+  }
+
+  async *completeWithToolsStream(req: ToolCompletionRequest, sink: ToolStreamSink): AsyncGenerator<string> {
+    yield* chatWithToolsStream(
+      {
+        model: this.model,
+        messages: req.messages,
+        tools: req.tools,
+        temperature: req.temperature,
+        keepAlive: this.keepAlive,
+        signal: req.signal,
+      },
+      sink,
+    );
   }
 }

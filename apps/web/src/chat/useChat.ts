@@ -6,6 +6,7 @@ import { CHAT_SYSTEM_PROMPT } from '@curio/core';
 import { getBrain } from '../llm/brain';
 import { openUIChatSystemPrompt } from '../openui/chatPrompt';
 import { excalidrawTools, executeExcalidrawTool, consumeLastDrawn, DIAGRAM_REFERENCE } from '../mcp/excalidrawTools';
+import type { ToolStreamSink } from '@curio/core';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
@@ -48,6 +49,36 @@ ${DIAGRAM_REFERENCE}`;
 
       // Tool-calling path: the provider exposes tools (Groq, DeepSeek, Ollama). The model decides
       // itself whether to draw. Excalidraw is one modular layer on top of the generic loop.
+      // Streaming variant first: text deltas render into the message as the model generates them,
+      // so tool calls don't leave a blank "thinking" pause for the whole turn.
+      if (provider.completeWithToolsStream) {
+        const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
+        await runToolLoop(
+          async (loopMessages) => {
+            const sink: ToolStreamSink = { toolCalls: [] };
+            let text = '';
+            for await (const delta of provider.completeWithToolsStream!(
+              { messages: loopMessages, tools: excalidrawTools, temperature: 0.2 },
+              sink,
+            )) {
+              text += delta;
+              // Render as it arrives, so tool-calling turns don't leave a blank "thinking" pause.
+              useChatStore.getState().appendToMessage(assistantId, delta);
+            }
+            return { content: text, toolCalls: sink.toolCalls };
+          },
+          {
+            messages: base,
+            executeTool: async (call: LlmToolCall) => executeExcalidrawTool(call),
+          },
+        );
+        const diagram = consumeLastDrawn();
+        if (diagram) useChatStore.getState().setMessageDiagram(assistantId, diagram);
+        useChatStore.getState().finishMessage(assistantId);
+        return;
+      }
+
+      // Non-streaming tool-calling path (providers that implement only completeWithTools).
       if (provider.completeWithTools) {
         const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
         const { content } = await runToolLoop(

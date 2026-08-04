@@ -1,5 +1,5 @@
 import type { ChatMessage, OllamaFormat } from '../ollama/types';
-import type { ToolCompletionRequest, ToolCompletionResponse } from './tools';
+import type { ToolCompletionRequest, ToolCompletionResponse, ToolStreamSink } from './tools';
 
 /**
  * One completion request, provider-agnostic. `format` optionally constrains the output to
@@ -15,7 +15,14 @@ export interface CompletionRequest {
   signal?: AbortSignal;
 }
 
-export type { LlmTool, LlmToolCall, LlmToolResult, ToolCompletionRequest, ToolCompletionResponse } from './tools';
+export type {
+  LlmTool,
+  LlmToolCall,
+  LlmToolResult,
+  ToolCompletionRequest,
+  ToolCompletionResponse,
+  ToolStreamSink,
+} from './tools';
 export { runToolLoop } from './tools';
 
 /**
@@ -41,4 +48,10 @@ export interface LlmProvider {
    * loop yet (e.g. Gemini Nano); surfaces feature-detect with `provider.completeWithTools`.
    */
   completeWithTools?(req: ToolCompletionRequest): Promise<ToolCompletionResponse>;
+  /**
+   * Optional streaming tool-calling: yields text deltas as they arrive and fills `sink.toolCalls`
+   * once the model's requested calls are known. This lets the chat render the reply while tools
+   * are being decided instead of waiting for the whole turn. When absent, use `completeWithTools`.
+   */
+  completeWithToolsStream?(req: ToolCompletionRequest, sink: ToolStreamSink): AsyncGenerator<string>;
 }

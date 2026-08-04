@@ -1,6 +1,6 @@
 import type { ChatMessage } from '../ollama/types';
 import type { CompletionRequest, LlmProvider } from './provider';
-import type { LlmTool, LlmToolCall, ToolCompletionRequest, ToolCompletionResponse } from './tools';
+import type { LlmTool, LlmToolCall, ToolCompletionRequest, ToolCompletionResponse, ToolStreamSink } from './tools';
 
 /**
  * A pluggable cloud brain speaking the OpenAI Chat Completions API — the shape Groq, LocalAI,
@@ -272,6 +272,97 @@ export class OpenAICompatibleProvider implements LlmProvider {
   }
 
   /**
+   * Streaming tool-calling completion. Yields assistant text deltas as they arrive (so the chat
+   * renders while the model decides) and fills `sink.toolCalls` once the requested calls are known.
+   * `delta.tool_calls` arrive fragmented across chunks (one per `index`), so we accumulate id/name/
+   * arguments per index until the stream finishes.
+   */
+  async *completeWithToolsStream(req: ToolCompletionRequest, sink: ToolStreamSink): AsyncGenerator<string> {
+    const body = {
+      model: this.model,
+      messages: toOpenAIMessages(req.messages),
+      tools: toOpenAITools(req.tools),
+      tool_choice: 'auto' as const,
+      stream: true,
+      ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
+      ...(req.maxTokens !== undefined ? { max_tokens: req.maxTokens } : {}),
+    };
+
+    const response = await this.postJson(body, req.signal);
+    if (!response.body) throw new OpenAIError('Response has no readable body.');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const partialCalls = new Map<number, { id?: string; name: string; args: string }>();
+
+    const flushToolCalls = () => {
+      sink.toolCalls = [...partialCalls.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([, call]) => ({
+          id: call.id ?? `call_${Math.random().toString(36).slice(2, 10)}`,
+          name: call.name,
+          arguments: parseToolArguments(call.args),
+        }))
+        .filter((call) => call.name);
+    };
+
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex = buffer.indexOf('\n');
+        while (newlineIndex !== -1) {
+          const line = buffer.slice(0, newlineIndex).trim();
+          buffer = buffer.slice(newlineIndex + 1);
+          newlineIndex = buffer.indexOf('\n');
+
+          if (!line.startsWith('data:')) continue;
+          const data = line.slice(5).trim();
+          if (data === '[DONE]') {
+            flushToolCalls();
+            return;
+          }
+
+          let chunk:
+            | { choices?: { delta?: { content?: string; tool_calls?: unknown[] }; finish_reason?: string | null }[] }
+            | null = null;
+          try {
+            chunk = JSON.parse(data);
+          } catch {
+            continue;
+          }
+          const choice = chunk?.choices?.[0];
+          const delta = choice?.delta;
+          if (delta?.content) yield delta.content;
+          for (const raw of delta?.tool_calls ?? []) {
+            const call = raw as {
+              index?: number;
+              id?: string;
+              function?: { name?: string; arguments?: string };
+            };
+            const index = call.index ?? 0;
+            const entry = partialCalls.get(index) ?? { id: call.id, name: '', args: '' };
+            if (call.id) entry.id = call.id;
+            if (call.function?.name) entry.name += call.function.name;
+            if (call.function?.arguments) entry.args += call.function.arguments;
+            partialCalls.set(index, entry);
+          }
+          if (choice?.finish_reason === 'tool_calls') {
+            flushToolCalls();
+          }
+        }
+      }
+      flushToolCalls();
+    } finally {
+      reader.cancel().catch(() => undefined);
+      reader.releaseLock();
+    }
+  }
+
+  /**
    * Plain POST with the same key rotation + error shaping as {@link post}, but without the
    * JSON-schema body logic — used by tool-calling requests.
    */
@@ -346,6 +437,17 @@ export async function listOpenAIModels(cfg: ListModelsConfig): Promise<string[]>
     .map((m) => m.id)
     .filter((id): id is string => typeof id === 'string' && id.length > 0)
     .sort((a, b) => a.localeCompare(b));
+}
+
+/** Parse the accumulated JSON string of a tool call's arguments, tolerating malformed output. */
+function parseToolArguments(raw: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  } catch {
+    // malformed arguments — surface as empty so the executor reports the real error
+  }
+  return {};
 }
 
 // ---------------------------------------------------------------------------

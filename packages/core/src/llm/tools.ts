@@ -30,6 +30,11 @@ export interface LlmToolResult {
   content: string;
 }
 
+/** Mutable sink a streaming tool-calling request fills as it discovers the model's tool calls. */
+export interface ToolStreamSink {
+  toolCalls: LlmToolCall[];
+}
+
 /**
  * A completion request that exposes tools. When present, the provider should let the model
  * decide whether to answer directly or to call one or more tools.

@@ -5,7 +5,7 @@
 // CORS and no user configuration. Browser-side only.
 
 import type { ChatMessage, ChatParams, OllamaFormat } from './types';
-import type { LlmTool, LlmToolCall } from '../llm/tools';
+import type { LlmTool, LlmToolCall, ToolStreamSink } from '../llm/tools';
 
 /**
  * Base prefix for every Ollama request. Configurable so the same core works on any surface:
@@ -269,6 +269,88 @@ export async function chatWithTools(params: {
     content: json?.message?.content ?? '',
     toolCalls: (json?.message?.tool_calls ?? []).flatMap(parseOllamaToolCall),
   };
+}
+
+/**
+ * Streaming tool-calling turn. Yields text deltas as they arrive and fills `sink.toolCalls` when
+ * the final chunk reports them (Ollama sends tool calls in the completion chunk). Lets the chat
+ * render text while the model decides, instead of waiting for the whole turn.
+ */
+export async function* chatWithToolsStream(
+  params: {
+    model: string;
+    messages: ChatMessage[];
+    tools: LlmTool[];
+    temperature?: number;
+    keepAlive?: string;
+    signal?: AbortSignal;
+  },
+  sink: ToolStreamSink,
+): AsyncGenerator<string> {
+  const response = await ollamaFetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      buildChatBody(
+        {
+          model: params.model,
+          messages: params.messages,
+          tools: params.tools,
+          temperature: params.temperature,
+          keepAlive: params.keepAlive,
+          signal: params.signal,
+        },
+        true,
+      ),
+    ),
+    signal: params.signal,
+  });
+
+  if (!response.body) {
+    throw new OllamaError('parse', 'Ollama response has no readable body.');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex = buffer.indexOf('\n');
+      while (newlineIndex !== -1) {
+        const line = buffer.slice(0, newlineIndex).trim();
+        buffer = buffer.slice(newlineIndex + 1);
+
+        if (line) {
+          const chunk = parseChatChunk(line);
+          const delta = chunk.message?.content;
+          if (delta) yield delta;
+          if (chunk.message?.tool_calls?.length) {
+            sink.toolCalls = chunk.message.tool_calls.flatMap(parseOllamaToolCall);
+          }
+          if (chunk.done) return;
+        }
+
+        newlineIndex = buffer.indexOf('\n');
+      }
+    }
+    const tail = buffer.trim();
+    if (tail) {
+      const chunk = parseChatChunk(tail);
+      const delta = chunk.message?.content;
+      if (delta) yield delta;
+      if (chunk.message?.tool_calls?.length) {
+        sink.toolCalls = chunk.message.tool_calls.flatMap(parseOllamaToolCall);
+      }
+    }
+  } finally {
+    reader.cancel().catch(() => undefined);
+    reader.releaseLock();
+  }
 }
 
 /** Convert a Curio {@link LlmTool} to Ollama's wire shape. */

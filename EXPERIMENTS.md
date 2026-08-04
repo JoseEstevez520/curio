@@ -35,6 +35,11 @@ tandas sean comparables.
   contra el MCP. El chat detecta `provider.completeWithTools` y, cuando aplica, el modelo decide
   SOLO si dibujar (sin botón); el diagrama se renderiza inline vía `ExcalidrawView`. El botón
   `ExcalidrawExplanation` se mantiene como respaldo en la demo.
+- **Streaming de tool-calling (misma sesión).** Añadido `completeWithToolsStream` (OpenAI-compatible
+  y Ollama): los deltas de texto se renderizan en el mensaje mientras el modelo decide, y las
+  `tool_calls` fragmentadas se acumulan por `index` hasta que el stream termina. El chat usa la
+  variante streaming cuando existe y cae a la no-streaming si no. Verificado contra DeepSeek:
+  el modelo pidió `read_me` en streaming.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en
