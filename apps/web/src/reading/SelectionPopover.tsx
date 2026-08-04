@@ -17,7 +17,7 @@ import { SCRIM_FADE } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
 import { useGenerative } from '../lookup/useGenerative';
 import { useOpenUI } from '../openui/useOpenUI';
-import DescriptionBody, { POPOVER_CLASS, VerMasButton } from './DescriptionBody';
+import DescriptionBody, { POPOVER_CLASS, SeeMoreButton } from './DescriptionBody';
 import DescribeModal from './DescribeModal';
 
 /** Sticky composer height reserved at the bottom so the popover never opens over it. */
@@ -133,7 +133,7 @@ export default function SelectionPopover() {
 {!expanded && (
             <div className={POPOVER_CLASS}>
               <DescriptionBody entry={entry} />
-              {entry?.status === 'done' && <VerMasButton onClick={() => setExpanded(true)} />}
+              {entry?.status === 'done' && <SeeMoreButton onClick={() => setExpanded(true)} />}
             </div>
           )}
         </div>

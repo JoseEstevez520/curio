@@ -8,7 +8,7 @@
 ## La idea de fondo
 
 Curio no quiere ser un chat rígido: quiere que lo que lees sea **explorable** y que puedas
-**hacer cosas encima de cada cosa** — esa sensación nativa de iOS (tocas, mueves, haces zoom)
+**hacer cosas encima de cada cosa** — esa sensación nativa (tocas, mueves, haces zoom)
 que se pierde en la web. El vehículo para eso es la **UI generativa**: que la interfaz no sea
 fija, sino que **tome la forma que mejor expresa** lo que estás mirando.
 

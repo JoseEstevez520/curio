@@ -36,7 +36,7 @@ export default function DefinitionCard({ data }: CatalogComponentProps<Definitio
 
       {synonyms.length > 0 && (
         <div>
-          <SectionLabel>Sinónimos</SectionLabel>
+          <SectionLabel>Synonyms</SectionLabel>
           <p className="text-sm text-fg-secondary">{synonyms.join(', ')}</p>
         </div>
       )}

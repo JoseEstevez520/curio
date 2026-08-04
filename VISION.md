@@ -42,7 +42,7 @@ Tauri encaja justo por esto: da acceso al **disco** (el vault Markdown) y a una 
 - **Local, sin API keys.** Todo pasa por **Ollama** con modelos pequeños.
 - **Entender-en-contexto es el átomo.** Todo lo demás se construye encima.
 - **Document-first.** El conocimiento del usuario vive en **sus** ficheros, no encerrado en la app.
-- **Estilo:** monocromo, limpio, tipo iOS/Linear, **sin sombras**.
+- **Estilo:** monocromo, limpio, **sin sombras**.
 
 ## Ideas exploratorias (quizás — no comprometidas)
 

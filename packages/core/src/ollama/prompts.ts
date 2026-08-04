@@ -80,7 +80,7 @@ export function buildWikiEntityMessages(
 }
 
 /**
- * Build the messages for the DEEP explanation — the fuller read a reader gets on "Ver más".
+ * Build the messages for the DEEP explanation — the fuller read a reader gets on "See more".
  * Where {@link buildDescribeMessages} is a one-line glimpse for the popover, this is a proper
  * few-sentence explanation (what it is, a key aspect or two, something genuinely interesting),
  * so opening the modal actually shows MORE. Plain prose in the reader's language — no headings,

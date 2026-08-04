@@ -21,7 +21,7 @@ El chat, bien hecho: clic → popover pequeño (el *vistazo*); **"Ver más"** �
 con Zod**, con fallback fiable a texto. Todo local vía Ollama, monocromo y sin sombras.
 
 ### Added (v1 — el núcleo)
-- **Modal "Ver más"** desde el popover, con **morph tipo iOS** (Framer `layoutId`): la tarjeta
+- **Modal "Ver más"** desde el popover, con **morph de elemento compartido** (Framer `layoutId`): la tarjeta
   pequeña **crece** hasta el modal (curva decelerada, sin rebote) y **encoge** de vuelta al cerrar.
   Velo plano (un atenuado, no una sombra); el objeto morfa y el texto entra con un fundido. Cierre
   por Escape o clic en el velo. Respeta `prefers-reduced-motion`.
@@ -63,7 +63,7 @@ con Zod**, con fallback fiable a texto. Todo local vía Ollama, monocromo y sin 
   (negritas, listas, encabezados, código, tablas) en vez de texto crudo — manteniendo que cada
   palabra sea clicable y que puedas seleccionar frases.
 
-### Changed (UI, hacia estilo iOS)
+### Changed (UI)
 - **Composer** que **crece solo** al escribir (sin scroll interno hasta un máximo), input tipo
   píldora y botón de envío circular con **flecha a la derecha**, ambos a la misma altura.
 - **Caret de escritura** fino y moderno que **sigue al texto** en streaming (antes saltaba de
@@ -97,7 +97,7 @@ El bucle central funciona de punta a punta, todo en local vía Ollama (sin API k
 ### Added
 - **Scaffold**: Vite 6 + React 18 + TypeScript, Tailwind, ESLint (flat) + Prettier, con proxy
   `/ollama` (mismo origen, sin CORS).
-- **Sistema de diseño** en `src/styles/tokens.css`: monocromo, tipo Linear, sin sombras; temas
+- **Sistema de diseño** en `src/styles/tokens.css`: monocromo, sin sombras; temas
   claro/oscuro; expuesto como utilidades de Tailwind.
 - **Cliente de Ollama**: `chatStream` (streaming NDJSON con `AbortSignal`), `chat`, `listModels`,
   `pingOllama`, y `OllamaError` tipado.

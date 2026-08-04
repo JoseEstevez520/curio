@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
  * chrome + the --chart-* palette for data. No chart dependency — full control of the style.
  */
 
-const EASE = [0.32, 0.72, 0, 1] as const; // Curio's iOS decelerating curve
+const EASE = [0.32, 0.72, 0, 1] as const; // Curio's decelerating curve
 
 export interface LinePoint {
   label: string;

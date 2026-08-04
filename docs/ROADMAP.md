@@ -15,7 +15,7 @@ La visión manda sobre el rumbo; este roadmap, sobre el próximo paso.
   push por slice; confírmalo cada sesión.)*
 - **Agentes:** reparte en varios agentes lo **independiente** (paralelo); lo **acoplado** va en
   serie con un líder. Ver [`AGENTS.md`](AGENTS.md).
-- **Estilo sagrado:** monocromo, iOS/Linear, **sin sombras**; movimiento "todo fluye a un lugar"
+- **Estilo sagrado:** monocromo, **sin sombras**; movimiento "todo fluye a un lugar"
   (ver `DESIGN.md §9`). **Local, sin API keys**, todo por **Ollama**.
 
 ---
@@ -29,7 +29,7 @@ una palabra → descripción en contexto (texto plano), estilo monocromo.
 
 - Markdown en las respuestas (manteniendo las palabras clicables).
 - Seleccionar una frase → describir toda la selección (banda azul continua, como unidad).
-- Rediseño iOS: una sola columna, sin líneas divisorias, esquinas redondeadas, input que crece
+- Rediseño: una sola columna, sin líneas divisorias, esquinas redondeadas, input que crece
   solo, botón de envío circular con flecha.
 - Caret de escritura fino que sigue al texto en streaming; tres puntitos "pensando".
 - El descriptor responde en el **idioma** de la conversación.

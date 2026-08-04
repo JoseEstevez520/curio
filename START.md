@@ -11,7 +11,7 @@ nada más.
    - `VISION.md` — el destino (compañero de investigación local, document-first, escritorio).
    - `IDEA.md` — qué es Curio y por qué.
    - `docs/ARCHITECTURE.md` — cómo se construye (stack, entidades, Ollama, generative UI).
-   - `docs/DESIGN.md` — estilo (monocromo, tipo Linear, sin sombras).
+   - `docs/DESIGN.md` — estilo (monocromo, sin sombras).
    - `docs/ROADMAP.md` — versiones y slices; **aquí está la lista de tareas**.
    - `docs/AGENTS.md` — el equipo de agentes y cómo colaboran.
    - `EXPERIMENTS.md` y `CHANGELOG.md` — dónde vamos.
@@ -37,7 +37,7 @@ nada más.
 
 ## Reglas que nunca se rompen
 - **Local, sin API keys.** Todo pasa por **Ollama** con modelos pequeños.
-- **Estilo:** monocromo, limpio, tipo Linear, **sin sombras**.
+- **Estilo:** monocromo, limpio, **sin sombras**.
 - `main` siempre demoable; no lo dejes roto entre sesiones.
 - Este proyecto va **sin memoria persistente**: todo el contexto vive en estos archivos.
 

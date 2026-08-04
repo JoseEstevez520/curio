@@ -49,7 +49,7 @@ export default function OpenUIDemo() {
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            placeholder="Term (e.g. Mercurio, Fotosíntesis, Bauhaus)"
+            placeholder="Term (e.g. Mercury, Photosynthesis, Bauhaus)"
             className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg outline-none focus-visible:border-border-focus"
           />
           <textarea

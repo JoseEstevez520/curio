@@ -132,7 +132,7 @@
   }
 
   /* Thinking indicator — three small dots that bounce in sequence while the first
-     tokens of a description are still loading. Subtle, muted, iOS-like. */
+     tokens of a description are still loading. Subtle and muted. */
   .curio-dots {
     display: inline-flex;
     align-items: center;
@@ -327,7 +327,7 @@
     }
   }
 
-  /* "Ver más" modal — the roomy home for the full description / generative UI.
+  /* "See more" modal — the roomy home for the full description / generative UI.
      Flat scrim (a dim, never a shadow — §5) behind a hairline-framed card that MORPHS
      from the popover via Framer's layoutId (§9). No shadow, no glow, no glass. */
   .curio-scrim {

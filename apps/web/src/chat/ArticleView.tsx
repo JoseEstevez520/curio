@@ -9,7 +9,7 @@ import { openUIArticleSystemPrompt } from '../openui/chatPrompt';
 import { useGenUI } from '../openui/useGenUI';
 
 /**
- * The article reader. Paste any text or article, hit "Leer", and it becomes a reading surface:
+ * The article reader. Paste any text or article, hit "Read", and it becomes a reading surface:
  * every word is clickable and any phrase is selectable, exactly like an assistant reply.
  *
  * Two views of the same text, toggled with Original / Gen UI:
@@ -38,7 +38,7 @@ export default function ArticleView() {
             onClick={() => setArticle(null)}
             className="text-xs font-medium text-fg-muted transition-colors duration-fast hover:text-fg"
           >
-            Pegar otro
+            Paste another
           </button>
         </div>
 
@@ -50,7 +50,7 @@ export default function ArticleView() {
           ) : gen.isStreaming || !gen.response ? (
             // Dots for the whole transform: partial OpenUI Lang pops in out of order. Reveal the
             // finished reading at once, staggered (see Panel/Reveal).
-            <div className="curio-dots" role="status" aria-label="Transformando">
+            <div className="curio-dots" role="status" aria-label="Transforming">
               <span aria-hidden="true" />
               <span aria-hidden="true" />
               <span aria-hidden="true" />
@@ -82,18 +82,17 @@ export default function ArticleView() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight text-fg">Leer</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-fg">Read</h1>
       <p className="mt-2 text-base text-fg-muted">
-        Pega un artículo o cualquier texto. Luego haz clic en una palabra o selecciona una frase
-        para verla explicada ahí mismo — o activa <strong>Gen UI</strong> (arriba) para leerlo más
-        ameno.
+        Paste an article or any text. Then click a word — or select a phrase — to see it explained
+        right there, or turn on <strong>Gen UI</strong> (above) for a livelier read.
       </p>
       <textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={10}
-        aria-label="Texto a leer"
-        placeholder="Pega aquí el texto…"
+        aria-label="Text to read"
+        placeholder="Paste your text here…"
         className="mt-6 w-full resize-y rounded-2xl border border-border bg-bg-subtle px-4 py-3 text-base leading-relaxed text-fg outline-none transition-colors duration-fast placeholder:text-fg-faint focus:border-border-strong"
       />
       <div className="mt-4 flex justify-end">
@@ -103,7 +102,7 @@ export default function ArticleView() {
           onClick={() => setArticle(draft.trim())}
           className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-fg transition-colors duration-fast hover:bg-accent-hover disabled:bg-bg-inset disabled:text-fg-faint"
         >
-          Leer
+          Read
         </button>
       </div>
     </div>
