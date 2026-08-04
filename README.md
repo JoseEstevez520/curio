@@ -48,9 +48,10 @@ point. The point is the click.
 
 <div align="center">
 
-<img src="docs/media/click-to-explain.png" alt="Click 'heliocentric' and its description appears inline, in context, with a 'Ver más' link" width="88%" />
+<img src="docs/media/click-to-explain.png" alt="Click 'heliocentric' inside a composed reply and its description appears inline, in context, with a 'Ver más' link" width="88%" />
 
-<em>Click a word — here, <strong>heliocentric</strong> — and the explanation appears right there, in context.</em>
+<em>Click a word — here, <strong>heliocentric</strong> — and the explanation appears right there, in
+context. Every word is clickable, whether the reply is prose or, as here, composed of components.</em>
 
 </div>
 
@@ -80,7 +81,7 @@ point. The point is the click.
   bullet list, quote, code block, key stat, callout, tags, **bar list, line chart and donut** — and
   fills them with **validated data**, falling back to text if anything's off. For something that
   genuinely has to be interactive, it can return a **sandboxed HTML document**. It never
-  hand-writes markup into the page.
+  hand-writes markup into the page. _The screenshots throughout are taken with **Gen UI** on._
 - 🧠 **A pluggable brain.** Runs on **Ollama** (local) or any **OpenAI-compatible API** with your
   own key (Groq, OpenRouter, LocalAI, your own server…) — swap freely.
 - 🌗 **Light and dark themes**, following your system or forced by hand.
@@ -97,7 +98,7 @@ closes with what it's doing in the text you're reading:
 
 <div align="center">
 
-<img src="docs/media/see-more.png" alt="The 'See more' panel for heliocentric: heading, explanation, a definition card, key evidence and a closing 'En este texto' callout" width="70%" />
+<img src="docs/media/see-more.png" alt="The 'See more' panel for heliocentric: heading, explanation, a definition card, a fact table and a closing 'En este texto' callout" width="70%" />
 
 </div>
 
@@ -240,12 +241,14 @@ Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Read mode
 
 Flip the toggle to **Read**, paste an article, and the same "click → explain" engine works on any
-text you throw at it. Turn on **Gen UI** to read it in a friendlier shape.
+text you throw at it. With **Gen UI** on, the reader doesn't just show your text — it **re-expresses
+it**: the same facts, laid out as a definition card, a key figure, a timeline, a pull quote. Nothing
+invented, only rearranged for skimming — and every word still clickable.
 
 <div align="center">
 
-<img src="docs/media/read-light.png" alt="Read mode — paste a text and click through it (light theme)" width="49%" />
-<img src="docs/media/read-dark.png" alt="Read mode — dark theme" width="49%" />
+<img src="docs/media/read-light.png" alt="Read mode — a pasted article re-expressed as components, with a word clicked and explained in place (light theme)" width="49%" />
+<img src="docs/media/read-dark.png" alt="The same re-expressed reading in the dark theme" width="49%" />
 
 </div>
 
