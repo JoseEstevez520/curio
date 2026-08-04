@@ -6,7 +6,7 @@ A small team of role-specialized AI agents builds Curio. One **Orchestrator** co
 - Work in **small, commit-sized slices** from `ROADMAP.md`. One slice → one commit → push.
 - Present-tense, scoped commit messages (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `polish:`).
 - Local-only constraint is sacred: **no API keys, no cloud calls.** Everything through Ollama.
-- Style constraint is sacred: **monochrome, Linear-inspired, no shadows** (see `docs/DESIGN.md`).
+- Style constraint is sacred: **monochrome, no shadows** (see `docs/DESIGN.md`).
 - Never leave `main` broken across a session boundary.
 - Write down experiment results in `EXPERIMENTS.md`.
 
@@ -30,7 +30,7 @@ A small team of role-specialized AI agents builds Curio. One **Orchestrator** co
 - **Typical outputs:** UI slice commits, interaction wiring, accessibility fixes.
 
 ### Design-System
-- **Responsibility:** the monochrome, no-shadow, Linear feel — design tokens, spacing/type scale, motion, component visual consistency.
+- **Responsibility:** the monochrome, no-shadow feel — design tokens, spacing/type scale, motion, component visual consistency.
 - **Owns:** `tokens` file, base styles, component visual specs and previews.
 - **Typical outputs:** token commits, style refactors, previews/stories for catalog components, polish slices.
 

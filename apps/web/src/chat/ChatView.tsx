@@ -92,8 +92,8 @@ export default function ChatView() {
                 <Wordmark variant="hero" />
 
                 <p className="mt-2 text-base">
-                  Ask something below. In a reply, hover or click any word to see it explained
-                  inline.
+                  Ask something below. In a reply, click any word — or select a phrase — to see it
+                  explained inline.
                 </p>
               </div>
             ) : (

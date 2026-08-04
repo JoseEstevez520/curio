@@ -199,7 +199,7 @@ Use `--space-5`/`--space-6` between messages, `--space-7`+ around the reading co
 ```
 
 Keep radii tight. Content **cards** stay at `--radius-md` or below; the larger `--radius-lg`/`--radius-xl`
-are reserved for the framing surfaces that morph and the composer pill (a soft, iOS-like shell around
+are reserved for the framing surfaces that morph and the composer pill (a soft shell around
 the reading content), never for the content blocks inside them.
 
 ---
@@ -412,7 +412,7 @@ Motion confirms an action and gives Curio a sense of being physical; it never en
 
 ## 9. Movimiento y sensación (feel) — "todo fluye a un lugar"
 
-Curio debe sentirse como una **app nativa de iOS**, no como una web que carga pantallas: los
+Curio debe sentirse como una **app nativa**, no como una web que carga pantallas: los
 elementos **se transforman unos en otros** y **viajan** hacia un sitio, en vez de aparecer y
 desaparecer. La profundidad la da el **movimiento y la transformación** (elementos compartidos que
 se desplazan y cambian de tamaño), nunca sombras (§5 sigue vigente: **sin sombras, sin cristal

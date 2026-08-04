@@ -69,7 +69,7 @@ export interface GenerativeEntry {
   status: 'loading' | 'done' | 'error';
   /** The validated component envelope, once generation succeeds. */
   envelope?: Envelope;
-  /** The fuller explanation shown in the modal — the actual "more" behind "Ver más". */
+  /** The fuller explanation shown in the modal — the actual "more" behind "See more". */
   deep?: string;
   /** Wikipedia card (photo + facts + link) when the term has an article; null if none. */
   wiki?: WikiSummary | null;

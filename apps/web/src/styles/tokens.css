@@ -1,7 +1,7 @@
 /**
  * Curio design tokens — implements docs/DESIGN.md.
  *
- * Monochrome, Linear-inspired. NO SHADOWS anywhere. Hierarchy comes from 1px
+ * Monochrome. NO SHADOWS anywhere. Hierarchy comes from 1px
  * hairlines and whitespace. Depth is implied by surface tone layering, never blur.
  *
  * Themes (§2): light is the :root default. Dark ships as two rules — a
@@ -181,7 +181,7 @@
 /* Manual override: force dark regardless of system preference. */
 :root[data-theme='dark'] {
   /* Match native controls (textarea caret, scrollbar, selection) to the theme, so toggling
-     doesn't leave the "Leer" text box rendering in the old scheme for a beat. */
+     doesn't leave the "Read" text box rendering in the old scheme for a beat. */
   color-scheme: dark;
 
   --color-bg: #0a0a0a;

@@ -23,13 +23,15 @@ const TASK_NOTE = [
   'the broader theme of the text. Compose the components that best express THIS term — do not',
   'force a fixed shape. Prefer a short Heading + Prose, then any structured pieces that genuinely',
   'help (DefinitionCard, FactTable, Timeline, Steps, Comparison, BulletList, Quote, CodeBlock,',
-  'KeyStat, Callout). Keep it tight: a few pieces, not a wall. Write all text in the same language',
-  'as the term/context (default Spanish). Be factual and concise.',
+  'KeyStat, Callout). Keep it tight: a few pieces, not a wall. Write ALL text in the SAME LANGUAGE',
+  'as the surrounding text — English text means an entirely English panel, and never a mix.',
+  'Be factual and concise.',
   'The reader can ALREADY SEE the original text next to your panel — never repeat content it states',
   '(if the text lists items, do NOT re-list them). Your panel must ADD understanding on top: what the',
   'term really means, why it matters, how the ideas in the text connect.',
   'ALWAYS end with a Callout as the LAST component explaining why this term matters in THIS specific text',
-  '— what role it plays here, what depends on it. Label it "En este texto" inside the callout text.',
+  '— what role it plays here, what depends on it. Open that callout with "In this text" (translated',
+  'into the language you are writing in).',
 ].join(' ');
 
 // ---- Shared cache (survives across component mounts) ----

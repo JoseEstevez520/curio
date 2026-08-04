@@ -228,7 +228,7 @@ export interface DeepOptions {
 
 /**
  * Produce the DEEP explanation (a few sentences) shown in the modal — the actual "more" behind
- * "Ver más", distinct from the one-line popover gloss. Uses any provider; sanitized like the
+ * "See more", distinct from the one-line popover gloss. Uses any provider; sanitized like the
  * gloss. Longer token budget so it can breathe.
  */
 export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {

@@ -57,7 +57,7 @@ export default function Composer({ onSend, disabled, compact }: ComposerProps) {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               rows={1}
-              placeholder="Pregunta lo que quieras..."
+              placeholder="Ask anything..."
               className="max-h-[200px] min-h-[44px] flex-1 resize-none overflow-y-hidden rounded-3xl bg-bg-muted px-4 py-[11px] text-base leading-normal text-fg outline-none placeholder:text-fg-faint"
               style={{
                 marginRight: active ? 52 : 0,

@@ -18,7 +18,7 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
       <div
         className="curio-dots"
         role="status"
-        aria-label="Cargando descripción"
+        aria-label="Loading description"
         style={{
           opacity: hasText ? 0 : 1,
           position: hasText ? 'absolute' : 'relative',
@@ -47,8 +47,8 @@ export default function DescriptionBody({ entry }: { entry?: DescriptionEntry })
 export const POPOVER_CLASS =
   'curio-popover z-50 max-w-[320px] overflow-y-auto overscroll-contain rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary';
 
-/** Shared "Ver más" button — the same everywhere a gloss can be expanded. */
-export function VerMasButton({ onClick }: { onClick: () => void }) {
+/** Shared "See more" button — the same everywhere a gloss can be expanded. */
+export function SeeMoreButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
@@ -56,7 +56,7 @@ export function VerMasButton({ onClick }: { onClick: () => void }) {
       className="mt-2 text-xs font-medium text-accent transition-colors hover:text-accent-hover hover:underline"
       style={{ animation: 'curio-fade-in 0.25s ease' }}
     >
-      Ver más
+      See more
     </button>
   );
 }

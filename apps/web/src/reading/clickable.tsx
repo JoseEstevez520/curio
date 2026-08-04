@@ -16,7 +16,7 @@ const WORD_CHAR = /[\p{L}\p{N}'’-]/u;
 /**
  * Smart snap: grow each end of the selection out to a whole word, so half-selecting a
  * word still describes (and highlights) the complete word. Exported for DescribeModal,
- * which replicates the same drag-to-select flow inside the "Ver más" modal.
+ * which replicates the same drag-to-select flow inside the "See more" modal.
  */
 export function expandRangeToWords(range: Range): void {
   const { startContainer, endContainer } = range;
