@@ -1,15 +1,11 @@
 import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
 import { OllamaError, OpenAIError, runToolLoop } from '@curio/core';
-import type { ChatMessageLike, LlmToolCall } from '@curio/core';
+import type { ChatMessageLike, LlmToolCall, ToolStreamSink } from '@curio/core';
 import { CHAT_SYSTEM_PROMPT } from '@curio/core';
 import { getBrain } from '../llm/brain';
 import { openUIChatSystemPrompt } from '../openui/chatPrompt';
-import { excalidrawTools, executeExcalidrawTool, consumeLastDrawn, DIAGRAM_REFERENCE } from '../mcp/excalidrawTools';
-import type { ToolStreamSink } from '@curio/core';
-
-/** Whether the Excalidraw tools are enabled. `.env` `VITE_EXCALIDRAW`; enabled by default. */
-const EXCALIDRAW_ENABLED = (import.meta.env.VITE_EXCALIDRAW ?? 'true') !== 'false';
+import { getEnabledTools, getToolsSystemPrompt, executeEnabledTool, collectToolEffects } from '../tools/registry';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
@@ -39,34 +35,28 @@ export function useSendMessage() {
       return;
     }
 
-    // System prompt: the base prompt, plus the distilled Excalidraw format so the model knows how
-    // to emit elements if it decides to draw. The full sheet still comes from `read_me` at call time.
+    // Enabled tool modules contribute their system-prompt block (e.g. the Excalidraw format).
+    const toolsSystemPrompt = getToolsSystemPrompt();
     const systemPrompt = `${genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT}${
-      EXCALIDRAW_ENABLED
-        ? `
-
-## Excalidraw (optional visualization)
-When asked to explain something visually, you may call the Excalidraw tools. Call read_me first, then create_view with the elements. Element format:
-${DIAGRAM_REFERENCE}`
-        : ''
+      toolsSystemPrompt ? `\n\n${toolsSystemPrompt}` : ''
     }`;
 
     try {
       const messages = toChatMessages(history, systemPrompt);
+      const enabledTools = getEnabledTools();
+      const toolLoop = enabledTools.length > 0;
 
-      // Tool-calling path (only when Excalidraw is enabled): the provider exposes tools (Groq,
-      // DeepSeek, Ollama). The model decides itself whether to draw. Excalidraw is one modular
-      // layer on top of the generic loop.
-      // Streaming variant first: text deltas render into the message as the model generates them,
-      // so tool calls don't leave a blank "thinking" pause for the whole turn.
-      if (EXCALIDRAW_ENABLED && provider.completeWithToolsStream) {
+      // Tool-calling path (when any module is enabled): the provider exposes tools and the model
+      // decides itself whether to call them. Streaming variant first — text deltas render into the
+      // message as they arrive, so tool calls don't leave a blank "thinking" pause for the turn.
+      if (toolLoop && provider.completeWithToolsStream) {
         const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
         await runToolLoop(
           async (loopMessages) => {
             const sink: ToolStreamSink = { toolCalls: [] };
             let text = '';
             for await (const delta of provider.completeWithToolsStream!(
-              { messages: loopMessages, tools: excalidrawTools, temperature: 0.2 },
+              { messages: loopMessages, tools: enabledTools, temperature: 0.2 },
               sink,
             )) {
               text += delta;
@@ -77,34 +67,34 @@ ${DIAGRAM_REFERENCE}`
           },
           {
             messages: base,
-            executeTool: async (call: LlmToolCall) => executeExcalidrawTool(call),
+            executeTool: async (call: LlmToolCall) => executeEnabledTool(call),
           },
         );
-        const diagram = consumeLastDrawn();
-        if (diagram) useChatStore.getState().setMessageDiagram(assistantId, diagram);
+        const effects = collectToolEffects();
+        if (effects.length) useChatStore.getState().setMessageEffects(assistantId, effects);
         useChatStore.getState().finishMessage(assistantId);
         return;
       }
 
       // Non-streaming tool-calling path (providers that implement only completeWithTools).
-      if (EXCALIDRAW_ENABLED && provider.completeWithTools) {
+      if (toolLoop && provider.completeWithTools) {
         const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
         const { content } = await runToolLoop(
           (loopMessages) =>
-            provider.completeWithTools!({ messages: loopMessages, tools: excalidrawTools, temperature: 0.2 }),
+            provider.completeWithTools!({ messages: loopMessages, tools: enabledTools, temperature: 0.2 }),
           {
             messages: base,
-            executeTool: async (call: LlmToolCall) => executeExcalidrawTool(call),
+            executeTool: async (call: LlmToolCall) => executeEnabledTool(call),
           },
         );
-        const diagram = consumeLastDrawn();
+        const effects = collectToolEffects();
         useChatStore.getState().appendToMessage(assistantId, content);
-        if (diagram) useChatStore.getState().setMessageDiagram(assistantId, diagram);
+        if (effects.length) useChatStore.getState().setMessageEffects(assistantId, effects);
         useChatStore.getState().finishMessage(assistantId);
         return;
       }
 
-      // Legacy streaming path (providers without tools): stream tokens like before.
+      // Legacy streaming path (no enabled tools / provider without tool support): stream like before.
       if (provider.completeStream) {
         for await (const delta of provider.completeStream({ messages })) {
           useChatStore.getState().appendToMessage(assistantId, delta);

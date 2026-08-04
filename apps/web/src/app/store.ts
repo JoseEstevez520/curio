@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ChatMessage } from '@curio/core';
 import type { Envelope, WikiSummary } from '@curio/core';
+import type { ToolEffect } from '../tools/types';
 
 export type Role = 'user' | 'assistant';
 
@@ -46,8 +47,8 @@ export interface Message {
   error?: string;
   /** True when `content` is OpenUI Lang (a composed-components reply), not markdown text. */
   generative?: boolean;
-  /** When the reply includes a diagram rendered by Excalidraw, the data to mount it inline. */
-  diagram?: { viewHtml: string; elements: unknown[] };
+  /** Visual effects produced by tool modules during the reply (e.g. an Excalidraw diagram). */
+  effects?: ToolEffect[];
 }
 
 /** A cached / in-flight term description, keyed by `${messageId} ${term}`. */
@@ -152,8 +153,8 @@ interface ChatState {
   appendToMessage: (id: string, delta: string) => void;
   finishMessage: (id: string) => void;
   failMessage: (id: string, error: string) => void;
-  /** Attach a rendered diagram (Excalidraw) to an assistant message. */
-  setMessageDiagram: (id: string, diagram: Message['diagram']) => void;
+  /** Attach visual tool effects (Excalidraw diagrams, ...) to an assistant message. */
+  setMessageEffects: (id: string, effects: ToolEffect[]) => void;
 
   setSelection: (selection: Selection | null) => void;
   /** Grow the popover into the modal, or shrink it back to the popover. */
@@ -301,9 +302,9 @@ export const useChatStore = create<ChatState>((set) => ({
       messages: s.messages.map((m) => (m.id === id ? { ...m, streaming: false, error } : m)),
     })),
 
-  setMessageDiagram: (id, diagram) =>
+  setMessageEffects: (id, effects) =>
     set((s) => ({
-      messages: s.messages.map((m) => (m.id === id ? { ...m, diagram } : m)),
+      messages: s.messages.map((m) => (m.id === id ? { ...m, effects } : m)),
     })),
 
   // A new (or cleared) selection always starts collapsed — the modal never survives

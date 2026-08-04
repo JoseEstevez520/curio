@@ -4,7 +4,7 @@ import MarkdownMessage from '../reading/MarkdownMessage';
 import ClickableSurface from '../reading/clickable';
 import { curioLibrary } from '../openui/library';
 import { isRenderableLang } from '../openui/renderable';
-import ExcalidrawView from '../mcp/ExcalidrawView';
+import ToolEffects from '../tools/ToolEffects';
 
 interface MessageProps {
   message: MessageModel;
@@ -58,7 +58,7 @@ export default function Message({ message }: MessageProps) {
           streaming={message.streaming}
         />
       )}
-      {!message.streaming && message.diagram && <ExcalidrawView diagram={message.diagram} />}
+      {!message.streaming && message.effects?.length && <ToolEffects effects={message.effects} />}
       {message.error && (
         <span className="text-sm text-fg-muted">
           {message.content ? ' ' : ''}
