@@ -40,6 +40,11 @@ tandas sean comparables.
   `tool_calls` fragmentadas se acumulan por `index` hasta que el stream termina. El chat usa la
   variante streaming cuando existe y cae a la no-streaming si no. Verificado contra DeepSeek:
   el modelo pidió `read_me` en streaming.
+- **Toggle por entorno + degradación (misma sesión).** `VITE_EXCALIDRAW` (`.env`, por defecto
+  `true`) activa/desactiva las tools de Excalidraw en el chat. Con `false`, el chat va a texto
+  normal sin registrar tools. Además, `runToolLoop` ahora devuelve el error de una tool al modelo
+  como resultado (`Error executing tool ...`) en vez de romper el mensaje: si el servidor MCP falla,
+  el modelo responde en texto y solo se pierde el dibujo, no la respuesta.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en

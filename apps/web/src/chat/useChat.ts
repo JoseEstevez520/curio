@@ -8,6 +8,9 @@ import { openUIChatSystemPrompt } from '../openui/chatPrompt';
 import { excalidrawTools, executeExcalidrawTool, consumeLastDrawn, DIAGRAM_REFERENCE } from '../mcp/excalidrawTools';
 import type { ToolStreamSink } from '@curio/core';
 
+/** Whether the Excalidraw tools are enabled. `.env` `VITE_EXCALIDRAW`; enabled by default. */
+const EXCALIDRAW_ENABLED = (import.meta.env.VITE_EXCALIDRAW ?? 'true') !== 'false';
+
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
   if (e instanceof OllamaError) {
@@ -38,20 +41,25 @@ export function useSendMessage() {
 
     // System prompt: the base prompt, plus the distilled Excalidraw format so the model knows how
     // to emit elements if it decides to draw. The full sheet still comes from `read_me` at call time.
-    const systemPrompt = `${genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT}
+    const systemPrompt = `${genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT}${
+      EXCALIDRAW_ENABLED
+        ? `
 
 ## Excalidraw (optional visualization)
 When asked to explain something visually, you may call the Excalidraw tools. Call read_me first, then create_view with the elements. Element format:
-${DIAGRAM_REFERENCE}`;
+${DIAGRAM_REFERENCE}`
+        : ''
+    }`;
 
     try {
       const messages = toChatMessages(history, systemPrompt);
 
-      // Tool-calling path: the provider exposes tools (Groq, DeepSeek, Ollama). The model decides
-      // itself whether to draw. Excalidraw is one modular layer on top of the generic loop.
+      // Tool-calling path (only when Excalidraw is enabled): the provider exposes tools (Groq,
+      // DeepSeek, Ollama). The model decides itself whether to draw. Excalidraw is one modular
+      // layer on top of the generic loop.
       // Streaming variant first: text deltas render into the message as the model generates them,
       // so tool calls don't leave a blank "thinking" pause for the whole turn.
-      if (provider.completeWithToolsStream) {
+      if (EXCALIDRAW_ENABLED && provider.completeWithToolsStream) {
         const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
         await runToolLoop(
           async (loopMessages) => {
@@ -79,7 +87,7 @@ ${DIAGRAM_REFERENCE}`;
       }
 
       // Non-streaming tool-calling path (providers that implement only completeWithTools).
-      if (provider.completeWithTools) {
+      if (EXCALIDRAW_ENABLED && provider.completeWithTools) {
         const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
         const { content } = await runToolLoop(
           (loopMessages) =>

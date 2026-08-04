@@ -98,7 +98,16 @@ export async function runToolLoop(
     }
 
     for (const call of response.toolCalls) {
-      const content = await executeTool(call);
+      let content: string;
+      try {
+        content = await executeTool(call);
+      } catch (e) {
+        // A failing tool never kills the reply: report the error to the model as a tool result so
+        // it can answer in text (or apologize and stop) instead of leaving the user with nothing.
+        content = `Error executing tool "${call.name}": ${
+          e instanceof Error ? e.message : String(e)
+        }`;
+      }
       history.push({ role: 'tool', content, toolCallId: call.id });
     }
   }
