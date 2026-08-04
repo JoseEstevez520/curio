@@ -4,6 +4,17 @@ Se actualiza en cada frontera de versión (tag `vX.Y`). Formato inspirado en Kee
 
 ## [Unreleased]
 
+### Added
+- **Tool calling genérico** (`@curio/core`): contrato `LlmTool`/`LlmToolCall` + `runToolLoop`, y
+  `completeWithTools`/`completeWithToolsStream` en los cerebros OpenAI-compatible (Groq, DeepSeek)
+  y Ollama. Un fallo de tool se devuelve al modelo como resultado (la respuesta nunca se rompe).
+- **Registro de tools enchufable** (`apps/web/src/tools/`): contrato `ToolModule` (toggle, tools,
+  executor, efecto visual) + registro que el chat consume de forma genérica.
+- **Módulo Excalidraw** (`apps/web/src/mcp/excalidrawTools.ts`): el modelo puede dibujar diagramas
+  inline en el chat vía MCP (`read_me` → `create_view`). Toggle con `VITE_EXCALIDRAW` (por defecto
+  activado). En `exp/mcp-app` (experimento).
+- **`/?mcp-app`** — superficie de host MCP Apps para probar Excalidraw aislado (experimento).
+
 ## [v1.0] — 2026-07-21 — Chat "poquito → más" + UI generativa
 El chat, bien hecho: clic → popover pequeño (el *vistazo*); **"Ver más"** → **modal** donde vive la
 **UI generativa**. El modelo elige un componente de un catálogo fijo y lo **rellena en JSON validado

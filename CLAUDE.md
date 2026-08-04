@@ -45,6 +45,14 @@ catálogo que el modelo elige y rellena) en vez de texto plano.
   la puerta a la **UI generativa de nivel 3** (el modelo autora la interfaz — ver
   `docs/niveles-generativos.md`), que un modelo pequeño local no da con calidad. Las descripciones
   serán **personalizadas para el usuario** (generadas), no genéricas.
+- **Tool calling (experimental, rama `exp/mcp-app`):** Curio tiene un **bucle de tools genérico**
+  (`@curio/core`, `runToolLoop` + `completeWithTools`/`completeWithToolsStream`) y un **registro de
+  tools enchufable** en `apps/web/src/tools/`. Excalidraw es el primer módulo
+  (`apps/web/src/mcp/excalidrawTools.ts`): el modelo puede dibujar diagramas inline en el chat vía
+  MCP (`read_me` → `create_view`), con toggle `VITE_EXCALIDRAW` (por defecto activado) y degradación
+  elegante (si la tool falla, el modelo responde en texto). **Añadir una tool nueva = implementar un
+  `ToolModule` y registrarlo**; el chat no se toca. Detalle en `EXPERIMENTS.md` y
+  `docs/ARCHITECTURE.md §6b`. No está fundido a `main`.
 
 ## Flujo de trabajo con git — IMPORTANTE
 

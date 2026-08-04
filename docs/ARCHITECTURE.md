@@ -211,6 +211,54 @@ POST /ollama/api/chat
 
 ---
 
+## 6b. Tool calling (generic) + pluggable tool modules
+
+Curio lets the model **call tools** mid-conversation, and treats each capability as a **pluggable
+module** on top of a generic loop — the chat never knows which tools exist.
+
+### Core: the tool loop (provider-agnostic)
+
+`@curio/core/src/llm/tools.ts` defines the contract and the loop:
+
+- `LlmTool` (name + description + input JSON Schema), `LlmToolCall` (id, name, parsed arguments).
+- `runToolLoop`: ask the model → run any requested tools → feed results back → repeat until the
+  model answers without tools (guarded by `maxIterations`). **A failing tool never kills the
+  reply**: its error is returned to the model as a tool result, so it can answer in text.
+- The brain seam (`LlmProvider`) gained `completeWithTools` and `completeWithToolsStream` —
+  implemented by the **OpenAI-compatible** provider (Groq, DeepSeek; streams `delta.tool_calls`
+  fragmented by `index`) and by **Ollama**. Chrome AI (Gemini Nano) has no tool loop yet, so
+  surfaces feature-detect with `provider.completeWithToolsStream` / `completeWithTools`.
+
+### Web app: the tool registry
+
+`apps/web/src/tools/` is where tools plug in:
+
+```
+tools/
+├─ types.ts        → ToolModule contract: id, enabled, tools, systemPrompt, execute, collectEffect
+├─ registry.ts     → the list of modules + helpers the chat consumes
+└─ ToolEffects.tsx → renders each module's visual effect (switch on effect.kind)
+```
+
+A `ToolModule` bundles its own toggle (`enabled`, e.g. from an env flag), the `LlmTool`s it exposes,
+an optional system-prompt block, an executor, and a `collectEffect()` that hands any visual output
+to the message. The chat (`useChat`) only calls `getEnabledTools()`, `getToolsSystemPrompt()`,
+`executeEnabledTool()` and `collectToolEffects()`.
+
+### Excalidraw as the first module
+
+`apps/web/src/mcp/excalidrawTools.ts` implements the `ToolModule` for Excalidraw: it exposes
+`read_me` (the official element-format reference, as the repo instructs) and `create_view` (the UI
+tool), executed against the MCP server through the same-origin `/excalidraw-mcp` Vite dev proxy
+(no CORS). `create_view` stores the rendered diagram, which `collectEffect()` hands to the chat as
+an `excalidraw-diagram` effect rendered inline by `ExcalidrawView`. Enabled by default; turn it off
+with `VITE_EXCALIDRAW=false`.
+
+**Adding a new tool =** implement a `ToolModule`, register it in `registry.ts`, add its effect case
+in `ToolEffects.tsx`. No chat code changes.
+
+---
+
 ## 7. Suggested repo folder structure
 
 ```

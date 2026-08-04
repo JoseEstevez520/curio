@@ -84,6 +84,12 @@ context. Every word is clickable, whether the reply is prose or, as here, compos
   hand-writes markup into the page. _The screenshots throughout are taken with **Gen UI** on._
 - 🧠 **A pluggable brain.** Runs on **Ollama** (local) or any **OpenAI-compatible API** with your
   own key (Groq, OpenRouter, LocalAI, your own server…) — swap freely.
+- 🧰 **Tool calling, pluggable.** The model can call tools mid-conversation through a **generic
+  tool registry** — and Curio ships one module already: **Excalidraw**. Ask for a visual
+  explanation and the model decides itself whether to draw a diagram (calling `read_me` then
+  `create_view` through the MCP server) and renders it **inline in the chat**. Each tool module is
+  a small pluggable unit — own toggle, own executor, own visual effect — so adding a new one is
+  just registering a module. Enable/disable Excalidraw with `VITE_EXCALIDRAW` in `.env`.
 - 🌗 **Light and dark themes**, following your system or forced by hand.
 - 🫧 **A living mascot.** Curio breathes, follows your cursor with its eyes, travels from center
   stage to the header when the conversation starts, focuses while it thinks, and pops on a
@@ -130,6 +136,32 @@ the eight planets, and for a line chart plus a donut when the answer is a trend 
 <img src="docs/media/gen-ui-chart.png" alt="Gen UI mode: a line chart of world population growth and a donut of the urban share" width="49%" />
 
 </div>
+
+## Visual explanations with Excalidraw
+
+Curio has **generic tool calling**, and the first tool module on top of it is **Excalidraw**. Ask
+for a visual explanation — "explain how an API works" — and the model decides on its own whether a
+diagram helps. If it does, it calls the Excalidraw tools itself:
+
+1. **`read_me`** — pulls the official element-format reference from the MCP server.
+2. **`create_view`** — sends the diagram elements; Excalidraw renders it.
+
+The diagram appears **inline in the chat message**, right under the reply. Text still streams as the
+model thinks (streaming tool calls), so you're not left staring at a spinner.
+
+It's a **pluggable module**, not something hardwired into the chat:
+
+```
+apps/web/src/tools/          the tool contract + registry (how tools plug in)
+apps/web/src/mcp/            the Excalidraw module (its tools, executor, effect)
+```
+
+Adding another tool (a chart, a mind-map…) = implement the `ToolModule` contract and register it —
+the chat loop never changes.
+
+> **Requirements:** Excalidraw needs the MCP endpoint reachable. In dev, Vite proxies
+> `/excalidraw-mcp` → `mcp.excalidraw.com` (no CORS). A static production build would need its own
+> proxy to the MCP server.
 
 ## Quick start
 
@@ -188,6 +220,15 @@ error.
 > into the bundle at build time, so treat them as dev-only and **never** ship a production build
 > with a real key baked in.
 
+### Optional: Excalidraw on/off
+
+The Excalidraw visualization tools are **enabled by default**. To turn them off (chat answers in
+text only), add to `.env.local`:
+
+```ini
+VITE_EXCALIDRAW=false
+```
+
 ### Other scripts
 
 | Script              | What it does                          |
@@ -199,8 +240,9 @@ error.
 | `npm run typecheck` | TypeScript type checking              |
 | `npm run build:ext` | Build the browser extension           |
 
-Two extra surfaces live behind URL flags, handy while working on the catalog:
-**`/?gallery`** renders every component at once, **`/?openui`** is a bare composition playground.
+Two extra surfaces live behind URL flags, handy while working on the catalog and the tool layer:
+**`/?gallery`** renders every component at once, **`/?openui`** is a bare composition playground,
+**`/?mcp-app`** is the Excalidraw MCP host spike.
 
 ## How it works under the hood
 
@@ -227,12 +269,18 @@ The rest of the pieces:
 - **Follow-ups stay in the format.** A follow-up answer must come back as components too; if the
   brain replies in prose, Curio retries once with the format contract and, as a last resort, wraps
   the prose in a component itself — so the answer always renders, and its words stay clickable.
+- **Generic tool calling.** `@curio/core` ships a provider-agnostic tool loop (`LlmTool`,
+  `runToolLoop`, `completeWithTools`/`completeWithToolsStream` on the OpenAI-compatible and Ollama
+  brains). On top sits a **tool registry** in the web app: every tool is a pluggable `ToolModule`
+  with its own toggle, executor and visual effect. A failing tool never kills the reply — the
+  error is handed back to the model, which answers in text.
 - **Monorepo.** The "click → description" lives in a **portable core** shared across surfaces:
 
   ```
   packages/core   @curio/core — the engine: brain seam (Ollama / OpenAI-compat), Zod catalog,
-                  prompts, two-stage generation, tokenizer.
-  apps/web        The web app (chat + Read mode). Consumes @curio/core.
+                  prompts, two-stage generation, tokenizer, generic tool calling.
+  apps/web        The web app (chat + Read mode). Consumes @curio/core. Tool registry + Excalidraw
+                  module live here (apps/web/src/tools, apps/web/src/mcp).
   apps/extension  Browser extension (MV3): click → description on any page.
   ```
 
@@ -267,6 +315,9 @@ never from a shadow. The full system lives in [`docs/DESIGN.md`](docs/DESIGN.md)
   a validated component catalog.
 - ✅ **Explorable explanations** — the panel is a surface of its own: click deeper, breadcrumb back,
   ask follow-ups in place, all still composed.
+- 🧪 **Experiment (`exp/mcp-app`): tool calling + Excalidraw** — generic tool-calling in the brain
+  seam, a pluggable tool registry, and Excalidraw as the first module (diagrams drawn inline in the
+  chat). See `EXPERIMENTS.md`. Not yet merged to `main`.
 - 🔜 **Next** — **entity detection** and idle **prefetch** beyond the current one, so the very first
   click feels instant.
 - 🔭 **Where it's headed:** **level-3 Gen UI** — the model authoring the interface, not just filling
