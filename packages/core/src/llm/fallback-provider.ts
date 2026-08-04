@@ -1,5 +1,6 @@
 import { OpenAIError } from './openai-provider';
 import type { CompletionRequest, LlmProvider } from './provider';
+import type { ToolCompletionRequest, ToolCompletionResponse } from './tools';
 
 /**
  * Whether an error is worth trying the next provider for. Rate limits (429) and server errors
@@ -60,5 +61,25 @@ export class FallbackProvider implements LlmProvider {
         if (started || i === this.providers.length - 1 || !isRetriable(e)) throw e;
       }
     }
+  }
+
+  async completeWithTools(req: ToolCompletionRequest): Promise<ToolCompletionResponse> {
+    let lastError: unknown;
+    for (let i = 0; i < this.providers.length; i++) {
+      const provider = this.providers[i];
+      if (!provider.completeWithTools) continue;
+      try {
+        return await provider.completeWithTools(req);
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') throw e;
+        lastError = e;
+        if (i === this.providers.length - 1 || !isRetriable(e)) throw e;
+      }
+    }
+    // No provider in the chain supports tools.
+    throw (
+      lastError ??
+      new Error('Ningún proveedor del fallback soporta tool-calling en este momento.')
+    );
   }
 }

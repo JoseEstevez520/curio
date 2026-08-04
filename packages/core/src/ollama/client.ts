@@ -5,6 +5,7 @@
 // CORS and no user configuration. Browser-side only.
 
 import type { ChatMessage, ChatParams, OllamaFormat } from './types';
+import type { LlmTool, LlmToolCall } from '../llm/tools';
 
 /**
  * Base prefix for every Ollama request. Configurable so the same core works on any surface:
@@ -85,11 +86,16 @@ interface ChatRequestBody {
   format?: OllamaFormat;
   keep_alive?: string;
   options?: { temperature?: number; num_predict?: number };
+  tools?: OllamaTool[];
 }
 
 /** A single NDJSON chunk from `/api/chat` (fields we care about). */
 interface ChatStreamChunk {
-  message?: { role?: string; content?: string };
+  message?: {
+    role?: string;
+    content?: string;
+    tool_calls?: OllamaToolCall[];
+  };
   done?: boolean;
 }
 
@@ -104,6 +110,9 @@ function buildChatBody(params: ChatParams, stream: boolean): ChatRequestBody {
   }
   if (params.keepAlive !== undefined) {
     body.keep_alive = params.keepAlive;
+  }
+  if (params.tools !== undefined) {
+    body.tools = params.tools.map(toOllamaTool);
   }
   if (params.temperature !== undefined || params.numPredict !== undefined) {
     body.options = {};
@@ -207,4 +216,85 @@ export async function chat(params: ChatParams): Promise<string> {
     text += delta;
   }
   return text;
+}
+
+// ---------------------------------------------------------------------------
+// Tool calling (Ollama `/api/chat` `tools` field)
+// ---------------------------------------------------------------------------
+
+/** Ollama's wire shape for a tool the model may call. */
+interface OllamaTool {
+  type: 'function';
+  function: { name: string; description: string; parameters: Record<string, unknown> };
+}
+
+/** Ollama's wire shape for a requested tool call. */
+export interface OllamaToolCall {
+  function?: { name?: string; arguments?: unknown };
+}
+
+/** Run one tool-calling turn against Ollama and return the assistant reply + requested calls. */
+export async function chatWithTools(params: {
+  model: string;
+  messages: ChatMessage[];
+  tools: LlmTool[];
+  temperature?: number;
+  keepAlive?: string;
+  signal?: AbortSignal;
+}): Promise<{ content: string; toolCalls: LlmToolCall[] }> {
+  const response = await ollamaFetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      buildChatBody(
+        {
+          model: params.model,
+          messages: params.messages,
+          tools: params.tools,
+          temperature: params.temperature,
+          keepAlive: params.keepAlive,
+          signal: params.signal,
+        },
+        false,
+      ),
+    ),
+    signal: params.signal,
+  });
+
+  const json = (await response.json().catch(() => null)) as {
+    message?: { content?: string; tool_calls?: OllamaToolCall[] };
+  } | null;
+
+  return {
+    content: json?.message?.content ?? '',
+    toolCalls: (json?.message?.tool_calls ?? []).flatMap(parseOllamaToolCall),
+  };
+}
+
+/** Convert a Curio {@link LlmTool} to Ollama's wire shape. */
+function toOllamaTool(tool: LlmTool): OllamaTool {
+  return {
+    type: 'function',
+    function: { name: tool.name, description: tool.description, parameters: tool.inputSchema },
+  };
+}
+
+/** Parse one Ollama tool call into a Curio {@link LlmToolCall}. */
+function parseOllamaToolCall(raw: OllamaToolCall): LlmToolCall[] {
+  const name = raw.function?.name;
+  if (typeof name !== 'string') return [];
+  const id = `call_${Math.random().toString(36).slice(2, 10)}`;
+  const argsRaw = raw.function?.arguments;
+  let args: Record<string, unknown> = {};
+  if (typeof argsRaw === 'string') {
+    try {
+      const parsed = JSON.parse(argsRaw);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) args = parsed;
+    } catch {
+      // malformed — surface as empty so the executor reports the real error
+    }
+  } else if (argsRaw && typeof argsRaw === 'object') {
+    args = argsRaw as Record<string, unknown>;
+  }
+  return [{ id, name, arguments: args }];
 }

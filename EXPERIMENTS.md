@@ -28,6 +28,13 @@ tandas sean comparables.
   `json_object`** cuando el endpoint no soporta `json_schema` (DeepSeek devuelve `400
   unavailable`), y el parser de elementos acepta array, objeto con `elements` o el JSON Lines
   indentado que produce DeepSeek.
+- **Evolución (2026-08-04): tool-calling real.** Curio ahora tiene **tool-calling genérico** en
+  `@curio/core`: `LlmTool`/`LlmToolCall`, `runToolLoop`, y `completeWithTools` en los providers
+  OpenAI-compatible (Groq, DeepSeek) y Ollama. Excalidraw pasó a ser una **capa modular encima**
+  (`excalidrawTools.ts`): registra `read_me` + `create_view` como tools y un ejecutor que las corre
+  contra el MCP. El chat detecta `provider.completeWithTools` y, cuando aplica, el modelo decide
+  SOLO si dibujar (sin botón); el diagrama se renderiza inline vía `ExcalidrawView`. El botón
+  `ExcalidrawExplanation` se mantiene como respaldo en la demo.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en

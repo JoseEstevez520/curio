@@ -1,5 +1,6 @@
 import type { ChatMessage } from '../ollama/types';
 import type { CompletionRequest, LlmProvider } from './provider';
+import type { LlmTool, LlmToolCall, ToolCompletionRequest, ToolCompletionResponse } from './tools';
 
 /**
  * A pluggable cloud brain speaking the OpenAI Chat Completions API — the shape Groq, LocalAI,
@@ -242,6 +243,74 @@ export class OpenAICompatibleProvider implements LlmProvider {
       reader.releaseLock();
     }
   }
+
+  /**
+   * Tool-calling completion. Sends the conversation with the model's available tools and returns
+   * any tool calls the model requested (the caller runs them and feeds results back via
+   * `runToolLoop`). Uses `tools` + `tool_choice: 'auto'` on the OpenAI-compatible API.
+   */
+  async completeWithTools(req: ToolCompletionRequest): Promise<ToolCompletionResponse> {
+    const body = {
+      model: this.model,
+      messages: toOpenAIMessages(req.messages),
+      tools: toOpenAITools(req.tools),
+      tool_choice: 'auto' as const,
+      stream: false,
+      ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
+      ...(req.maxTokens !== undefined ? { max_tokens: req.maxTokens } : {}),
+    };
+
+    const response = await this.postJson(body, req.signal);
+    const json = (await response.json().catch(() => null)) as {
+      choices?: { message?: { content?: string; tool_calls?: unknown[] } }[];
+    } | null;
+    const message = json?.choices?.[0]?.message;
+    return {
+      content: message?.content ?? '',
+      toolCalls: (message?.tool_calls ?? []).flatMap(parseOpenAIToolCall),
+    };
+  }
+
+  /**
+   * Plain POST with the same key rotation + error shaping as {@link post}, but without the
+   * JSON-schema body logic — used by tool-calling requests.
+   */
+  private async postJson(body: Record<string, unknown>, signal?: AbortSignal): Promise<Response> {
+    const maxAttempts = this.apiKeys.length + 1;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      let response: Response;
+      try {
+        response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: this.headers(),
+          body: JSON.stringify(body),
+          signal,
+        });
+      } catch (cause) {
+        if (cause instanceof DOMException && cause.name === 'AbortError') throw cause;
+        throw new OpenAIError('Could not reach the model endpoint. Check the base URL / network.', {
+          cause,
+        });
+      }
+      if (response.status === 429 && this.rotateKey()) continue;
+      if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        const hint =
+          response.status === 401
+            ? ' — check your API key.'
+            : response.status === 404
+              ? ' — check the model id / base URL.'
+              : response.status === 429
+                ? ' — rate limited on all keys.'
+                : '';
+        throw new OpenAIError(`API returned HTTP ${response.status}${hint} ${detail}`.trim(), {
+          status: response.status,
+        });
+      }
+      return response;
+    }
+    throw new OpenAIError('Rate limited on all API keys.', { status: 429 });
+  }
 }
 
 export interface ListModelsConfig {
@@ -277,4 +346,53 @@ export async function listOpenAIModels(cfg: ListModelsConfig): Promise<string[]>
     .map((m) => m.id)
     .filter((id): id is string => typeof id === 'string' && id.length > 0)
     .sort((a, b) => a.localeCompare(b));
+}
+
+// ---------------------------------------------------------------------------
+// Tool-calling wire format conversion (provider-agnostic <-> OpenAI-compatible)
+// ---------------------------------------------------------------------------
+
+/** Convert Curio messages (role: 'tool' with toolCallId, assistant with toolCalls) to the
+ *  OpenAI message shape (`tool_calls` + `tool_call_id`). */
+function toOpenAIMessages(messages: ToolCompletionRequest['messages']): Record<string, unknown>[] {
+  return messages.map((message) => {
+    if (message.role === 'tool') {
+      return { role: 'tool', tool_call_id: message.toolCallId, content: message.content };
+    }
+    const base: Record<string, unknown> = { role: message.role, content: message.content };
+    if (message.toolCalls?.length) {
+      base.tool_calls = message.toolCalls.map((call) => ({
+        id: call.id,
+        type: 'function',
+        function: { name: call.name, arguments: JSON.stringify(call.arguments) },
+      }));
+    }
+    return base;
+  });
+}
+
+/** Convert Curio {@link LlmTool}s to the OpenAI `tools` array. */
+function toOpenAITools(tools: LlmTool[]): Record<string, unknown>[] {
+  return tools.map((tool) => ({
+    type: 'function',
+    function: { name: tool.name, description: tool.description, parameters: tool.inputSchema },
+  }));
+}
+
+/** Parse one OpenAI `tool_calls` entry into a Curio {@link LlmToolCall}. */
+function parseOpenAIToolCall(raw: unknown): LlmToolCall[] {
+  if (typeof raw !== 'object' || raw === null) return [];
+  const call = raw as { id?: unknown; function?: { name?: unknown; arguments?: unknown } };
+  if (typeof call.function?.name !== 'string') return [];
+  const id = typeof call.id === 'string' ? call.id : `call_${Math.random().toString(36).slice(2, 10)}`;
+  let args: Record<string, unknown> = {};
+  if (typeof call.function.arguments === 'string') {
+    try {
+      const parsed = JSON.parse(call.function.arguments);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) args = parsed;
+    } catch {
+      // malformed arguments — surface as empty so the executor reports the real error
+    }
+  }
+  return [{ id, name: call.function.name, arguments: args }];
 }

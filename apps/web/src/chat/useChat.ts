@@ -1,9 +1,11 @@
 import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
-import { OllamaError, OpenAIError } from '@curio/core';
+import { OllamaError, OpenAIError, runToolLoop } from '@curio/core';
+import type { ChatMessageLike, LlmToolCall } from '@curio/core';
 import { CHAT_SYSTEM_PROMPT } from '@curio/core';
 import { getBrain } from '../llm/brain';
 import { openUIChatSystemPrompt } from '../openui/chatPrompt';
+import { excalidrawTools, executeExcalidrawTool, consumeLastDrawn, DIAGRAM_REFERENCE } from '../mcp/excalidrawTools';
 
 /** Turn an unknown thrown value into a short, user-facing message. */
 export function describeError(e: unknown): string {
@@ -33,19 +35,44 @@ export function useSendMessage() {
       return;
     }
 
+    // System prompt: the base prompt, plus the distilled Excalidraw format so the model knows how
+    // to emit elements if it decides to draw. The full sheet still comes from `read_me` at call time.
+    const systemPrompt = `${genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT}
+
+## Excalidraw (optional visualization)
+When asked to explain something visually, you may call the Excalidraw tools. Call read_me first, then create_view with the elements. Element format:
+${DIAGRAM_REFERENCE}`;
+
     try {
-      const messages = toChatMessages(
-        history,
-        genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT,
-      );
-      // Stream when the brain supports it (Ollama, Groq both do); otherwise render at once.
+      const messages = toChatMessages(history, systemPrompt);
+
+      // Tool-calling path: the provider exposes tools (Groq, DeepSeek, Ollama). The model decides
+      // itself whether to draw. Excalidraw is one modular layer on top of the generic loop.
+      if (provider.completeWithTools) {
+        const base: ChatMessageLike[] = messages.map((m) => ({ role: m.role, content: m.content }));
+        const { content } = await runToolLoop(
+          (loopMessages) =>
+            provider.completeWithTools!({ messages: loopMessages, tools: excalidrawTools, temperature: 0.2 }),
+          {
+            messages: base,
+            executeTool: async (call: LlmToolCall) => executeExcalidrawTool(call),
+          },
+        );
+        const diagram = consumeLastDrawn();
+        useChatStore.getState().appendToMessage(assistantId, content);
+        if (diagram) useChatStore.getState().setMessageDiagram(assistantId, diagram);
+        useChatStore.getState().finishMessage(assistantId);
+        return;
+      }
+
+      // Legacy streaming path (providers without tools): stream tokens like before.
       if (provider.completeStream) {
         for await (const delta of provider.completeStream({ messages })) {
           useChatStore.getState().appendToMessage(assistantId, delta);
         }
       } else {
-        const text = await provider.complete({ messages });
-        useChatStore.getState().appendToMessage(assistantId, text);
+        const out = await provider.complete({ messages });
+        useChatStore.getState().appendToMessage(assistantId, out);
       }
       useChatStore.getState().finishMessage(assistantId);
     } catch (e) {

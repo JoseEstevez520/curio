@@ -2,14 +2,21 @@
 //
 // Everything here is browser-safe (no Node APIs). The client talks to the local
 // Ollama daemon through the same-origin `/ollama` proxy configured in vite.config.ts.
+// (The LlmToolCall import is type-only, so this file stays emit-safe for browser builds.)
+
+import type { LlmTool, LlmToolCall } from '../llm/tools';
 
 /** Role of a single message in a chat conversation. */
-export type ChatRole = 'system' | 'user' | 'assistant';
+export type ChatRole = 'system' | 'user' | 'assistant' | 'tool';
 
 /** One turn in a chat conversation sent to / received from Ollama. */
 export interface ChatMessage {
   role: ChatRole;
   content: string;
+  /** Present on assistant messages that requested tool calls. */
+  toolCalls?: LlmToolCall[];
+  /** Present on `role: 'tool'` messages, matching the call they answer. */
+  toolCallId?: string;
 }
 
 /**
@@ -59,6 +66,8 @@ export interface ChatParams {
   keepAlive?: string;
   /** Constrain output to JSON / a JSON Schema (Ollama structured output). */
   format?: OllamaFormat;
+  /** Tools the model may call (tool-calling turn). */
+  tools?: LlmTool[];
   /** Abort signal to cancel the request (and stop the underlying stream). */
   signal?: AbortSignal;
 }

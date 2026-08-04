@@ -6,13 +6,15 @@
 // configurable via `configureOllama` so each surface points it at the right place.
 
 // Pluggable "brain": the provider seam, its impls (Ollama local, OpenAI-compatible cloud like
-// Groq, Chrome built-in Gemini Nano), and the factory that picks one from a plain config.
+// Groq, Chrome built-in Gemini Nano), the factory that picks one from a plain config, and the
+// tool-calling contract (generic tools + runToolLoop).
 export * from './llm/provider';
 export * from './llm/ollama-provider';
 export * from './llm/openai-provider';
 export * from './llm/chrome-ai-provider';
 export * from './llm/fallback-provider';
 export * from './llm/factory';
+export * from './llm/tools';
 
 // Motion tokens (shared-element morph, fades).
 export * from './motion';

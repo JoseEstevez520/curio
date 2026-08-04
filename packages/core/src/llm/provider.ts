@@ -1,4 +1,5 @@
 import type { ChatMessage, OllamaFormat } from '../ollama/types';
+import type { ToolCompletionRequest, ToolCompletionResponse } from './tools';
 
 /**
  * One completion request, provider-agnostic. `format` optionally constrains the output to
@@ -13,6 +14,9 @@ export interface CompletionRequest {
   maxTokens?: number;
   signal?: AbortSignal;
 }
+
+export type { LlmTool, LlmToolCall, LlmToolResult, ToolCompletionRequest, ToolCompletionResponse } from './tools';
+export { runToolLoop } from './tools';
 
 /**
  * A pluggable "brain": anything that can complete a chat, optionally under a JSON-Schema
@@ -31,4 +35,10 @@ export interface LlmProvider {
    * {@link complete} and render the whole answer at once.
    */
   completeStream?(req: CompletionRequest): AsyncGenerator<string>;
+  /**
+   * Optional tool-calling. When implemented, the model can request tool calls mid-conversation
+   * and the caller feeds results back via `runToolLoop`. Absent on providers without a tool
+   * loop yet (e.g. Gemini Nano); surfaces feature-detect with `provider.completeWithTools`.
+   */
+  completeWithTools?(req: ToolCompletionRequest): Promise<ToolCompletionResponse>;
 }

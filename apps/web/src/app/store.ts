@@ -46,6 +46,8 @@ export interface Message {
   error?: string;
   /** True when `content` is OpenUI Lang (a composed-components reply), not markdown text. */
   generative?: boolean;
+  /** When the reply includes a diagram rendered by Excalidraw, the data to mount it inline. */
+  diagram?: { viewHtml: string; elements: unknown[] };
 }
 
 /** A cached / in-flight term description, keyed by `${messageId} ${term}`. */
@@ -150,6 +152,8 @@ interface ChatState {
   appendToMessage: (id: string, delta: string) => void;
   finishMessage: (id: string) => void;
   failMessage: (id: string, error: string) => void;
+  /** Attach a rendered diagram (Excalidraw) to an assistant message. */
+  setMessageDiagram: (id: string, diagram: Message['diagram']) => void;
 
   setSelection: (selection: Selection | null) => void;
   /** Grow the popover into the modal, or shrink it back to the popover. */
@@ -295,6 +299,11 @@ export const useChatStore = create<ChatState>((set) => ({
   failMessage: (id, error) =>
     set((s) => ({
       messages: s.messages.map((m) => (m.id === id ? { ...m, streaming: false, error } : m)),
+    })),
+
+  setMessageDiagram: (id, diagram) =>
+    set((s) => ({
+      messages: s.messages.map((m) => (m.id === id ? { ...m, diagram } : m)),
     })),
 
   // A new (or cleared) selection always starts collapsed — the modal never survives
