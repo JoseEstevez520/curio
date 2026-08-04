@@ -21,8 +21,10 @@ tandas sean comparables.
   `AppBridge` con `PostMessageTransport`. Después envía un diagrama mínimo y reenvía el resultado
   de `create_view` a la View. Como siguiente paso del spike, `Message.tsx` expone la acción
   **Visualizar con Excalidraw** en las respuestas del chat. `ExcalidrawExplanation.tsx` llama primero
-  a `read_me`, pasa sus instrucciones oficiales al cerebro activo para convertir la explicación en
-  elementos JSON y reutiliza la conexión para ejecutar `create_view`.
+  a `read_me`, pasa una guía compacta del formato al cerebro activo para convertir la explicación en
+  elementos JSON y reutiliza la conexión para ejecutar `create_view`. El provider OpenAI-compatible
+  usa `response_format: json_schema` (con array en la raíz) porque `json_object` falla en Groq con
+  `400 json_validate_failed` cuando la respuesta debe ser un array.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en

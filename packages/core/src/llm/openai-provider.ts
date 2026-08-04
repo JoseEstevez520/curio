@@ -48,7 +48,7 @@ interface ChatCompletionBody {
   stream: boolean;
   temperature?: number;
   max_tokens?: number;
-  response_format?: { type: 'json_object' };
+  response_format?: { type: 'json_object' } | { type: 'json_schema'; json_schema: { name: string; schema: unknown } };
 }
 
 export class OpenAICompatibleProvider implements LlmProvider {
@@ -99,15 +99,23 @@ export class OpenAICompatibleProvider implements LlmProvider {
     if (req.temperature !== undefined) body.temperature = req.temperature;
     if (req.maxTokens !== undefined) body.max_tokens = req.maxTokens;
     if (req.format !== undefined) {
-      body.response_format = { type: 'json_object' };
-      messages = [
-        ...req.messages,
-        {
-          role: 'system',
-          content: 'Respond with ONE valid JSON object only — no prose, no markdown fences.',
-        },
-      ];
-      body.messages = messages;
+      // Prefer structured-output JSON Schema when a schema is available (e.g. a catalog envelope or
+      // an Excalidraw elements array): Groq rejects `json_object` when the response needs an array
+      // at the root (400 json_validate_failed). A schema guarantees the shape. The string form
+      // ('json') still falls back to plain JSON mode.
+      if (typeof req.format === 'object') {
+        body.response_format = { type: 'json_schema', json_schema: { name: 'structured', schema: req.format } };
+      } else {
+        body.response_format = { type: 'json_object' };
+        messages = [
+          ...req.messages,
+          {
+            role: 'system',
+            content: 'Respond with ONE valid JSON object only — no prose, no markdown fences.',
+          },
+        ];
+        body.messages = messages;
+      }
     }
     return body;
   }

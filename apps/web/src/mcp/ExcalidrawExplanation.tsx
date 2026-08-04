@@ -9,13 +9,42 @@ import { getBrain } from '../llm/brain';
 const MCP_PATH = '/excalidraw-mcp';
 const RESOURCE_URI = 'ui://excalidraw/mcp-app.html';
 
+const DIAGRAM_REFERENCE = [
+  'Excalidraw element format:',
+  '- cameraUpdate: { type: "cameraUpdate", width, height, x, y } — use 4:3 sizes only (400x300, 600x450, 800x600, 1200x900, 1600x1200). Put it FIRST.',
+  '- rectangle: { type: "rectangle", id, x, y, width, height, roundness:{type:3}, backgroundColor, fillStyle:"solid" }',
+  '- ellipse: { type: "ellipse", id, x, y, width, height, backgroundColor, fillStyle:"solid" }',
+  '- diamond: { type: "diamond", id, x, y, width, height, backgroundColor, fillStyle:"solid" }',
+  '- text: { type: "text", id, x, y, text, fontSize } — x is the LEFT edge; estimate width as text.length * fontSize * 0.5.',
+  '- arrow: { type: "arrow", id, x, y, width, height, points:[[0,0],[dx,dy]], endArrowhead:"arrow", startBinding:{elementId,fixedPoint}, endBinding:{elementId,fixedPoint} }',
+  '- Every drawn element needs a unique id and x, y, width, height.',
+  '- Emit progressively: background, then per node shape -> its label text -> its arrows.',
+  '- Font sizes: minimum 16 for labels, 20 for headings, never below 14.',
+  '- Minimum shape size: 120x60. Leave 20-30px gaps. Prefer fewer, larger elements.',
+  '- Canvas background is white; use pastel fills (#a5d8ff, #b2f2bb, #ffd8a8, #d0bfff, #ffc9c9, #fff3bf).',
+  '- Do not use emoji in text.',
+].join('\n');
+
 const DIAGRAM_FORMAT = {
-  type: 'object',
-  properties: {
-    elements: { type: 'array', items: { type: 'object' } },
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      type: { type: 'string' },
+      id: { type: 'string' },
+      x: { type: 'number' },
+      y: { type: 'number' },
+      width: { type: 'number' },
+      height: { type: 'number' },
+      text: { type: 'string' },
+      points: { type: 'array', items: { type: 'array', items: { type: 'number' } } },
+      backgroundColor: { type: 'string' },
+      fontSize: { type: 'number' },
+      endArrowhead: { type: ['string', 'null'] },
+    },
+    required: ['type', 'id', 'x', 'y', 'width', 'height'],
+    additionalProperties: true,
   },
-  required: ['elements'],
-  additionalProperties: false,
 };
 
 function extractJson(value: string): unknown[] {
@@ -91,15 +120,15 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
     bridgeRef.current?.close();
     bridgeRef.current = null;
     try {
-      const instructions = await connectMcp();
+      await connectMcp();
       const messages: ChatMessage[] = [
         {
           role: 'system',
           content:
-            `You create Excalidraw diagrams to explain a concept. Return ONLY a JSON object with an "elements" array. Follow this official reference from the Excalidraw MCP server exactly. Start with one cameraUpdate using an exact 4:3 size. Use standard Excalidraw elements, large shapes, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.
+            `You create Excalidraw diagrams to explain a concept. Return ONLY a JSON array of elements. Follow this format reference exactly. Start with one cameraUpdate using an exact 4:3 size. Use large shapes, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.
 
-OFFICIAL EXCALIDRAW MCP REFERENCE:
-${instructions.slice(0, 16000)}`,
+FORMAT REFERENCE:
+${DIAGRAM_REFERENCE}`,
         },
         {
           role: 'user',
