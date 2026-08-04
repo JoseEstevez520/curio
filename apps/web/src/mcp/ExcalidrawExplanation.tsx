@@ -42,6 +42,39 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const clientRef = useRef<Client | null>(null);
   const bridgeRef = useRef<AppBridge | null>(null);
+  const instructionsRef = useRef<string>();
+  const resourceHtmlRef = useRef<string>();
+
+  const connectMcp = async () => {
+    if (clientRef.current) {
+      if (!instructionsRef.current) throw new Error('Faltan las instrucciones de Excalidraw.');
+      return instructionsRef.current;
+    }
+
+    const client = new Client({ name: 'curio-chat', version: '0.1.0' });
+    const transport = new StreamableHTTPClientTransport(
+      new URL(MCP_PATH, window.location.origin),
+    );
+    await client.connect(transport);
+    clientRef.current = client;
+
+    const tools = await client.listTools();
+    if (!tools.tools.some((tool) => tool.name === 'read_me')) {
+      throw new Error('El servidor MCP no expone la tool read_me.');
+    }
+    const result = await client.callTool({ name: 'read_me', arguments: {} });
+    if (!('content' in result)) throw new Error('Excalidraw no devolvió sus instrucciones.');
+    const toolResult = result as CallToolResult;
+    const instructions = toolResult.content.find((item) => item.type === 'text')?.text;
+    if (!instructions) throw new Error('Excalidraw devolvió instrucciones vacías.');
+    instructionsRef.current = instructions;
+
+    const resource = await client.readResource({ uri: RESOURCE_URI });
+    const resourceHtml = resource.contents.find((content) => 'text' in content)?.text;
+    if (!resourceHtml) throw new Error('Excalidraw no devolvió su interfaz.');
+    resourceHtmlRef.current = resourceHtml;
+    return instructions;
+  };
 
   const generate = async () => {
     const brain = getBrain('chat');
@@ -53,12 +86,20 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
 
     setStatus('generating');
     setError('');
+    setElements(null);
+    setHtml(undefined);
+    bridgeRef.current?.close();
+    bridgeRef.current = null;
     try {
+      const instructions = await connectMcp();
       const messages: ChatMessage[] = [
         {
           role: 'system',
           content:
-            'You create Excalidraw diagrams to explain a concept. Return ONLY a JSON object with an "elements" array. Start with one cameraUpdate using an exact 4:3 size. Use large labeled rectangles, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.',
+            `You create Excalidraw diagrams to explain a concept. Return ONLY a JSON object with an "elements" array. Follow this official reference from the Excalidraw MCP server exactly. Start with one cameraUpdate using an exact 4:3 size. Use standard Excalidraw elements, large shapes, arrows, and short text. Every drawn element needs a unique id. No markdown, no comments.
+
+OFFICIAL EXCALIDRAW MCP REFERENCE:
+${instructions.slice(0, 16000)}`,
         },
         {
           role: 'user',
@@ -67,6 +108,7 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
       ];
       const result = await brain.provider.complete({ messages, format: DIAGRAM_FORMAT, temperature: 0.2 });
       setElements(extractJson(result));
+      setHtml(resourceHtmlRef.current);
       setStatus('loading');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'No se pudo generar el diagrama.');
@@ -75,41 +117,15 @@ export default function ExcalidrawExplanation({ explanation }: Props) {
   };
 
   useEffect(() => {
-    if (!elements) return;
-    let cancelled = false;
-    const client = new Client({ name: 'curio-chat', version: '0.1.0' });
-    clientRef.current = client;
-    const transport = new StreamableHTTPClientTransport(
-      new URL(MCP_PATH, window.location.origin),
-    );
-
-    void (async () => {
-      try {
-        await client.connect(transport);
-        const tools = await client.listTools();
-        const createView = tools.tools.find((tool) => tool.name === 'create_view');
-        const uri = (createView as { _meta?: { ui?: { resourceUri?: string } } } | undefined)?._meta?.ui
-          ?.resourceUri;
-        const resource = await client.readResource({ uri: uri ?? RESOURCE_URI });
-        const resourceHtml = resource.contents.find((content) => 'text' in content)?.text;
-        if (!resourceHtml || cancelled) throw new Error('Excalidraw no devolvió su interfaz.');
-        setHtml(resourceHtml);
-      } catch (reason) {
-        if (!cancelled) {
-          setError(reason instanceof Error ? reason.message : 'No se pudo conectar con Excalidraw.');
-          setStatus('error');
-        }
-      }
-    })();
-
     return () => {
-      cancelled = true;
       bridgeRef.current?.close();
       bridgeRef.current = null;
-      client.close();
+      void clientRef.current?.close();
       clientRef.current = null;
+      instructionsRef.current = undefined;
+      resourceHtmlRef.current = undefined;
     };
-  }, [elements]);
+  }, []);
 
   const connectView = async () => {
     const iframe = iframeRef.current;

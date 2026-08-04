@@ -20,8 +20,9 @@ tandas sean comparables.
   `ui://excalidraw/mcp-app.html`, la monta en un iframe `sandbox="allow-scripts"` y conecta
   `AppBridge` con `PostMessageTransport`. Después envía un diagrama mínimo y reenvía el resultado
   de `create_view` a la View. Como siguiente paso del spike, `Message.tsx` expone la acción
-  **Visualizar con Excalidraw** en las respuestas del chat. `ExcalidrawExplanation.tsx` pide al
-  cerebro activo que convierta la explicación en elementos JSON y ejecuta esa tool con el resultado.
+  **Visualizar con Excalidraw** en las respuestas del chat. `ExcalidrawExplanation.tsx` llama primero
+  a `read_me`, pasa sus instrucciones oficiales al cerebro activo para convertir la explicación en
+  elementos JSON y reutiliza la conexión para ejecutar `create_view`.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en
