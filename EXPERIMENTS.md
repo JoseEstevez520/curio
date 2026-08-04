@@ -24,7 +24,10 @@ tandas sean comparables.
   a `read_me`, pasa una guía compacta del formato al cerebro activo para convertir la explicación en
   elementos JSON y reutiliza la conexión para ejecutar `create_view`. El provider OpenAI-compatible
   usa `response_format: json_schema` (con array en la raíz) porque `json_object` falla en Groq con
-  `400 json_validate_failed` cuando la respuesta debe ser un array.
+  `400 json_validate_failed` cuando la respuesta debe ser un array. El provider hace **fallback a
+  `json_object`** cuando el endpoint no soporta `json_schema` (DeepSeek devuelve `400
+  unavailable`), y el parser de elementos acepta array, objeto con `elements` o el JSON Lines
+  indentado que produce DeepSeek.
 - **Números:** la conexión directa desde el navegador falla porque el servidor remoto no responde
   correctamente al preflight CORS. El proxy de Vite en `/excalidraw-mcp` evita ese bloqueo y el flujo
   completo vuelve a funcionar. El typecheck global conserva tres errores no relacionados en

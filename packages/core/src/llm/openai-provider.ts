@@ -87,6 +87,18 @@ export class OpenAICompatibleProvider implements LlmProvider {
   }
 
   /**
+   * Build the request body using JSON mode (`json_object`). Kept separate so callers can retry a
+   * `json_schema` request against providers that don't support structured output (e.g. DeepSeek).
+   */
+  private buildJsonBody(req: CompletionRequest, stream: boolean): ChatCompletionBody {
+    const body: ChatCompletionBody = { model: this.model, messages: req.messages, stream };
+    if (req.temperature !== undefined) body.temperature = req.temperature;
+    if (req.maxTokens !== undefined) body.max_tokens = req.maxTokens;
+    body.response_format = { type: 'json_object' };
+    return body;
+  }
+
+  /**
    * Build the request body. When a `format` is requested we ask for JSON mode
    * (`response_format: { type: 'json_object' }`) and — because OpenAI-compatible JSON mode
    * requires the word "json" to appear in the prompt, and guarantees valid JSON but NOT schema
@@ -121,10 +133,15 @@ export class OpenAICompatibleProvider implements LlmProvider {
   }
 
   private async post(req: CompletionRequest, stream: boolean): Promise<Response> {
-    const body = JSON.stringify(this.buildBody(req, stream));
+    const wantsSchema = typeof req.format === 'object';
     const maxAttempts = this.apiKeys.length + 1;
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    // First attempt: the ideal body (json_schema when a schema was requested).
+    let body = JSON.stringify(this.buildBody(req, stream));
+    let attempt = 0;
+    let fellBackToJson = false;
+
+    for (; attempt < maxAttempts; attempt++) {
       let response: Response;
       try {
         response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -147,6 +164,14 @@ export class OpenAICompatibleProvider implements LlmProvider {
 
       if (!response.ok) {
         const detail = await response.text().catch(() => '');
+        // Some OpenAI-compatible providers (DeepSeek) don't support `json_schema` yet. Retry once
+        // with plain JSON mode before failing — the caller still parses + validates the result.
+        if (wantsSchema && !fellBackToJson && response.status === 400 && /unavailable|not support|unsupported|response_format/i.test(detail)) {
+          body = JSON.stringify(this.buildJsonBody(req, stream));
+          fellBackToJson = true;
+          attempt = -1;
+          continue;
+        }
         const hint =
           response.status === 401
             ? ' — check your API key.'

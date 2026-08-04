@@ -49,14 +49,43 @@ const DIAGRAM_FORMAT = {
 
 function extractJson(value: string): unknown[] {
   const withoutFence = value.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-  const parsed: unknown = JSON.parse(withoutFence);
-  const elements = Array.isArray(parsed)
-    ? parsed
-    : parsed && typeof parsed === 'object' && 'elements' in parsed && Array.isArray(parsed.elements)
-      ? parsed.elements
-      : null;
-  if (!elements?.length) throw new Error('La IA no generó un diagrama válido.');
-  return elements;
+
+  // 1) Whole value is a JSON array.
+  if (withoutFence.startsWith('[')) {
+    const parsed: unknown = JSON.parse(withoutFence);
+    if (Array.isArray(parsed)) return parsed;
+  }
+
+  // 2) Whole value is an object with an "elements" array.
+  if (withoutFence.startsWith('{')) {
+    try {
+      const parsed: unknown = JSON.parse(withoutFence);
+      if (parsed && typeof parsed === 'object' && 'elements' in parsed && Array.isArray(parsed.elements)) {
+        return parsed.elements;
+      }
+    } catch {
+      // not a single object — try JSON Lines below
+    }
+  }
+
+  // 3) DeepSeek "JSON Lines": a stream of standalone `{...}` objects (may be pretty-printed and
+  //    separated by commas instead of a single JSON array). Split top-level objects and parse each.
+  const lines = withoutFence
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
+  if (lines) {
+    try {
+      const objects = lines.match(/\{.*?\}(?=\s*,?\s*(?:\{|$))/gs) ?? [];
+      const parsed: unknown[] = objects.map((object) => JSON.parse(object));
+      if (parsed.length > 0) return parsed;
+    } catch {
+      // not parseable — fall through to the error below
+    }
+  }
+
+  throw new Error('La IA no generó un diagrama válido.');
 }
 
 interface Props {
