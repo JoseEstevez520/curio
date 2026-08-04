@@ -23,9 +23,8 @@ Feedback literal: _"no noto ahora mismo ninguna animación"_, _"apenas se ve el 
 
 ## 2. El morph es sagrado — pero SUAVE, nunca agresivo.
 
-Le **encanta** el morph tipo iOS (elemento compartido que viaja): _"I am a big fan about iOS and how
-they work with the morphing"_, _"esa sensación de que todo es 3D"_. **Pero**: _"el morph es demasiado
-agresivo"_.
+Le **encanta** el morph de elemento compartido (un objeto que viaja y se transforma en otro), por
+_"esa sensación de que todo es 3D"_. **Pero**: _"el morph es demasiado agresivo"_.
 
 - **Morph estructural** (hero→cabecera, popover→modal): **lento y decelerado**, ~0.5s, curva tipo
   `cubic-bezier(0.32, 0.72, 0, 1)`, **SIN rebote/overshoot**. Un deslizamiento, no un latigazo.

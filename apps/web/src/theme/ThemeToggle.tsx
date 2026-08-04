@@ -30,8 +30,8 @@ export default function ThemeToggle() {
       type="button"
       role="switch"
       aria-checked={dark}
-      aria-label={dark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-      title={dark ? 'Tema claro' : 'Tema oscuro'}
+      aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={dark ? 'Light theme' : 'Dark theme'}
       onClick={toggle}
       className="grid h-7 w-7 place-items-center rounded-full text-fg-muted transition-colors duration-fast hover:text-fg"
     >

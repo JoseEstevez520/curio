@@ -16,43 +16,43 @@ export interface CatalogEntryMeta {
 export const CATALOG: readonly CatalogEntryMeta[] = [
   {
     type: 'plain-text',
-    title: 'Descripción',
+    title: 'Description',
     whenToUse: 'Anything that does not clearly fit a richer type. The safe default.',
   },
   {
     type: 'definition-card',
-    title: 'Definición',
+    title: 'Definition',
     whenToUse: 'A single term, word or concept that needs a concise meaning.',
   },
   {
     type: 'fact-table',
-    title: 'Datos',
+    title: 'Facts',
     whenToUse: 'A thing described by a few key/value facts (measures, dates, attributes).',
   },
   {
     type: 'timeline',
-    title: 'Cronología',
+    title: 'Timeline',
     whenToUse: 'Ordered events over time: a life, a war, a process, a history.',
   },
   {
     type: 'comparison',
-    title: 'Comparación',
+    title: 'Comparison',
     whenToUse: 'Two or more things compared attribute by attribute ("X vs Y").',
   },
   {
     type: 'steps',
-    title: 'Pasos',
+    title: 'Steps',
     whenToUse: 'An ordered how-to / instructions, or a simple list of items.',
   },
   {
     type: 'chart',
-    title: 'Gráfico',
+    title: 'Chart',
     whenToUse:
       'A few comparable QUANTITIES worth seeing as bars (sizes, populations, durations, %).',
   },
   {
     type: 'concept-diagram',
-    title: 'Mapa',
+    title: 'Map',
     whenToUse:
       'A concept whose meaning is best SEEN as a small map of how it connects to related ideas.',
   },

@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 
 // Design tokens live in src/styles/tokens.css (see docs/DESIGN.md). Here we expose
 // the most useful ones as Tailwind utilities that map to the CSS variables, so
-// theme switching stays driven by the cascade. Monochrome, Linear-inspired.
+// theme switching stays driven by the cascade. Monochrome.
 // No boxShadow utilities are defined anywhere in Curio (see docs/DESIGN.md §5).
 export default {
   content: [

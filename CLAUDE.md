@@ -30,7 +30,7 @@ catálogo que el modelo elige y rellena) en vez de texto plano.
 
 - Responde **en español** y con lenguaje **llano**, con analogías cuando ayude. Nada de jerga
   salvo que se pida el detalle técnico.
-- **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia, tipo Linear,
+- **Estilo del producto (sagrado):** monocromo/blanco y negro, tipografía limpia,
   **sin sombras** ni cajas flotantes — jerarquía con espacio y filetes de 1px. Ver `docs/DESIGN.md`.
 - **Restricción técnica (sagrada, actualizada):** el "cerebro" es **enchufable por superficie** y
   **local por defecto**. **Ollama** en web y escritorio; en la **extensión**, el **modelo integrado

@@ -46,7 +46,7 @@ function mergeIntoLines(rects: DOMRect[]): LineRect[] {
  * cleared on mouse-up (see MarkdownMessage), so this is the only band on screen.
  *
  * Exported on its own so DescribeModal can paint the SAME band for selections made
- * inside the "Ver más" modal (which keeps its own local selection state).
+ * inside the "See more" modal (which keeps its own local selection state).
  */
 export function PhraseBand({ range, zIndex }: { range: Range | null; zIndex?: number }) {
   const [rects, setRects] = useState<LineRect[]>([]);
@@ -78,7 +78,7 @@ export function PhraseBand({ range, zIndex }: { range: Range | null; zIndex?: nu
   if (!range || rects.length === 0) return null;
 
   return createPortal(
-    // zIndex is opt-in: the main chat leaves the layer unstacked (so the "Ver más" modal
+    // zIndex is opt-in: the main chat leaves the layer unstacked (so the "See more" modal
     // covers the main-page band), while the modal passes one so ITS band paints above it.
     <div className="curio-phrase-layer" aria-hidden="true" style={zIndex === undefined ? undefined : { zIndex }}>
       {rects.map((r, i) => (

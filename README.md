@@ -48,7 +48,7 @@ point. The point is the click.
 
 <div align="center">
 
-<img src="docs/media/click-to-explain.png" alt="Click 'heliocentric' inside a composed reply and its description appears inline, in context, with a 'Ver más' link" width="88%" />
+<img src="docs/media/click-to-explain.png" alt="Click 'heliocentric' inside a composed reply and its description appears inline, in context, with a 'See more' link" width="88%" />
 
 <em>Click a word — here, <strong>heliocentric</strong> — and the explanation appears right there, in
 context. Every word is clickable, whether the reply is prose or, as here, composed of components.</em>
@@ -65,12 +65,12 @@ context. Every word is clickable, whether the reply is prose or, as here, compos
 - 💬 **Chat + Read mode.** Have a conversation with an LLM, or switch to **Read** and **paste an
   article** to bring the same "click → explain" magic to any text you like.
 - 🔎 **"See more" — a panel the model composes.** The small popover (the _glance_, a single
-  sentence) has a **"Ver más"** action that **grows** into a panel — and the panel isn't a
+  sentence) has a **"See more"** action that **grows** into a panel — and the panel isn't a
   paragraph, it's **built** for the term out of Curio's components: a heading, the explanation,
   a definition card, a key figure, and — always last — a **callout that says what the term is
   doing in _this_ text**, not in general.
 - 🕳️ **The explanation is itself explorable.** Any word inside the panel is clickable too: its own
-  bubble opens right there, and "Ver más" **goes one level deeper**, with a back arrow and a
+  bubble opens right there, and "See more" **goes one level deeper**, with a back arrow and a
   **breadcrumb trail** of where your curiosity took you. You can drag-select a phrase inside the
   panel as well.
 - 💭 **Ask a follow-up without leaving.** There's a composer at the bottom of the panel. Ask
@@ -81,15 +81,15 @@ context. Every word is clickable, whether the reply is prose or, as here, compos
   bullet list, quote, code block, key stat, callout, tags, **bar list, line chart and donut** — and
   fills them with **validated data**, falling back to text if anything's off. For something that
   genuinely has to be interactive, it can return a **sandboxed HTML document**. It never
-  hand-writes markup into the page. _The screenshots throughout are taken with **Gen UI** on._
+  hand-writes markup into the page. _Every chat screenshot here is taken with **Gen UI** on._
 - 🧠 **A pluggable brain.** Runs on **Ollama** (local) or any **OpenAI-compatible API** with your
   own key (Groq, OpenRouter, LocalAI, your own server…) — swap freely.
 - 🌗 **Light and dark themes**, following your system or forced by hand.
 - 🫧 **A living mascot.** Curio breathes, follows your cursor with its eyes, travels from center
   stage to the header when the conversation starts, focuses while it thinks, and pops on a
   **monocle** when it inspects a term.
-- 🎛️ **A calm aesthetic:** monochrome, Linear-like, **no shadows** — hierarchy from whitespace and
-  1px hairlines, with micro-animations that mean something.
+- 🎛️ **A calm aesthetic:** monochrome, **no shadows** — hierarchy from whitespace and 1px
+  hairlines, with micro-animations that mean something.
 
 ![The mascot travels from the hero to the header when the conversation starts](docs/media/mascot-morph.gif)
 
@@ -98,17 +98,17 @@ closes with what it's doing in the text you're reading:
 
 <div align="center">
 
-<img src="docs/media/see-more.png" alt="The 'See more' panel for heliocentric: heading, explanation, a definition card, a fact table and a closing 'En este texto' callout" width="70%" />
+<img src="docs/media/see-more.png" alt="The 'See more' panel for heliocentric: heading, explanation, a definition card, a fact table and a closing 'In this text' callout" width="70%" />
 
 </div>
 
-**And the panel is explorable.** Click a word inside it — here **geocéntrico** — and its own bubble
-opens in place; "Ver más" walks you one level deeper, leaving a breadcrumb behind:
+**And the panel is explorable.** Click a word inside it — here **geocentric** — and its own bubble
+opens in place; "See more" walks you one level deeper, leaving a breadcrumb behind:
 
 <div align="center">
 
-<img src="docs/media/modal-inline-popover.png" alt="Inside the panel, the word geocéntrico is lit up with its own popover and a 'Ver más' link" width="49%" />
-<img src="docs/media/modal-breadcrumb.png" alt="One level deeper: a new panel for geocéntrico, with a back arrow and the breadcrumb heliocentric › geocéntrico" width="49%" />
+<img src="docs/media/modal-inline-popover.png" alt="Inside the panel, the word geocentric is lit up with its own popover and a 'See more' link" width="49%" />
+<img src="docs/media/modal-breadcrumb.png" alt="One level deeper: a new panel for geocentric, with a back arrow and the breadcrumb heliocentric › geocentric" width="49%" />
 
 </div>
 
@@ -216,7 +216,7 @@ The rest of the pieces:
 - **Entities + lazy loading.** Any word (or selection) is clickable, but **nothing is computed
   ahead of time**: the one-sentence glance is generated **on demand** when you click, from the word
   plus its context sentence. The deeper panel starts generating the moment the glance opens, so
-  "Ver más" usually has it ready. Curiosity costs nothing until you spend it.
+  "See more" usually has it ready. Curiosity costs nothing until you spend it.
 - **A component catalog (Gen UI).** The model's job is **classify + fill**, never author markup: it
   picks pieces from a fixed catalog and returns their data, validated with **Zod** before
   rendering; if anything's off, it **falls back to plain text** and the UI never breaks. Curio's
@@ -241,20 +241,21 @@ Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Read mode
 
 Flip the toggle to **Read**, paste an article, and the same "click → explain" engine works on any
-text you throw at it. With **Gen UI** on, the reader doesn't just show your text — it **re-expresses
-it**: the same facts, laid out as a definition card, a key figure, a timeline, a pull quote. Nothing
-invented, only rearranged for skimming — and every word still clickable.
+text you throw at it — Markdown is honoured, so headings and lists read properly, and every word is
+clickable. Turn **Gen UI** on and the reader goes further: it **re-expresses** the same text as a
+definition card, a key figure, a timeline, a pull quote. Nothing invented, only rearranged for
+skimming.
 
 <div align="center">
 
-<img src="docs/media/read-light.png" alt="Read mode — a pasted article re-expressed as components, with a word clicked and explained in place (light theme)" width="49%" />
-<img src="docs/media/read-dark.png" alt="The same re-expressed reading in the dark theme" width="49%" />
+<img src="docs/media/read-light.png" alt="Read mode — a pasted article as a reading surface where every word is clickable (light theme)" width="49%" />
+<img src="docs/media/read-dark.png" alt="The same reading in the dark theme" width="49%" />
 
 </div>
 
 ## Design & philosophy
 
-Curio is **monochrome, Linear-like, shadow-free**: hierarchy comes from **whitespace** and **1px
+Curio is **monochrome and shadow-free**: hierarchy comes from **whitespace** and **1px
 hairlines**, not floating boxes. Motion follows one idea — **"everything flows to one place"**:
 elements **transform and travel** into one another (the popover **grows** into the panel, the
 mascot **travels** from hero to header) instead of popping in and out. Depth comes from movement,

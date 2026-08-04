@@ -52,9 +52,9 @@ export function getBrain(role: BrainRole): ActiveBrain {
       modelId: `cloud:${base}:${model}`,
       ready: !!base && !!model,
       reason: !base
-        ? 'Falta la URL del endpoint (Ajustes → Cerebro: Nube).'
+        ? 'No endpoint URL. Set VITE_CLOUD_BASE_URL in apps/web/.env.local.'
         : !model
-          ? 'Falta el modelo (Ajustes → Cerebro: Nube).'
+          ? 'No model id. Set VITE_GROQ_MODEL in apps/web/.env.local.'
           : undefined,
     };
   }

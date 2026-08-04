@@ -8,7 +8,7 @@ interface RevealProps {
 }
 
 /**
- * The shared entrance for a generative panel's pieces: a gentle fade-up on the iOS decelerating
+ * The shared entrance for a generative panel's pieces: a gentle fade-up on the decelerating
  * curve (register 2, DESIGN §9 "todo fluye a un lugar"). Pieces are revealed together when the
  * reply is complete — staggered by `delay` so they flow top-to-bottom. Level 3 (SandboxHTML)
  * is never wrapped.

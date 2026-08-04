@@ -26,7 +26,7 @@ export default function Message({ message }: MessageProps) {
   // staggered top-to-bottom (see Panel/Reveal). Plain text still streams token-by-token.
   if (message.streaming && (message.generative || !message.content)) {
     return (
-      <div className="mb-6" role="status" aria-label="Pensando">
+      <div className="mb-6" role="status" aria-label="Thinking">
         <div className="curio-dots">
           <span aria-hidden="true" />
           <span aria-hidden="true" />

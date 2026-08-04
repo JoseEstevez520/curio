@@ -11,7 +11,7 @@ import { isRenderableLang } from '../openui/renderable';
 import { toClickable } from '../reading/toClickable';
 import { expandRangeToWords, BLOCK_SELECTOR } from './clickable';
 import { PhraseBand } from './PhraseHighlight';
-import DescriptionBody, { POPOVER_CLASS, VerMasButton } from './DescriptionBody';
+import DescriptionBody, { POPOVER_CLASS, SeeMoreButton } from './DescriptionBody';
 import Composer from '../chat/Composer';
 import { getBrain } from '../llm/brain';
 
@@ -286,7 +286,7 @@ export default function DescribeModal({
               <button
                 type="button"
                 onClick={goBack}
-                aria-label="Volver"
+                aria-label="Back"
                 className="shrink-0 rounded-md p-1 text-fg-muted transition-colors hover:text-fg"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -300,7 +300,7 @@ export default function DescribeModal({
             <button
               ref={closeRef}
               onClick={onClose}
-              aria-label="Cerrar"
+              aria-label="Close"
               className="shrink-0 rounded-md p-1 text-xl leading-none text-fg-muted transition-colors hover:text-fg"
             >
               &times;
@@ -347,7 +347,7 @@ export default function DescribeModal({
             )}
 
             {/* Inline popover — the SAME bubble as the main-page one (POPOVER_CLASS +
-                DescriptionBody + VerMasButton), portaled above the modal card and anchored
+                DescriptionBody + SeeMoreButton), portaled above the modal card and anchored
                 to the word by floating-ui (flips above when the word sits near the bottom,
                 e.g. in follow-up answers). */}
             {hoveredWord && (
@@ -364,7 +364,7 @@ export default function DescribeModal({
                 >
                   <DescriptionBody entry={hoverGloss} />
                   {hoverGloss?.status === 'done' && (
-                    <VerMasButton
+                    <SeeMoreButton
                       onClick={() => {
                         const word = hoveredWord.text;
                         setHoveredWord(null);
@@ -398,7 +398,7 @@ export default function DescribeModal({
                   </div>
                 ))}
                 {followUpLoading && (
-                  <div className="curio-dots" role="status" aria-label="Pensando">
+                  <div className="curio-dots" role="status" aria-label="Thinking">
                     <span aria-hidden="true" />
                     <span aria-hidden="true" />
                     <span aria-hidden="true" />

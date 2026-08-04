@@ -20,7 +20,7 @@ function conversationContext(messages: Message[], messageId: string): string {
 
 /**
  * Resolve the generative-UI component + related links for `term` (the modal's rich content).
- * Runs when `active`; we PREFETCH it on word click (see SelectionPopover) so "Ver más" opens
+ * Runs when `active`; we PREFETCH it on word click (see SelectionPopover) so "See more" opens
  * to a ready component instead of a spinner. Cached per (model, message, term) in the store,
  * so opening the modal is instant once the prefetch lands.
  *
@@ -65,7 +65,7 @@ export function useGenerative(
         // Fan out every source at once (prefetched on word click): the local deep explanation
         // (the description, always LLM-authored and in-context), an optional visual component, the
         // related links, AND — for the photo — the Wikipedia card. All parallel, all cached, so
-        // "Ver más" opens with everything ready and no extra wait.
+        // "See more" opens with everything ready and no extra wait.
         //
         // The photo is gated by the LLM: it first decides the canonical entity IN CONTEXT (or that
         // the word isn't a specific entity at all), and only then do we fetch Wikipedia by that

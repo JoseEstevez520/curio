@@ -5,7 +5,7 @@
  */
 export default function GenerativeSkeleton() {
   return (
-    <div className="flex flex-col gap-3" role="status" aria-label="Generando descripción">
+    <div className="flex flex-col gap-3" role="status" aria-label="Generating description">
       <div className="curio-skeleton-bar" style={{ height: 10, width: '35%' }} />
       <div className="flex flex-col gap-2">
         <div className="curio-skeleton-bar" style={{ height: 14, width: '100%' }} />
