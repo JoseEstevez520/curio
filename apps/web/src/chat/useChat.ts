@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useChatStore, toChatMessages } from '../app/store';
 import { OllamaError, OpenAIError } from '@curio/core';
-import { CHAT_SYSTEM_PROMPT } from '@curio/core';
+import { buildChatSystemPrompt } from '@curio/core';
 import { getBrain } from '../llm/brain';
 import { openUIChatSystemPrompt } from '../openui/chatPrompt';
 
@@ -36,7 +36,7 @@ export function useSendMessage() {
     try {
       const messages = toChatMessages(
         history,
-        genUI ? openUIChatSystemPrompt() : CHAT_SYSTEM_PROMPT,
+        genUI ? openUIChatSystemPrompt(store.locale) : buildChatSystemPrompt(store.locale),
       );
       // Stream when the brain supports it (Ollama, Groq both do); otherwise render at once.
       if (provider.completeStream) {

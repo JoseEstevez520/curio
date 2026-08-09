@@ -13,6 +13,7 @@ import { expandRangeToWords, BLOCK_SELECTOR } from './clickable';
 import { PhraseBand } from './PhraseHighlight';
 import DescriptionBody, { POPOVER_CLASS, SeeMoreButton } from './DescriptionBody';
 import Composer from '../chat/Composer';
+import { useChatStore } from '../app/store';
 import { getBrain } from '../llm/brain';
 
 interface DescribeModalProps {
@@ -196,7 +197,7 @@ export default function DescribeModal({
             .filter((t, i, a) => a.indexOf(t) === i)
             .join(', ')
         : null;
-      const system = openUIFollowUpSystemPrompt(term, context, panelTypes);
+      const system = openUIFollowUpSystemPrompt(term, context, panelTypes, useChatStore.getState().locale);
       let answer = await provider.complete({
         messages: [
           { role: 'system', content: system },

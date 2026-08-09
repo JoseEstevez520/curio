@@ -33,7 +33,9 @@ export function useGenerative(
   // Structured output uses the capable/chat brain. The brain+model is part of the cache key
   // (useActiveModelId), so switching never serves a component built by another.
   const model = useActiveModelId('chat');
-  const key = descriptionKey(model, messageId, term);
+  // Language is part of the cache identity — related links + Wikipedia language follow the locale.
+  const locale = useChatStore((s) => s.locale);
+  const key = descriptionKey(`${model}:${locale}`, messageId, term);
   const entry = useChatStore((s) => s.generatives[key]);
 
   useEffect(() => {
@@ -72,6 +74,7 @@ export function useGenerative(
             term,
             context,
             conversation,
+            locale,
             signal: controller.signal,
           });
           if (!entity.title) return null;
@@ -80,7 +83,7 @@ export function useGenerative(
 
         // Only related + wiki — OpenUI handles the description now.
         const [related, wiki] = await Promise.all([
-          generateRelatedWith(provider, { term, context, conversation, signal: controller.signal }),
+          generateRelatedWith(provider, { term, context, conversation, locale, signal: controller.signal }),
           wikiPromise,
         ]);
         settled = true;

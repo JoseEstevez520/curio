@@ -1,5 +1,7 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { languageDirective } from '@curio/core';
 import { curioLibrary } from './library';
+import { useChatStore } from '../app/store';
 import { useActiveModelId, getBrain } from '../llm/brain';
 import { describeError } from '../chat/useChat';
 
@@ -23,8 +25,7 @@ const TASK_NOTE = [
   'the broader theme of the text. Compose the components that best express THIS term — do not',
   'force a fixed shape. Prefer a short Heading + Prose, then any structured pieces that genuinely',
   'help (DefinitionCard, FactTable, Timeline, Steps, Comparison, BulletList, Quote, CodeBlock,',
-  'KeyStat, Callout). Keep it tight: a few pieces, not a wall. Write ALL text in the SAME LANGUAGE',
-  'as the surrounding text — English text means an entirely English panel, and never a mix.',
+  'KeyStat, Callout). Keep it tight: a few pieces, not a wall.',
   'Be factual and concise.',
   'The reader can ALREADY SEE the original text next to your panel — never repeat content it states',
   '(if the text lists items, do NOT re-list them). Your panel must ADD understanding on top: what the',
@@ -43,8 +44,8 @@ function setCache(key: string, state: OpenUIState) { cache.set(key, state); noti
 function getSnapshot() { return cacheVersion; }
 function subscribe(cb: () => void) { listeners.add(cb); return () => listeners.delete(cb); }
 
-function cacheKey(model: string, term: string): string {
-  return `${model}:${term.trim().toLowerCase()}`;
+function cacheKey(model: string, locale: string, term: string): string {
+  return `${model}:${locale}:${term.trim().toLowerCase()}`;
 }
 
 /**
@@ -53,7 +54,8 @@ function cacheKey(model: string, term: string): string {
  */
 export function useOpenUI(active: boolean, term: string, context: string): OpenUIState {
   const model = useActiveModelId('chat');
-  const key = cacheKey(model, term);
+  const locale = useChatStore((s) => s.locale);
+  const key = cacheKey(model, locale, term);
 
   // Subscribe to cache changes — the version number changes on every update,
   // ensuring React detects the change (a Map reference never changes).
@@ -79,7 +81,10 @@ export function useOpenUI(active: boolean, term: string, context: string): OpenU
     setCache(key, { response: '', isStreaming: true });
 
     const messages = [
-      { role: 'system' as const, content: `${curioLibrary.prompt()}\n\n${TASK_NOTE}` },
+      {
+        role: 'system' as const,
+        content: `${curioLibrary.prompt()}\n\n${TASK_NOTE} ${languageDirective(locale)}`,
+      },
       { role: 'user' as const, content: `Term: ${term}\nContext: ${context}` },
     ];
 
@@ -106,7 +111,7 @@ export function useOpenUI(active: boolean, term: string, context: string): OpenU
 
     return () => controller.abort();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, key, model, term, context]);
+  }, [active, key, model, locale, term, context]);
 
   return cached ?? EMPTY;
 }

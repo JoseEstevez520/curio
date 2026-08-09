@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ChatMessage } from '@curio/core';
 import type { Envelope, WikiSummary } from '@curio/core';
+import { DEFAULT_LOCALE, toLocale, type Locale } from '@curio/core';
 
 export type Role = 'user' | 'assistant';
 
@@ -113,6 +114,11 @@ interface ChatState {
   groqApiKey: string;
   /** Cloud model id, e.g. 'llama-3.3-70b-versatile'. Persisted. */
   groqModel: string;
+  /**
+   * The language Curio speaks: UI strings AND the model's output (via the prompts' language
+   * directive). One setting for every surface. Persisted.
+   */
+  locale: Locale;
   /** Active Ollama model tag for chat replies, or null until one is chosen. */
   model: string | null;
   /** Model tag used by the (separate, fast) describer; falls back to `model`. */
@@ -131,6 +137,7 @@ interface ChatState {
   /** Generative-UI (modal) cache + in-flight state, keyed by descriptionKey(). */
   generatives: Record<string, GenerativeEntry>;
 
+  setLocale: (locale: Locale) => void;
   setModel: (model: string | null) => void;
   setDescribeModel: (model: string | null) => void;
   setBrain: (brain: Brain) => void;
@@ -174,6 +181,7 @@ const LS = {
   groqKey: 'curio.groqApiKey',
   groqModel: 'curio.groqModel',
   genUI: 'curio.genUI',
+  locale: 'curio.locale',
 };
 
 function lsGet(key: string): string | null {
@@ -201,6 +209,8 @@ const initialGroqKey = ENV.VITE_GROQ_API_KEY?.trim() || (lsGet(LS.groqKey) ?? ''
 const initialGroqModel = ENV.VITE_GROQ_MODEL?.trim() || lsGet(LS.groqModel) || DEFAULT_GROQ_MODEL;
 const initialCloudBaseUrl =
   ENV.VITE_CLOUD_BASE_URL?.trim() || lsGet(LS.cloudBaseUrl) || DEFAULT_CLOUD_BASE_URL;
+// Language: an env override wins, then the UI's last saved choice, then the default (English).
+const initialLocale: Locale = toLocale(ENV.VITE_LOCALE?.trim() || lsGet(LS.locale) || DEFAULT_LOCALE);
 
 const envFallbacks = ENV.VITE_GROQ_FALLBACK_MODELS?.split(',')
   .map((m) => m.trim())
@@ -231,6 +241,7 @@ export const useChatStore = create<ChatState>((set) => ({
   cloudBaseUrl: initialCloudBaseUrl,
   groqApiKey: initialGroqKey,
   groqModel: initialGroqModel,
+  locale: initialLocale,
   model: null,
   describeModel: null,
   genUI: lsGet(LS.genUI) === '1',
@@ -239,6 +250,10 @@ export const useChatStore = create<ChatState>((set) => ({
   descriptions: {},
   generatives: {},
 
+  setLocale: (locale) => {
+    lsSet(LS.locale, locale);
+    set({ locale });
+  },
   setModel: (model) => set({ model }),
   setDescribeModel: (describeModel) => set({ describeModel }),
   setBrain: (brain) => {

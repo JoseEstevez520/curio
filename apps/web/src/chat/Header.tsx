@@ -4,6 +4,7 @@ import Wordmark from '../branding/Wordmark';
 import { MASCOT_MORPH } from '@curio/core';
 import GenToggle from './GenToggle';
 import ModeToggle from './ModeToggle';
+import LanguagePicker from './LanguagePicker';
 import ThemeToggle from '../theme/ThemeToggle';
 
 interface HeaderProps {
@@ -43,6 +44,7 @@ export default function Header({ showBrand, thinking, inspecting }: HeaderProps)
         <div className="flex items-center gap-3">
           <GenToggle />
           <ModeToggle />
+          <LanguagePicker />
           <ThemeToggle />
         </div>
       </div>

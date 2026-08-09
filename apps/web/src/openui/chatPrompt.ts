@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, languageDirective, type Locale } from '@curio/core';
 import { curioLibrary } from './library';
 
 /**
@@ -17,13 +18,13 @@ const CHAT_TASK_NOTE = [
   'SandboxHTML with a COMPLETE standalone HTML document (inline all css/js, no external URLs) — never',
   'for plain text, data or lists. CRITICAL: the root MUST wrap ALL pieces in ONE array —',
   '`root = Panel([Heading(...), Prose(...), ...])`. Never pass pieces to Panel as separate arguments.',
-  'Answer in the same language as the user. Be helpful, concise, and factual. Lay out in a SINGLE',
+  'Be helpful, concise, and factual. Lay out in a SINGLE',
   'column of a FEW well-chosen pieces — do not overload the panel; a couple of good pieces beat a wall.',
 ].join(' ');
 
 /** The full system prompt string for generative chat (OpenUI spec + our library + the note). */
-export function openUIChatSystemPrompt(): string {
-  return `${curioLibrary.prompt()}\n\n${CHAT_TASK_NOTE}`;
+export function openUIChatSystemPrompt(locale: Locale = DEFAULT_LOCALE): string {
+  return `${curioLibrary.prompt()}\n\n${CHAT_TASK_NOTE} ${languageDirective(locale)}`;
 }
 
 /**
@@ -41,8 +42,7 @@ const FOLLOWUP_TASK_NOTE = [
   'Answer ONLY what was asked. The reader already sees a full panel about the term',
   '(never repeat or re-explain it) and the original text (never re-list what it already enumerates).',
   'Ground the answer in the given text whenever it is relevant; add outside knowledge only when',
-  'the text does not cover it. Write everything in the SAME LANGUAGE as the text — English text',
-  'means an entirely English answer, and never a mix.',
+  'the text does not cover it.',
   'FORMAT CONTRACT — overrides everything:',
   'Your ENTIRE reply MUST be OpenUI Lang code starting with `root = Panel([...])`.',
   'NEVER markdown, NEVER plain text outside the code.',
@@ -64,11 +64,12 @@ export function openUIFollowUpSystemPrompt(
   term: string,
   context: string,
   panelComponentTypes: string | null,
+  locale: Locale = DEFAULT_LOCALE,
 ): string {
   const shown = panelComponentTypes
     ? `\nThe reader already sees a panel about "${term}" containing: ${panelComponentTypes}. Never repeat or re-explain anything from it.`
     : '';
-  return `${curioLibrary.prompt()}\n\nThe reader is exploring "${term}" in this text: "${context}".${shown}\n\n${FOLLOWUP_TASK_NOTE}`;
+  return `${curioLibrary.prompt()}\n\nThe reader is exploring "${term}" in this text: "${context}".${shown}\n\n${FOLLOWUP_TASK_NOTE} ${languageDirective(locale)}`;
 }
 
 /**
@@ -83,10 +84,10 @@ const ARTICLE_TASK_NOTE = [
   'contrasts, BulletList for lists, Quote for a memorable line, KeyStat for a striking figure,',
   'Callout for a highlight) to surface what matters. CRITICAL: the root MUST wrap ALL pieces in ONE array —',
   '`root = Panel([Heading(...), Prose(...), ...])`. Never pass pieces to Panel as separate arguments.',
-  'Answer in the same language as the text. Cover the whole text, but stay tight — quality over volume.',
+  'Cover the whole text, but stay tight — quality over volume.',
 ].join(' ');
 
 /** System prompt for transforming pasted text into a Gen UI reading (OpenUI spec + library + note). */
-export function openUIArticleSystemPrompt(): string {
-  return `${curioLibrary.prompt()}\n\n${ARTICLE_TASK_NOTE}`;
+export function openUIArticleSystemPrompt(locale: Locale = DEFAULT_LOCALE): string {
+  return `${curioLibrary.prompt()}\n\n${ARTICLE_TASK_NOTE} ${languageDirective(locale)}`;
 }

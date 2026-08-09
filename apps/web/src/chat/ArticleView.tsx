@@ -23,10 +23,12 @@ export default function ArticleView() {
   // Gen UI is the SAME global switch as the header's Texto/Gen UI — no separate toggle here,
   // so turning it on once applies to both the chat and the reader.
   const genUI = useChatStore((s) => s.genUI);
+  const locale = useChatStore((s) => s.locale);
   const [draft, setDraft] = useState('');
 
   // Stable across renders so it doesn't re-trigger the stream (library.prompt() is rebuilt).
-  const systemPrompt = useMemo(() => openUIArticleSystemPrompt(), []);
+  // Rebuilt only when the language changes, so the reading is generated in the chosen language.
+  const systemPrompt = useMemo(() => openUIArticleSystemPrompt(locale), [locale]);
   const gen = useGenUI(!!article && genUI, systemPrompt, article?.content ?? '');
 
   if (article) {

@@ -30,7 +30,10 @@ export function useDescribe(
   // back to chat's; for Groq it's the one selected model. The brain+model is part of the cache
   // key (see useActiveModelId), so switching never serves a stale answer.
   const model = useActiveModelId('describe');
-  const key = descriptionKey(model, messageId, term);
+  // The language is part of the cache identity: switching locale must not serve a description
+  // generated in the previous language.
+  const locale = useChatStore((s) => s.locale);
+  const key = descriptionKey(`${model}:${locale}`, messageId, term);
   const entry = useChatStore((s) => s.descriptions[key]);
 
   useEffect(() => {
@@ -53,7 +56,7 @@ export function useDescribe(
     let settled = false;
     state.setDescription(key, { status: 'loading', text: '' });
     const conversation = conversationContext(state.messages, messageId);
-    const messages = buildDescribeMessages(term, context, conversation);
+    const messages = buildDescribeMessages(term, context, conversation, state.locale);
     const req = { messages, temperature: 0.2, maxTokens: 60, signal: controller.signal };
 
     (async () => {
