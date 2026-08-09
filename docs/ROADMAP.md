@@ -110,12 +110,13 @@ modelo activo "ve". Decisión del dueño: proceder con todo; el idioma manda sob
 - [x] `feat: ajuste de idioma en la web` (store + selector EN/ES) que alimenta **los prompts**
   (chat, Gen UI, panel del modal, follow-ups, artículo, describe/relacionados/Wikipedia).
 - [ ] `feat: textos de UI de la web desde STRINGS` (hoy siguen en inglés a fuego).
-- [ ] `feat: ajuste de idioma en la extensión` (chrome.storage + popup) y textos desde `STRINGS`.
+- [x] `feat: ajuste de idioma en la extensión` (chrome.storage + selector EN/ES en el popup) y
+  textos desde `STRINGS` + `strings.ts` propio; el background pasa el locale al núcleo.
 
 **Track B — Cualquier API en las dos superficies.**
-- [ ] `feat: cerebro cloud BYOK en la extensión` — `OpenAIProvider` contra el endpoint/clave del
-  usuario (guardados en `chrome.storage`), llamando directo por `host_permissions`.
-- [ ] `feat: selector de cerebro/modelo en el popup` (Chrome AI / Ollama / cloud).
+- [x] `feat: cerebro cloud BYOK en la extensión` — `OpenAIProvider` contra el endpoint/clave del
+  usuario (en `chrome.storage`), directo vía `optional_host_permissions` (permiso por origen).
+- [x] `feat: selector de cerebro/modelo en el popup` (Auto local / Cloud + campos endpoint/modelo/clave).
 
 **Track C — Paridad del modal.**
 - [ ] `feat: migrar la extensión a OpenUI Lang` (fuera el catálogo viejo `CatalogRenderer`).
