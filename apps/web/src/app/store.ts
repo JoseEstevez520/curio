@@ -98,6 +98,18 @@ export interface Selection {
   range: Range | null;
   /** Nearest block element, so Floating UI can track scroll for a range. */
   block: HTMLElement | null;
+  /**
+   * When the reader clicked an IMAGE (not a word): the captured image as a data URL. Present
+   * only for image lookups; the popover/modal describe the picture instead of a term.
+   */
+  image?: string;
+  /** Nearby page text (alt + surrounding block) sent with the image for disambiguation. */
+  imageContext?: string;
+  /**
+   * Set when the image could NOT be captured (typically a cross-origin/CORS SecurityError):
+   * a friendly message shown in the popover instead of a description.
+   */
+  imageError?: string;
 }
 
 interface ChatState {
@@ -128,6 +140,12 @@ interface ChatState {
    * COMPOSE components (OpenUI) instead of plain text. One switch for every surface. Persisted.
    */
   genUI: boolean;
+  /**
+   * Click-an-image-to-describe (global): when true, clicking an image in the reading surface
+   * opens the same popover with a description of the picture. Only takes effect when the active
+   * model can see (see useModelSupportsVision). Persisted; default true.
+   */
+  describeImages: boolean;
   /** The word/phrase whose description popover is open, or null. */
   selection: Selection | null;
   /** True when the description has been expanded from the small popover into the modal. */
@@ -145,6 +163,7 @@ interface ChatState {
   setGroqApiKey: (key: string) => void;
   setGroqModel: (model: string) => void;
   setGenUI: (on: boolean) => void;
+  setDescribeImages: (on: boolean) => void;
 
   /** Switch reading surface (closes any open description). */
   setMode: (mode: Mode) => void;
@@ -181,6 +200,7 @@ const LS = {
   groqKey: 'curio.groqApiKey',
   groqModel: 'curio.groqModel',
   genUI: 'curio.genUI',
+  describeImages: 'curio.describeImages',
   locale: 'curio.locale',
 };
 
@@ -245,6 +265,8 @@ export const useChatStore = create<ChatState>((set) => ({
   model: null,
   describeModel: null,
   genUI: lsGet(LS.genUI) === '1',
+  // Default ON: clicking an image describes it (only surfaces when the model can see).
+  describeImages: lsGet(LS.describeImages) !== '0',
   selection: null,
   expanded: false,
   descriptions: {},
@@ -275,6 +297,10 @@ export const useChatStore = create<ChatState>((set) => ({
   setGenUI: (genUI) => {
     lsSet(LS.genUI, genUI ? '1' : '0');
     set({ genUI });
+  },
+  setDescribeImages: (describeImages) => {
+    lsSet(LS.describeImages, describeImages ? '1' : '0');
+    set({ describeImages });
   },
 
   // Switching surface always closes any open description.

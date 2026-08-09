@@ -1,5 +1,7 @@
 import { useRef, type ReactNode, type MouseEvent } from 'react';
 import { useChatStore } from '../app/store';
+import { brainSeesVision } from '../llm/useModelSupportsVision';
+import { captureImageSync, captureImageCrossOrigin } from './imageCapture';
 
 /**
  * The click-to-explain surface, shared by the Markdown reply and the generative (OpenUI) reply
@@ -58,8 +60,51 @@ export default function ClickableSurface({ messageId, streaming, children }: Cli
     return (block?.textContent ?? '').slice(0, 600);
   };
 
-  // Single click → describe the clicked word.
+  // Nearby text sent with an image for disambiguation: its alt text plus the surrounding block.
+  const imageContextFor = (img: HTMLImageElement): string => {
+    const alt = img.getAttribute('alt')?.trim();
+    const block = img.closest(BLOCK_SELECTOR) ?? img.parentElement ?? ref.current;
+    const near = (block?.textContent ?? '').replace(/\s+/g, ' ').trim();
+    return [alt ? `Alt text: ${alt}.` : '', near].filter(Boolean).join(' ').slice(0, 600);
+  };
+
+  // Click an <img> → describe the whole picture in the SAME popover (only when the reader has
+  // image-describe on AND the active model can see). Best-effort capture: same-origin/data/CORS
+  // images draw straight from a canvas; a tainted cross-origin image shows a friendly error, then
+  // we try once more through a fresh crossOrigin request in case the server allows it.
+  const onImageClick = (img: HTMLImageElement) => {
+    const st = useChatStore.getState();
+    if (!st.describeImages || !brainSeesVision(st)) return;
+    const imageContext = imageContextFor(img);
+    const sync = captureImageSync(img);
+    st.setSelection({
+      messageId,
+      text: '',
+      context: '',
+      el: img,
+      range: null,
+      block: null,
+      image: sync.dataUrl,
+      imageContext,
+      imageError: sync.dataUrl ? undefined : sync.error,
+    });
+    if (!sync.dataUrl) {
+      void captureImageCrossOrigin(img.currentSrc || img.src).then((res) => {
+        if (!res.dataUrl) return; // keep the friendly error already shown
+        const cur = useChatStore.getState().selection;
+        if (!cur || cur.el !== img) return; // the reader moved on — don't clobber
+        useChatStore.getState().setSelection({ ...cur, image: res.dataUrl, imageError: undefined });
+      });
+    }
+  };
+
+  // Single click → describe the clicked word (or image).
   const onClick = (e: MouseEvent<HTMLDivElement>) => {
+    const img = (e.target as HTMLElement).closest('img');
+    if (img instanceof HTMLImageElement && ref.current?.contains(img)) {
+      onImageClick(img);
+      return;
+    }
     if (justDragged.current) {
       justDragged.current = false;
       return; // this click is the tail of a drag we already handled

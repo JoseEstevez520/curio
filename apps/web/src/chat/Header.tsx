@@ -3,9 +3,11 @@ import CurioLogo from '../branding/CurioLogo';
 import Wordmark from '../branding/Wordmark';
 import { MASCOT_MORPH } from '@curio/core';
 import GenToggle from './GenToggle';
+import ImgToggle from './ImgToggle';
 import ModeToggle from './ModeToggle';
 import LanguagePicker from './LanguagePicker';
 import ThemeToggle from '../theme/ThemeToggle';
+import { useModelSupportsVision } from '../llm/useModelSupportsVision';
 
 interface HeaderProps {
   /** Show the mascot + wordmark. Hidden on the empty state, where the hero owns the
@@ -20,6 +22,8 @@ interface HeaderProps {
 /** Slim, borderless top bar: the mascot + wordmark, the reading-surface toggle and the format
  *  toggle. Brain/model are deploy config (env), not header controls. */
 export default function Header({ showBrand, thinking, inspecting }: HeaderProps) {
+  // The image toggle only makes sense when the active model can see — otherwise it's dead weight.
+  const supportsVision = useModelSupportsVision();
   return (
     <header className="bg-bg px-4 py-3">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3">
@@ -43,6 +47,7 @@ export default function Header({ showBrand, thinking, inspecting }: HeaderProps)
         )}
         <div className="flex items-center gap-3">
           <GenToggle />
+          {supportsVision && <ImgToggle />}
           <ModeToggle />
           <LanguagePicker />
           <ThemeToggle />

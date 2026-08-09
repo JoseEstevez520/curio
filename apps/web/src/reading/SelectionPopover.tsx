@@ -87,10 +87,11 @@ export default function SelectionPopover() {
     }
   }, [selection, refs]);
 
-  // Keep the clicked word highlighted (accent) while its description is open.
+  // Keep the clicked word highlighted (accent) while its description is open. Skipped for an
+  // image click — the accent pill treatment is for text, not a picture.
   useEffect(() => {
     const el = selection?.el;
-    if (!el) return;
+    if (!el || selection?.image || selection?.imageError) return;
     el.classList.add('entity-open');
     return () => el.classList.remove('entity-open');
   }, [selection]);
@@ -98,17 +99,25 @@ export default function SelectionPopover() {
   // The selected phrase gets a soft, rounded band drawn by PhraseHighlight (mounted in
   // ChatView) — the CSS Custom Highlight API can't do padding or border-radius.
 
-  // Hook must run every render; it no-ops when there is no active selection.
-  const entry = useDescribe(
-    Boolean(selection),
-    selection?.messageId ?? '',
-    selection?.text ?? '',
-    selection?.context ?? '',
-  );
+  // An image click describes a picture, not a term. A capture that failed (CORS) shows a friendly
+  // error straight away instead of hitting the model.
+  const isImage = Boolean(selection?.image);
+  const imageError = selection?.imageError;
 
-  // Prefetch OpenUI generation — the modal's main content. Only this + describe on click.
+  // Hook must run every render; it no-ops when there is no active selection. For an image it
+  // switches to the vision branch (using the captured data URL + nearby text as context).
+  const fetched = useDescribe(
+    Boolean(selection) && !imageError,
+    selection?.messageId ?? '',
+    isImage ? '' : (selection?.text ?? ''),
+    isImage ? (selection?.imageContext ?? '') : (selection?.context ?? ''),
+    selection?.image,
+  );
+  const entry = imageError ? { status: 'error' as const, text: '', error: imageError } : fetched;
+
+  // Prefetch OpenUI generation — the modal's main content. Term-only; images use the image modal.
   useOpenUI(
-    Boolean(selection),
+    Boolean(selection) && !isImage && !imageError,
     selection?.text ?? '',
     selection?.context ?? '',
   );
@@ -159,9 +168,11 @@ export default function SelectionPopover() {
           layoutId is unique on every commit and the morph both ways stays clean. */}
       {expanded && (
         <DescribeModal
-          initialTerm={selection.text}
+          initialTerm={isImage ? 'Image' : selection.text}
           messageId={selection.messageId}
           context={selection.context}
+          image={selection.image}
+          imageContext={selection.imageContext}
           onClose={collapse}
         />
       )}

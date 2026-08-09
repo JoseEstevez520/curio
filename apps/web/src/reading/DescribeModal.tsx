@@ -20,6 +20,10 @@ interface DescribeModalProps {
   initialTerm: string;
   messageId: string;
   context: string;
+  /** When set, the modal describes THIS image (data URL) instead of the text term. */
+  image?: string;
+  /** Nearby page text sent with the image for disambiguation. */
+  imageContext?: string;
   onClose: () => void;
 }
 
@@ -29,8 +33,13 @@ export default function DescribeModal({
   initialTerm,
   messageId,
   context,
+  image,
+  imageContext,
   onClose,
 }: DescribeModalProps) {
+  // Image mode: the same modal shell (header/close/scroll), but the body is a LONGER description
+  // of the picture instead of the per-term OpenUI panel + follow-up conversation.
+  const isImage = Boolean(image);
   const cardRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<Element | null>(null);
@@ -111,9 +120,11 @@ export default function DescribeModal({
     return () => el.classList.remove('entity-open');
   }, [hoveredWord]);
 
-  // Main content
-  const gloss = useDescribe(true, messageId, term, context);
-  const openui = useOpenUI(true, term, context);
+  // Main content. For a term: the short gloss + the OpenUI panel. For an image: a LONGER
+  // description of the picture (the model's "See more"), reusing the same describer.
+  const gloss = useDescribe(!isImage, messageId, term, context);
+  const openui = useOpenUI(!isImage, term, context);
+  const imageGloss = useDescribe(isImage, messageId, '', imageContext ?? '', image, true);
   // Prefetch the OpenUI panel for the hovered word as soon as its popover opens — exactly
   // like SelectionPopover does on the main page. Uses the modal's global context so the
   // generation uses the same source text regardless of which block the word was in.
@@ -334,8 +345,11 @@ export default function DescribeModal({
             onClick={onContentClick}
             onMouseUp={onContentMouseUp}
           >
-            {/* OpenUI content */}
-            {openui.response !== null ? (
+            {/* Image mode: a longer description of the picture. Term mode: the OpenUI panel,
+                falling back to the short gloss while it generates. */}
+            {isImage ? (
+              <DescriptionBody entry={imageGloss} />
+            ) : openui.response !== null ? (
               <Renderer
                 response={openui.response}
                 library={curioLibrary}
@@ -409,10 +423,13 @@ export default function DescribeModal({
             )}
           </div>
 
-          {/* Composer — reused, compact mode */}
-          <div className="shrink-0 px-3 pb-3 pt-1">
-            <Composer onSend={handleFollowUp} disabled={followUpLoading} compact />
-          </div>
+          {/* Composer — reused, compact mode. Hidden for images: the follow-up flow is built
+              around the per-term OpenUI panel, not a picture. */}
+          {!isImage && (
+            <div className="shrink-0 px-3 pb-3 pt-1">
+              <Composer onSend={handleFollowUp} disabled={followUpLoading} compact />
+            </div>
+          )}
         </motion.div>
       </div>
 
