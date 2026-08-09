@@ -15,6 +15,7 @@ import { CATALOG_TYPES, type CatalogType, type Envelope } from '../catalog/schem
 import { OllamaProvider } from '../llm/ollama-provider';
 import type { LlmProvider } from '../llm/provider';
 import type { OllamaFormat } from '../ollama/types';
+import { DEFAULT_LOCALE, type Locale } from '../i18n/locale';
 import { cleanDescription } from './cleanDescription';
 
 export interface GenerateOptions {
@@ -26,20 +27,10 @@ export interface GenerateOptions {
   conversation?: string;
   /** Plain-text gloss to show if generation can't produce a richer component. */
   fallbackText: string;
+  /** Language the generated content must be written in. Defaults to {@link DEFAULT_LOCALE}. */
+  locale?: Locale;
   signal?: AbortSignal;
 }
-
-/**
- * Types that earn the modal's middle slot: they SHOW structure a sentence can't. Text-shaped
- * types (definition-card, fact-table) and plain-text render as the gloss alone (no middle).
- */
-const VISUAL_TYPES = new Set<CatalogType>([
-  'chart',
-  'concept-diagram',
-  'timeline',
-  'comparison',
-  'steps',
-]);
 
 /** Parse a JSON string defensively; returns `undefined` on any failure. */
 function tryParse(text: string): unknown {
@@ -71,6 +62,7 @@ export async function generateEnvelopeWith(
   opts: Omit<GenerateOptions, 'model'>,
 ): Promise<Envelope> {
   const { term, context, conversation, fallbackText, signal } = opts;
+  const locale = opts.locale ?? DEFAULT_LOCALE;
 
   // Stage 1: choose a catalog type.
   const choiceRaw = await provider.complete({
@@ -101,7 +93,7 @@ export async function generateEnvelopeWith(
 
   // Stage 2: fill the chosen component's schema.
   const fillRaw = await provider.complete({
-    messages: buildFillMessages(term, context, catalogMeta(type), conversation),
+    messages: buildFillMessages(term, context, catalogMeta(type), conversation, locale),
     format: dataJsonSchema(type),
     temperature: 0.2,
     maxTokens: 500,
@@ -137,9 +129,10 @@ export async function describeWith(
   term: string,
   context: string,
   conversation?: string,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<string> {
   const text = await provider.complete({
-    messages: buildDescribeMessages(term, context, conversation),
+    messages: buildDescribeMessages(term, context, conversation, locale),
     temperature: 0.2,
     maxTokens: 120,
   });
@@ -164,6 +157,7 @@ export interface RelatedOptions {
   term: string;
   context: string;
   conversation?: string;
+  locale?: Locale;
   signal?: AbortSignal;
 }
 
@@ -179,7 +173,7 @@ export async function generateRelatedWith(
 ): Promise<string[]> {
   try {
     const raw = await provider.complete({
-      messages: buildRelatedMessages(opts.term, opts.context, opts.conversation),
+      messages: buildRelatedMessages(opts.term, opts.context, opts.conversation, opts.locale ?? DEFAULT_LOCALE),
       format: RELATED_SCHEMA,
       temperature: 0.4,
       maxTokens: 120,
@@ -223,6 +217,7 @@ export interface DeepOptions {
   term: string;
   context: string;
   conversation?: string;
+  locale?: Locale;
   signal?: AbortSignal;
 }
 
@@ -234,7 +229,7 @@ export interface DeepOptions {
 export async function describeDeepWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
   try {
     const text = await provider.complete({
-      messages: buildDeepDescribeMessages(opts.term, opts.context, opts.conversation),
+      messages: buildDeepDescribeMessages(opts.term, opts.context, opts.conversation, opts.locale ?? DEFAULT_LOCALE),
       temperature: 0.3,
       maxTokens: 350,
       signal: opts.signal,
@@ -260,7 +255,7 @@ export function generateDeep(model: string, opts: DeepOptions): Promise<string> 
 export async function contextualizeWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
   try {
     const text = await provider.complete({
-      messages: buildContextualizerMessages(opts.term, opts.context, opts.conversation),
+      messages: buildContextualizerMessages(opts.term, opts.context, opts.conversation, opts.locale ?? DEFAULT_LOCALE),
       temperature: 0.3,
       maxTokens: 250,
       signal: opts.signal,
@@ -279,7 +274,7 @@ export async function contextualizeWith(provider: LlmProvider, opts: DeepOptions
 export async function connectWith(provider: LlmProvider, opts: DeepOptions): Promise<string> {
   try {
     const text = await provider.complete({
-      messages: buildConnectorMessages(opts.term, opts.context, opts.conversation),
+      messages: buildConnectorMessages(opts.term, opts.context, opts.conversation, opts.locale ?? DEFAULT_LOCALE),
       temperature: 0.3,
       maxTokens: 250,
       signal: opts.signal,
@@ -309,6 +304,7 @@ export interface EntityOptions {
   term: string;
   context: string;
   conversation?: string;
+  locale?: Locale;
   signal?: AbortSignal;
 }
 
@@ -325,12 +321,13 @@ export async function resolveWikiEntityWith(
 ): Promise<WikiEntity> {
   try {
     const raw = await provider.complete({
-      messages: buildWikiEntityMessages(opts.term, opts.context, opts.conversation),
+      messages: buildWikiEntityMessages(opts.term, opts.context, opts.conversation, opts.locale ?? DEFAULT_LOCALE),
       format: WIKI_ENTITY_SCHEMA,
       temperature: 0,
       maxTokens: 60,
       signal: opts.signal,
     });
+    const fallbackLang = opts.locale ?? DEFAULT_LOCALE;
     const parsed = tryParse(raw) as { title?: unknown; lang?: unknown } | undefined;
     const title =
       parsed && typeof parsed.title === 'string' && parsed.title.trim()
@@ -339,11 +336,11 @@ export async function resolveWikiEntityWith(
     const lang =
       parsed && typeof parsed.lang === 'string' && /^[a-z]{2,3}$/i.test(parsed.lang.trim())
         ? parsed.lang.trim().toLowerCase()
-        : 'es';
+        : fallbackLang;
     return { title, lang };
   } catch (e) {
     if (e instanceof DOMException && e.name === 'AbortError') throw e;
-    return { title: null, lang: 'es' };
+    return { title: null, lang: opts.locale ?? DEFAULT_LOCALE };
   }
 }
 
