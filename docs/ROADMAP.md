@@ -105,9 +105,11 @@ modelo activo "ve". Decisión del dueño: proceder con todo; el idioma manda sob
 **Track A — Idioma configurable (cimiento).**
 - [x] `feat: base de i18n en @curio/core` — `Locale`, nombres/labels de idioma, `languageDirective`
   (directiva de salida inyectable en prompts) y diccionario de textos compartidos (`STRINGS`).
-- [ ] `feat: prompts locale-aware` — los builders de `ollama/prompts.ts` aceptan `locale` y usan
+- [x] `feat: prompts locale-aware` — los builders de `ollama/prompts.ts` aceptan `locale` y usan
   `languageDirective` en vez de "responde en el idioma del texto".
-- [ ] `feat: ajuste de idioma en la web` (store + picker) que alimenta UI y prompts.
+- [x] `feat: ajuste de idioma en la web` (store + selector EN/ES) que alimenta **los prompts**
+  (chat, Gen UI, panel del modal, follow-ups, artículo, describe/relacionados/Wikipedia).
+- [ ] `feat: textos de UI de la web desde STRINGS` (hoy siguen en inglés a fuego).
 - [ ] `feat: ajuste de idioma en la extensión` (chrome.storage + popup) y textos desde `STRINGS`.
 
 **Track B — Cualquier API en las dos superficies.**
