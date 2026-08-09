@@ -15,7 +15,6 @@ import {
 import { useChatStore } from '../app/store';
 import { SCRIM_FADE } from '@curio/core';
 import { useDescribe } from '../lookup/useDescribe';
-import { useGenerative } from '../lookup/useGenerative';
 import { useOpenUI } from '../openui/useOpenUI';
 import DescriptionBody, { POPOVER_CLASS, SeeMoreButton } from './DescriptionBody';
 import DescribeModal from './DescribeModal';

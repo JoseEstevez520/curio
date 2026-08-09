@@ -19,20 +19,16 @@ function conversationContext(messages: Message[], messageId: string): string {
 }
 
 /**
- * Resolve the generative-UI component + related links for `term` (the modal's rich content).
- * Runs when `active`; we PREFETCH it on word click (see SelectionPopover) so "See more" opens
- * to a ready component instead of a spinner. Cached per (model, message, term) in the store,
- * so opening the modal is instant once the prefetch lands.
- *
- * `fallbackText` is the plain gloss; it becomes the plain-text envelope when no richer
- * component is produced.
+ * Resolve the related links + Wikipedia card for `term` (the modal's rich content). Runs when
+ * `active`; we PREFETCH it on word click so "See more" opens to a ready component instead of a
+ * spinner. Cached per (model, message, term) in the store, so opening the modal is instant once
+ * the prefetch lands. (The description itself is authored by OpenUI now — see useOpenUI.)
  */
 export function useGenerative(
   active: boolean,
   messageId: string,
   term: string,
   context: string,
-  fallbackText: string,
 ): GenerativeEntry | undefined {
   // Structured output uses the capable/chat brain. The brain+model is part of the cache key
   // (useActiveModelId), so switching never serves a component built by another.
