@@ -123,10 +123,12 @@ modelo activo "ve". Decisión del dueño: proceder con todo; el idioma manda sob
 - [ ] `feat: experiencia de modal completa en la extensión` (follow-ups, navegación, Wikipedia).
 
 **Track D — Multimodal (imagen entera), con flag por capacidad.**
-- [ ] `feat: images? en ChatMessage` + serialización en proveedores Ollama y OpenAI-compat.
-- [ ] `feat: detección de capacidad de visión del modelo` (Ollama por familia; cloud por intento;
-  Chrome AI por disponibilidad) → expone el flag solo si aplica.
-- [ ] `feat: describir imagen` — prompt de imagen + clic/hover sobre `<img>` (web y extensión).
+- [x] `feat: images? en ChatMessage` + serialización en proveedores Ollama (base64) y OpenAI (image_url).
+- [x] `feat: detección de capacidad de visión del modelo` (`ollamaModelSupportsVision`, heurística
+  por familia + nombre) → gobernará el flag.
+- [x] `feat: describir imagen (núcleo)` — `buildDescribeImageMessages` + `describeImageWith` + tests.
+- [ ] `feat: clic en `<img>` → describir en la web` (flag en header visible solo si el modelo ve).
+- [ ] `feat: clic en `<img>` → describir en la extensión` (captura a data URL; ojo CORS entre orígenes).
 - [ ] (mejora posterior) `feat: describir una zona recortada de la imagen`.
 
 **Hecho cuando:** cambiar el idioma cambia UI y respuestas del modelo en ambas superficies; se puede
