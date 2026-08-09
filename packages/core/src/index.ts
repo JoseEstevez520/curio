@@ -13,6 +13,8 @@ export * from './llm/openai-provider';
 export * from './llm/chrome-ai-provider';
 export * from './llm/fallback-provider';
 export * from './llm/factory';
+// Vision-capability detection: drives the image-describe flag (shown only when the model sees).
+export * from './llm/vision';
 
 // Motion tokens (shared-element morph, fades).
 export * from './motion';

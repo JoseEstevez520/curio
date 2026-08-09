@@ -7,6 +7,7 @@ import {
   buildConnectorMessages,
   buildRelatedMessages,
   buildWikiEntityMessages,
+  buildDescribeImageMessages,
 } from '../ollama/prompts';
 import { typeChoiceJsonSchema, dataJsonSchema } from '../catalog/jsonSchema';
 import { coerceFromParts } from '../catalog/coerce';
@@ -135,6 +136,26 @@ export async function describeWith(
     messages: buildDescribeMessages(term, context, conversation, locale),
     temperature: 0.2,
     maxTokens: 120,
+  });
+  return cleanDescription(text);
+}
+
+/**
+ * Describe an IMAGE (whole image) with any vision-capable {@link LlmProvider} — the multimodal
+ * counterpart of {@link describeWith}. `imageDataUrl` is a data URL; `context` is the nearby page
+ * text (optional) for disambiguation. Sanitized like the text gloss. The caller is responsible for
+ * only invoking this when the active model can see (see `ollamaModelSupportsVision`).
+ */
+export async function describeImageWith(
+  provider: LlmProvider,
+  imageDataUrl: string,
+  context?: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<string> {
+  const text = await provider.complete({
+    messages: buildDescribeImageMessages(imageDataUrl, context, locale),
+    temperature: 0.2,
+    maxTokens: 160,
   });
   return cleanDescription(text);
 }

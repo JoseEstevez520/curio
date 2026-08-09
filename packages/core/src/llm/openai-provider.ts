@@ -1,4 +1,4 @@
-import type { ChatMessage } from '../ollama/types';
+import type { ChatMessage, ChatRole } from '../ollama/types';
 import type { CompletionRequest, LlmProvider } from './provider';
 
 /**
@@ -42,9 +42,33 @@ export class OpenAIError extends Error {
   }
 }
 
+/** OpenAI content part: plain text, or an image referenced by URL (a data URL works). */
+type OpenAIContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
+
+/** A message on the wire to an OpenAI-compatible endpoint. Content is a string, or — when the
+ *  turn carries images — the multimodal parts array (`text` + `image_url` entries). */
+interface OpenAIWireMessage {
+  role: ChatRole;
+  content: string | OpenAIContentPart[];
+}
+
+/** Serialize a {@link ChatMessage} to the wire shape: images become `image_url` parts. */
+function toWireMessage(m: ChatMessage): OpenAIWireMessage {
+  if (!m.images?.length) return { role: m.role, content: m.content };
+  return {
+    role: m.role,
+    content: [
+      { type: 'text', text: m.content },
+      ...m.images.map((url) => ({ type: 'image_url' as const, image_url: { url } })),
+    ],
+  };
+}
+
 interface ChatCompletionBody {
   model: string;
-  messages: ChatMessage[];
+  messages: OpenAIWireMessage[];
   stream: boolean;
   temperature?: number;
   max_tokens?: number;
@@ -94,12 +118,8 @@ export class OpenAICompatibleProvider implements LlmProvider {
    * already handle any shape mismatch, so this stays robust across models.
    */
   private buildBody(req: CompletionRequest, stream: boolean): ChatCompletionBody {
-    let messages = req.messages;
-    const body: ChatCompletionBody = { model: this.model, messages, stream };
-    if (req.temperature !== undefined) body.temperature = req.temperature;
-    if (req.maxTokens !== undefined) body.max_tokens = req.maxTokens;
+    let messages: ChatMessage[] = req.messages;
     if (req.format !== undefined) {
-      body.response_format = { type: 'json_object' };
       messages = [
         ...req.messages,
         {
@@ -107,8 +127,15 @@ export class OpenAICompatibleProvider implements LlmProvider {
           content: 'Respond with ONE valid JSON object only — no prose, no markdown fences.',
         },
       ];
-      body.messages = messages;
     }
+    const body: ChatCompletionBody = {
+      model: this.model,
+      messages: messages.map(toWireMessage),
+      stream,
+    };
+    if (req.temperature !== undefined) body.temperature = req.temperature;
+    if (req.maxTokens !== undefined) body.max_tokens = req.maxTokens;
+    if (req.format !== undefined) body.response_format = { type: 'json_object' };
     return body;
   }
 

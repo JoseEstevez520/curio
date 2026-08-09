@@ -59,6 +59,37 @@ export function buildDescribeMessages(
 }
 
 /**
+ * Build the messages for the IMAGE describer — the multimodal counterpart of
+ * {@link buildDescribeMessages}. A reader pointed at an image while reading and wants a QUICK
+ * glimpse of what it shows. The image rides as a data URL on the user turn's `images`; only a
+ * vision-capable model uses it. Answers in the configured language.
+ */
+export function buildDescribeImageMessages(
+  imageDataUrl: string,
+  context?: string,
+  locale: Locale = DEFAULT_LOCALE,
+): ChatMessage[] {
+  const convo = context?.trim()
+    ? `Nearby text, only for context (do not describe this): "${context.trim()}"\n\n`
+    : '';
+  return [
+    {
+      role: 'system',
+      content:
+        "You are Curio's image describer. A reader pointed at an image while reading and wants a " +
+        'QUICK glimpse. Answer with EXACTLY ONE short, plain sentence — no preamble, no headings, ' +
+        'no markdown, no labels. Describe what is ACTUALLY VISIBLE in the image; never invent ' +
+        `details you cannot see. ${languageDirective(locale)}`,
+    },
+    {
+      role: 'user',
+      content: `${convo}Describe what this image shows.`,
+      images: [imageDataUrl],
+    },
+  ];
+}
+
+/**
  * Build the messages for the WIKIPEDIA ENTITY RESOLVER — a tiny classification that decides, IN
  * CONTEXT, whether the term names a real encyclopedic entity with its own Wikipedia article, and
  * if so its canonical title + language. This is what lets the modal show a photo ONLY for a real,

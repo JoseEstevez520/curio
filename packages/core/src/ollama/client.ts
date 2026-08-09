@@ -4,7 +4,13 @@
 // go through the same-origin `/ollama` proxy (see vite.config.ts), so there is no
 // CORS and no user configuration. Browser-side only.
 
-import type { ChatMessage, ChatParams, OllamaFormat } from './types';
+import {
+  dataUrlToBase64,
+  type ChatMessage,
+  type ChatParams,
+  type ChatRole,
+  type OllamaFormat,
+} from './types';
 
 /**
  * Base prefix for every Ollama request. Configurable so the same core works on any surface:
@@ -77,14 +83,27 @@ export async function ollamaFetch(path: string, init?: RequestInit): Promise<Res
   return response;
 }
 
+/** A message on the wire to Ollama: like {@link ChatMessage} but images are bare base64. */
+interface OllamaWireMessage {
+  role: ChatRole;
+  content: string;
+  images?: string[];
+}
+
 /** Request body shape for `POST /api/chat`. */
 interface ChatRequestBody {
   model: string;
-  messages: ChatMessage[];
+  messages: OllamaWireMessage[];
   stream: boolean;
   format?: OllamaFormat;
   keep_alive?: string;
   options?: { temperature?: number; num_predict?: number };
+}
+
+/** Ollama wants images as bare base64 (no data-URL prefix) in `images` on each message. */
+function toWireMessage(m: ChatMessage): OllamaWireMessage {
+  if (!m.images?.length) return { role: m.role, content: m.content };
+  return { role: m.role, content: m.content, images: m.images.map(dataUrlToBase64) };
 }
 
 /** A single NDJSON chunk from `/api/chat` (fields we care about). */
@@ -96,7 +115,7 @@ interface ChatStreamChunk {
 function buildChatBody(params: ChatParams, stream: boolean): ChatRequestBody {
   const body: ChatRequestBody = {
     model: params.model,
-    messages: params.messages,
+    messages: params.messages.map(toWireMessage),
     stream,
   };
   if (params.format !== undefined) {

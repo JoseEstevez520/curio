@@ -10,6 +10,20 @@ export type ChatRole = 'system' | 'user' | 'assistant';
 export interface ChatMessage {
   role: ChatRole;
   content: string;
+  /**
+   * Optional images attached to this turn, as **data URLs** (e.g. `data:image/png;base64,…`).
+   * Provider-agnostic on purpose: each provider serializes them to its own wire format (Ollama
+   * → bare base64 in `images`; OpenAI-compatible → `content` parts with `image_url`). Only vision
+   * models make use of them; text-only models / providers ignore them.
+   */
+  images?: string[];
+}
+
+/** Strip a data-URL prefix (`data:image/png;base64,`) down to bare base64, for wire formats
+ *  (Ollama) that want the raw payload. A value that is already bare base64 passes through. */
+export function dataUrlToBase64(dataUrl: string): string {
+  const comma = dataUrl.indexOf(',');
+  return dataUrl.startsWith('data:') && comma !== -1 ? dataUrl.slice(comma + 1) : dataUrl;
 }
 
 /**
