@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CatalogRenderer, type Envelope } from '@curio/core';
+import { CatalogRenderer, STRINGS, toLocale, DEFAULT_LOCALE, type Envelope, type Locale } from '@curio/core';
 import { STORAGE, type DescribeResult, type GenerateResult } from '../messages';
 
 /** What the reader picked: the term, its surrounding context, and where to anchor. */
@@ -32,23 +32,29 @@ async function send<T>(msg: object): Promise<T> {
 
 export default function Overlay() {
   const [enabled, setEnabled] = useState(false);
+  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
   const [pick, setPick] = useState<Pick | null>(null);
   const [gloss, setGloss] = useState<Loadable<string> | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [gen, setGen] = useState<Loadable<Envelope> | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // On/off, driven by the popup + the Alt+C command (both flip chrome.storage).
+  // On/off + language, driven by the popup + the Alt+C command (both flip chrome.storage).
   useEffect(() => {
-    chrome.storage.local.get(STORAGE.enabled).then((s) => setEnabled(!!s[STORAGE.enabled]));
+    chrome.storage.local.get([STORAGE.enabled, STORAGE.locale]).then((s) => {
+      setEnabled(!!s[STORAGE.enabled]);
+      setLocale(toLocale(s[STORAGE.locale]));
+    });
     const onChange = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-      if (area === 'local' && STORAGE.enabled in changes) {
-        setEnabled(!!changes[STORAGE.enabled].newValue);
-      }
+      if (area !== 'local') return;
+      if (STORAGE.enabled in changes) setEnabled(!!changes[STORAGE.enabled].newValue);
+      if (STORAGE.locale in changes) setLocale(toLocale(changes[STORAGE.locale].newValue));
     };
     chrome.storage.onChanged.addListener(onChange);
     return () => chrome.storage.onChanged.removeListener(onChange);
   }, []);
+
+  const s = STRINGS[locale];
 
   const close = useCallback(() => {
     setPick(null);
@@ -169,7 +175,7 @@ export default function Overlay() {
           className="max-w-[320px] overflow-y-auto rounded-xl border border-border bg-bg px-4 py-3 text-sm leading-normal text-fg-secondary"
         >
           {!gloss || gloss.status === 'loading' ? (
-            <div className="curio-dots" role="status" aria-label="Cargando descripción">
+            <div className="curio-dots" role="status" aria-label={s.loadingDescription}>
               <span />
               <span />
               <span />
@@ -186,7 +192,7 @@ export default function Overlay() {
                 onClick={() => setExpanded(true)}
                 className="mt-2 text-xs font-medium text-accent hover:text-accent-hover hover:underline"
               >
-                Ver más
+                {s.seeMore}
               </button>
             </>
           )}
@@ -224,7 +230,7 @@ export default function Overlay() {
               <h2 className="text-lg font-semibold leading-snug text-fg">{pick.term}</h2>
               <button
                 onClick={close}
-                aria-label="Cerrar"
+                aria-label={s.close}
                 className="-mr-1 shrink-0 rounded-md p-1 text-xl leading-none text-fg-muted hover:text-fg"
               >
                 &times;
@@ -232,7 +238,7 @@ export default function Overlay() {
             </header>
             <div className="min-h-0 overflow-y-auto px-5 py-4 text-base leading-relaxed text-fg-secondary">
               {!gen || gen.status === 'loading' ? (
-                <div className="curio-dots" role="status" aria-label="Generando descripción">
+                <div className="curio-dots" role="status" aria-label={s.generating}>
                   <span />
                   <span />
                   <span />

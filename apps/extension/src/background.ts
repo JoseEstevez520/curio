@@ -17,6 +17,9 @@ import {
   isChromeAIAvailable,
   ChromeAIProvider,
   OllamaProvider,
+  STRINGS,
+  toLocale,
+  type Locale,
   type LlmProvider,
 } from '@curio/core';
 import { STORAGE, type Brain, type CurioRequest } from './messages';
@@ -29,6 +32,12 @@ async function storedModel(): Promise<string | undefined> {
   return s[STORAGE.model] ?? s[STORAGE.describeModel];
 }
 
+/** The configured language (defaults to English when unset), for prompts + error messages. */
+async function storedLocale(): Promise<Locale> {
+  const s = await chrome.storage.local.get(STORAGE.locale);
+  return toLocale(s[STORAGE.locale]);
+}
+
 /** Pick the brain: built-in AI first, then Ollama; null if neither is ready. */
 async function pickProvider(): Promise<LlmProvider | null> {
   if (await isChromeAIAvailable()) return new ChromeAIProvider();
@@ -36,9 +45,6 @@ async function pickProvider(): Promise<LlmProvider | null> {
   if (model && (await pingOllama())) return new OllamaProvider(model);
   return null;
 }
-
-const NO_BRAIN =
-  'No hay IA disponible: activa Gemini Nano en Chrome, o arranca Ollama (con OLLAMA_ORIGINS).';
 
 chrome.runtime.onMessage.addListener((msg: CurioRequest, _sender, sendResponse) => {
   (async () => {
@@ -57,10 +63,11 @@ chrome.runtime.onMessage.addListener((msg: CurioRequest, _sender, sendResponse) 
       }
 
       const provider = await pickProvider();
-      if (!provider) throw new Error(NO_BRAIN);
+      const locale = await storedLocale();
+      if (!provider) throw new Error(STRINGS[locale].noBrain);
 
       if (msg.kind === 'describe') {
-        const text = await describeWith(provider, msg.term, msg.context, msg.conversation);
+        const text = await describeWith(provider, msg.term, msg.context, msg.conversation, locale);
         sendResponse({ ok: true, data: text });
         return;
       }
@@ -71,6 +78,7 @@ chrome.runtime.onMessage.addListener((msg: CurioRequest, _sender, sendResponse) 
           context: msg.context,
           conversation: msg.conversation,
           fallbackText: msg.fallbackText?.trim() || msg.term,
+          locale,
         });
         sendResponse({ ok: true, data: envelope });
         return;

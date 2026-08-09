@@ -98,6 +98,26 @@ select {
   color: #fff;
   border-color: transparent;
 }
+.langs {
+  display: inline-flex;
+  gap: 4px;
+}
+.lang {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--bg);
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.lang.on {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
 .hint {
   font-size: 12px;
   color: var(--fg-muted);

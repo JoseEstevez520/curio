@@ -44,4 +44,6 @@ export const STORAGE = {
   enabled: 'curio:enabled',
   model: 'curio:model',
   describeModel: 'curio:describeModel',
+  /** The language Curio speaks in this browser: UI strings + the model's output. */
+  locale: 'curio:locale',
 } as const;

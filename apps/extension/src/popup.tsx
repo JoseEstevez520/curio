@@ -1,20 +1,25 @@
 /* eslint-disable react-refresh/only-export-components -- popup entry point, not an HMR module */
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { OllamaModel } from '@curio/core';
+import { LOCALES, toLocale, DEFAULT_LOCALE, type OllamaModel, type Locale } from '@curio/core';
 import { STORAGE, type Brain, type StatusResult } from './messages';
+import { t } from './strings';
 import './popup.css';
 
 function Popup() {
   const [enabled, setEnabled] = useState(false);
+  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
   const [brain, setBrain] = useState<Brain | 'checking'>('checking');
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [model, setModel] = useState('');
 
+  const s = t(locale);
+
   useEffect(() => {
-    chrome.storage.local.get([STORAGE.enabled, STORAGE.model]).then((s) => {
-      setEnabled(!!s[STORAGE.enabled]);
-      if (s[STORAGE.model]) setModel(s[STORAGE.model]);
+    chrome.storage.local.get([STORAGE.enabled, STORAGE.model, STORAGE.locale]).then((st) => {
+      setEnabled(!!st[STORAGE.enabled]);
+      setLocale(toLocale(st[STORAGE.locale]));
+      if (st[STORAGE.model]) setModel(st[STORAGE.model]);
     });
 
     (async () => {
@@ -37,6 +42,11 @@ function Popup() {
     chrome.storage.local.set({ [STORAGE.enabled]: next });
   };
 
+  const pickLocale = (next: Locale) => {
+    setLocale(next);
+    chrome.storage.local.set({ [STORAGE.locale]: next });
+  };
+
   const pickModel = (name: string) => {
     setModel(name);
     // One model for both roles in the extension (no separate fast describer here).
@@ -45,19 +55,19 @@ function Popup() {
 
   const statusLine =
     brain === 'checking'
-      ? 'Comprobando…'
+      ? s.checking
       : brain === 'chrome-ai'
-        ? 'IA del navegador (Gemini Nano) · sin configurar nada'
+        ? s.brainChromeAI
         : brain === 'ollama'
-          ? 'Ollama conectado'
-          : 'Sin IA disponible';
+          ? s.brainOllama
+          : s.brainNone;
 
   return (
     <div className="wrap">
       <div className="row">
         <span className="brand">Curio</span>
         <button className={`toggle ${enabled ? 'on' : ''}`} onClick={toggle}>
-          {enabled ? 'Activo' : 'Desactivado'}
+          {enabled ? s.active : s.disabled}
         </button>
       </div>
 
@@ -65,11 +75,30 @@ function Popup() {
         {statusLine}
       </div>
 
+      <div className="row">
+        <label htmlFor="curio-lang" style={{ color: 'var(--fg-muted)', fontSize: 12 }}>
+          {s.language}
+        </label>
+        <div className="langs" role="group" aria-label={s.language}>
+          {LOCALES.map((l) => (
+            <button
+              key={l}
+              type="button"
+              aria-pressed={locale === l}
+              className={`lang ${locale === l ? 'on' : ''}`}
+              onClick={() => pickLocale(l)}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {brain === 'ollama' && (
         <div>
-          <label htmlFor="curio-model">Modelo</label>
+          <label htmlFor="curio-model">{s.model}</label>
           <select id="curio-model" value={model} onChange={(e) => pickModel(e.target.value)}>
-            {models.length === 0 && <option value="">Sin modelos — haz `ollama pull`</option>}
+            {models.length === 0 && <option value="">{s.noModels}</option>}
             {models.map((m) => (
               <option key={m.name} value={m.name}>
                 {m.name}
@@ -83,14 +112,12 @@ function Popup() {
         className="row"
         style={{ justifyContent: 'flex-start', gap: 6, color: 'var(--fg-muted)', fontSize: 12 }}
       >
-        Selecciona texto en la página (o pulsa <b style={{ color: 'var(--fg)' }}>Alt+C</b> para
-        activar).
+        {s.selectHintPre} <b style={{ color: 'var(--fg)' }}>Alt+C</b> {s.selectHintPost}
       </div>
 
       {brain === 'none' && (
         <div className="hint">
-          Activa <b>Gemini Nano</b> en Chrome (chrome://flags → Prompt API), o arranca Ollama
-          permitiendo la extensión:
+          {s.enableHint}
           <br />
           <code>OLLAMA_ORIGINS=chrome-extension://* ollama serve</code>
         </div>
