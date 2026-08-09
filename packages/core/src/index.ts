@@ -17,6 +17,11 @@ export * from './llm/factory';
 // Motion tokens (shared-element morph, fades).
 export * from './motion';
 
+// Language layer: one locale setting drives UI strings AND the model's output language
+// (the directive injected into prompts). Shared by web and extension.
+export * from './i18n/locale';
+export * from './i18n/strings';
+
 // Ollama client (configurable base), model listing, prompt builders, shared types.
 export * from './ollama/client';
 export * from './ollama/models';

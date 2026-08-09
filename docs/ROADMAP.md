@@ -95,6 +95,43 @@ clic sobre algo prefetcheado es instantáneo.
 
 ---
 
+## v4 — Idioma configurable, cualquier API, paridad de superficies y multimodal
+
+**Meta:** que web y extensión hablen el **idioma que se configure** (incluidos los system prompts),
+sirvan **cualquier API** OpenAI-compatible (trae-tu-clave), compartan la **misma experiencia de
+modal**, y puedan **describir imágenes** (imagen entera) tras un flag que se activa solo si el
+modelo activo "ve". Decisión del dueño: proceder con todo; el idioma manda sobre UI **y** salida.
+
+**Track A — Idioma configurable (cimiento).**
+- [x] `feat: base de i18n en @curio/core` — `Locale`, nombres/labels de idioma, `languageDirective`
+  (directiva de salida inyectable en prompts) y diccionario de textos compartidos (`STRINGS`).
+- [ ] `feat: prompts locale-aware` — los builders de `ollama/prompts.ts` aceptan `locale` y usan
+  `languageDirective` en vez de "responde en el idioma del texto".
+- [ ] `feat: ajuste de idioma en la web` (store + picker) que alimenta UI y prompts.
+- [ ] `feat: ajuste de idioma en la extensión` (chrome.storage + popup) y textos desde `STRINGS`.
+
+**Track B — Cualquier API en las dos superficies.**
+- [ ] `feat: cerebro cloud BYOK en la extensión` — `OpenAIProvider` contra el endpoint/clave del
+  usuario (guardados en `chrome.storage`), llamando directo por `host_permissions`.
+- [ ] `feat: selector de cerebro/modelo en el popup` (Chrome AI / Ollama / cloud).
+
+**Track C — Paridad del modal.**
+- [ ] `feat: migrar la extensión a OpenUI Lang` (fuera el catálogo viejo `CatalogRenderer`).
+- [ ] `feat: experiencia de modal completa en la extensión` (follow-ups, navegación, Wikipedia).
+
+**Track D — Multimodal (imagen entera), con flag por capacidad.**
+- [ ] `feat: images? en ChatMessage` + serialización en proveedores Ollama y OpenAI-compat.
+- [ ] `feat: detección de capacidad de visión del modelo` (Ollama por familia; cloud por intento;
+  Chrome AI por disponibilidad) → expone el flag solo si aplica.
+- [ ] `feat: describir imagen` — prompt de imagen + clic/hover sobre `<img>` (web y extensión).
+- [ ] (mejora posterior) `feat: describir una zona recortada de la imagen`.
+
+**Hecho cuando:** cambiar el idioma cambia UI y respuestas del modelo en ambas superficies; se puede
+enchufar cualquier endpoint OpenAI-compatible en las dos; el modal se comporta igual; y, con un
+modelo que ve, clicar una imagen la describe (y el flag desaparece si el modelo no ve).
+
+---
+
 ## 🌅 Horizonte — Escritorio + "segundo cerebro"  *(hacia la VISIÓN)*
 
 El salto grande, **después** de tener el núcleo web redondo (ver `VISION.md`):
