@@ -74,7 +74,8 @@ label {
   display: block;
   margin-bottom: 4px;
 }
-select {
+select,
+input {
   width: 100%;
   padding: 6px 8px;
   border: 1px solid var(--border);
@@ -82,6 +83,14 @@ select {
   background: var(--bg);
   color: var(--fg);
   font: inherit;
+}
+.cloud {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cloud .toggle {
+  margin-top: 6px;
 }
 .toggle {
   border: 1px solid var(--border);

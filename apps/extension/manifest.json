@@ -5,6 +5,7 @@
   "description": "Selecciona o pulsa una palabra en cualquier página y ve su descripción ahí mismo. Local, vía Ollama.",
   "permissions": ["storage", "activeTab"],
   "host_permissions": ["http://localhost:11434/*"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
   "background": {
     "service_worker": "src/background.ts",
     "type": "module"

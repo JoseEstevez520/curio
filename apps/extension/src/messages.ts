@@ -23,8 +23,18 @@ export interface StatusRequest {
 
 export type CurioRequest = DescribeRequest | GenerateRequest | StatusRequest;
 
-/** Which brain the extension will use: the browser's built-in AI, Ollama, or nothing ready. */
-export type Brain = 'chrome-ai' | 'ollama' | 'none';
+/**
+ * Which brain the extension is using: the browser's built-in AI, local Ollama, a cloud
+ * (OpenAI-compatible, bring-your-own-key) endpoint, or nothing ready.
+ */
+export type Brain = 'chrome-ai' | 'ollama' | 'cloud' | 'none';
+
+/**
+ * The user's brain PREFERENCE (distinct from the resolved {@link Brain}): 'auto' tries the
+ * built-in AI then Ollama (the zero-setup local path); 'cloud' forces the configured
+ * OpenAI-compatible endpoint. Stored under STORAGE.brain.
+ */
+export type BrainPref = 'auto' | 'cloud';
 
 export interface StatusData {
   brain: Brain;
@@ -46,4 +56,12 @@ export const STORAGE = {
   describeModel: 'curio:describeModel',
   /** The language Curio speaks in this browser: UI strings + the model's output. */
   locale: 'curio:locale',
+  /** Brain preference: 'auto' (built-in AI → Ollama) or 'cloud'. See {@link BrainPref}. */
+  brain: 'curio:brain',
+  /** Cloud (OpenAI-compatible) endpoint base URL, e.g. https://api.groq.com/openai/v1. */
+  cloudBaseUrl: 'curio:cloudBaseUrl',
+  /** Bring-your-own API key for the cloud endpoint. Lives only in this browser's storage. */
+  cloudApiKey: 'curio:cloudApiKey',
+  /** Cloud model id, e.g. 'openai/gpt-oss-20b'. */
+  cloudModel: 'curio:cloudModel',
 } as const;

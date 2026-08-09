@@ -25,6 +25,20 @@ export interface ExtStrings extends CoreStrings {
   enableHint: string;
   /** Language picker label. */
   language: string;
+  /** Brain preference picker label + options. */
+  brain: string;
+  brainAuto: string;
+  brainCloud: string;
+  /** Status line when the cloud endpoint is the active brain. */
+  brainCloudConnected: string;
+  /** Cloud form field labels + actions. */
+  cloudEndpoint: string;
+  cloudKey: string;
+  cloudModel: string;
+  cloudSave: string;
+  cloudSaved: string;
+  cloudNeedsConfig: string;
+  cloudDenied: string;
 }
 
 type PopupOnly = Omit<ExtStrings, keyof CoreStrings>;
@@ -44,6 +58,17 @@ const POPUP: Record<Locale, PopupOnly> = {
     enableHint:
       'Enable Gemini Nano in Chrome (chrome://flags → Prompt API), or start Ollama allowing the extension:',
     language: 'Language',
+    brain: 'Brain',
+    brainAuto: 'Auto (local)',
+    brainCloud: 'Cloud',
+    brainCloudConnected: 'Cloud endpoint · bring-your-own-key',
+    cloudEndpoint: 'Endpoint (OpenAI-compatible)',
+    cloudKey: 'API key (optional)',
+    cloudModel: 'Model id',
+    cloudSave: 'Grant access & save',
+    cloudSaved: 'Saved ✓',
+    cloudNeedsConfig: 'Enter an endpoint URL and a model id.',
+    cloudDenied: 'Access to that endpoint was denied.',
   },
   es: {
     active: 'Activo',
@@ -59,6 +84,17 @@ const POPUP: Record<Locale, PopupOnly> = {
     enableHint:
       'Activa Gemini Nano en Chrome (chrome://flags → Prompt API), o arranca Ollama permitiendo la extensión:',
     language: 'Idioma',
+    brain: 'Cerebro',
+    brainAuto: 'Auto (local)',
+    brainCloud: 'Cloud',
+    brainCloudConnected: 'Endpoint cloud · trae-tu-clave',
+    cloudEndpoint: 'Endpoint (compatible con OpenAI)',
+    cloudKey: 'Clave de API (opcional)',
+    cloudModel: 'ID del modelo',
+    cloudSave: 'Dar acceso y guardar',
+    cloudSaved: 'Guardado ✓',
+    cloudNeedsConfig: 'Introduce la URL del endpoint y un ID de modelo.',
+    cloudDenied: 'Se denegó el acceso a ese endpoint.',
   },
 };
 

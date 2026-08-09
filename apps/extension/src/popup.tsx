@@ -2,9 +2,18 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { LOCALES, toLocale, DEFAULT_LOCALE, type OllamaModel, type Locale } from '@curio/core';
-import { STORAGE, type Brain, type StatusResult } from './messages';
+import { STORAGE, type Brain, type BrainPref, type StatusResult } from './messages';
 import { t } from './strings';
 import './popup.css';
+
+/** Derive the host-permission origin pattern (e.g. "https://api.groq.com/*") from a base URL. */
+function originPattern(baseUrl: string): string | null {
+  try {
+    return `${new URL(baseUrl).origin}/*`;
+  } catch {
+    return null;
+  }
+}
 
 function Popup() {
   const [enabled, setEnabled] = useState(false);
@@ -13,27 +22,49 @@ function Popup() {
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [model, setModel] = useState('');
 
+  // Cloud (bring-your-own-key) settings.
+  const [brainPref, setBrainPref] = useState<BrainPref>('auto');
+  const [cloudBaseUrl, setCloudBaseUrl] = useState('');
+  const [cloudApiKey, setCloudApiKey] = useState('');
+  const [cloudModel, setCloudModel] = useState('');
+  const [cloudNote, setCloudNote] = useState('');
+
   const s = t(locale);
 
-  useEffect(() => {
-    chrome.storage.local.get([STORAGE.enabled, STORAGE.model, STORAGE.locale]).then((st) => {
-      setEnabled(!!st[STORAGE.enabled]);
-      setLocale(toLocale(st[STORAGE.locale]));
-      if (st[STORAGE.model]) setModel(st[STORAGE.model]);
-    });
+  const refreshStatus = async () => {
+    const res = (await chrome.runtime.sendMessage({ kind: 'status' })) as StatusResult;
+    if (!res.ok) {
+      setBrain('none');
+      return;
+    }
+    setBrain(res.data.brain);
+    setModels(res.data.models);
+    if (res.data.brain === 'ollama') {
+      setModel((m) => m || res.data.models[0]?.name || '');
+    }
+  };
 
-    (async () => {
-      const res = (await chrome.runtime.sendMessage({ kind: 'status' })) as StatusResult;
-      if (!res.ok) {
-        setBrain('none');
-        return;
-      }
-      setBrain(res.data.brain);
-      setModels(res.data.models);
-      if (res.data.brain === 'ollama') {
-        setModel((m) => m || res.data.models[0]?.name || '');
-      }
-    })();
+  useEffect(() => {
+    chrome.storage.local
+      .get([
+        STORAGE.enabled,
+        STORAGE.model,
+        STORAGE.locale,
+        STORAGE.brain,
+        STORAGE.cloudBaseUrl,
+        STORAGE.cloudApiKey,
+        STORAGE.cloudModel,
+      ])
+      .then((st) => {
+        setEnabled(!!st[STORAGE.enabled]);
+        setLocale(toLocale(st[STORAGE.locale]));
+        if (st[STORAGE.model]) setModel(st[STORAGE.model]);
+        setBrainPref(st[STORAGE.brain] === 'cloud' ? 'cloud' : 'auto');
+        setCloudBaseUrl(st[STORAGE.cloudBaseUrl] ?? '');
+        setCloudApiKey(st[STORAGE.cloudApiKey] ?? '');
+        setCloudModel(st[STORAGE.cloudModel] ?? '');
+      });
+    void refreshStatus();
   }, []);
 
   const toggle = () => {
@@ -53,14 +84,57 @@ function Popup() {
     chrome.storage.local.set({ [STORAGE.model]: name, [STORAGE.describeModel]: name });
   };
 
+  // Switch brain preference. 'auto' saves immediately; 'cloud' only takes effect once the
+  // endpoint is saved (which also requests host access), so here we just reveal the form.
+  const pickBrain = (pref: BrainPref) => {
+    setBrainPref(pref);
+    setCloudNote('');
+    if (pref === 'auto') {
+      chrome.storage.local.set({ [STORAGE.brain]: 'auto' });
+      void refreshStatus();
+    }
+  };
+
+  // Save the cloud endpoint: request host access for its origin (needs this user gesture), then
+  // persist and flip the brain to cloud. Reaching arbitrary endpoints from the background needs
+  // the origin granted from optional_host_permissions.
+  const saveCloud = async () => {
+    const base = cloudBaseUrl.trim().replace(/\/$/, '');
+    const mdl = cloudModel.trim();
+    if (!base || !mdl) {
+      setCloudNote(s.cloudNeedsConfig);
+      return;
+    }
+    const pattern = originPattern(base);
+    if (!pattern) {
+      setCloudNote(s.cloudNeedsConfig);
+      return;
+    }
+    const granted = await chrome.permissions.request({ origins: [pattern] }).catch(() => false);
+    if (!granted) {
+      setCloudNote(s.cloudDenied);
+      return;
+    }
+    await chrome.storage.local.set({
+      [STORAGE.brain]: 'cloud',
+      [STORAGE.cloudBaseUrl]: base,
+      [STORAGE.cloudApiKey]: cloudApiKey.trim(),
+      [STORAGE.cloudModel]: mdl,
+    });
+    setCloudNote(s.cloudSaved);
+    void refreshStatus();
+  };
+
   const statusLine =
     brain === 'checking'
       ? s.checking
-      : brain === 'chrome-ai'
-        ? s.brainChromeAI
-        : brain === 'ollama'
-          ? s.brainOllama
-          : s.brainNone;
+      : brain === 'cloud'
+        ? s.brainCloudConnected
+        : brain === 'chrome-ai'
+          ? s.brainChromeAI
+          : brain === 'ollama'
+            ? s.brainOllama
+            : s.brainNone;
 
   return (
     <div className="wrap">
@@ -93,6 +167,64 @@ function Popup() {
           ))}
         </div>
       </div>
+
+      <div className="row">
+        <label style={{ color: 'var(--fg-muted)', fontSize: 12 }}>{s.brain}</label>
+        <div className="langs" role="group" aria-label={s.brain}>
+          <button
+            type="button"
+            aria-pressed={brainPref === 'auto'}
+            className={`lang ${brainPref === 'auto' ? 'on' : ''}`}
+            onClick={() => pickBrain('auto')}
+          >
+            {s.brainAuto}
+          </button>
+          <button
+            type="button"
+            aria-pressed={brainPref === 'cloud'}
+            className={`lang ${brainPref === 'cloud' ? 'on' : ''}`}
+            onClick={() => pickBrain('cloud')}
+          >
+            {s.brainCloud}
+          </button>
+        </div>
+      </div>
+
+      {brainPref === 'cloud' && (
+        <div className="cloud">
+          <label htmlFor="curio-cloud-base">{s.cloudEndpoint}</label>
+          <input
+            id="curio-cloud-base"
+            type="url"
+            placeholder="https://api.groq.com/openai/v1"
+            value={cloudBaseUrl}
+            onChange={(e) => setCloudBaseUrl(e.target.value)}
+          />
+          <label htmlFor="curio-cloud-model">{s.cloudModel}</label>
+          <input
+            id="curio-cloud-model"
+            type="text"
+            placeholder="openai/gpt-oss-20b"
+            value={cloudModel}
+            onChange={(e) => setCloudModel(e.target.value)}
+          />
+          <label htmlFor="curio-cloud-key">{s.cloudKey}</label>
+          <input
+            id="curio-cloud-key"
+            type="password"
+            value={cloudApiKey}
+            onChange={(e) => setCloudApiKey(e.target.value)}
+          />
+          <button type="button" className="toggle on" onClick={saveCloud}>
+            {s.cloudSave}
+          </button>
+          {cloudNote && (
+            <div className="status" style={{ marginTop: 2 }}>
+              {cloudNote}
+            </div>
+          )}
+        </div>
+      )}
 
       {brain === 'ollama' && (
         <div>
