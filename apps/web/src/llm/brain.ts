@@ -61,11 +61,17 @@ export function getBrain(role: BrainRole): ActiveBrain {
 
   // Ollama: chat prefers the larger model, the describer the small fast one.
   const model = (role === 'describe' ? (s.describeModel ?? s.model) : s.model) ?? '';
+  // Brain-agnostic reason: a local model OR an API endpoint both count as "a model", so the
+  // message never assumes Ollama.
+  const noModel =
+    s.locale === 'es'
+      ? 'No hay ningún modelo disponible. Añade un modelo local o configura un endpoint de API.'
+      : 'No model available. Add a local model or configure an API endpoint.';
   return {
     provider: createBrain({ kind: 'ollama', model, keepAlive: '10m' }),
     modelId: model,
     ready: !!model,
-    reason: !model ? 'No model available. Pull one with `ollama pull llama3.2:3b`.' : undefined,
+    reason: !model ? noModel : undefined,
   };
 }
 
