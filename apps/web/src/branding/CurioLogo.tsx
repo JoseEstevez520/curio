@@ -31,10 +31,12 @@ interface CurioLogoProps {
  * squishes the blob.
  */
 
-// Eye centers as a percentage of the blob box.
-const EYE_Y = 54;
-const EYE_LEFT_X = 33;
-const EYE_RIGHT_X = 58.5;
+// Eye centers as a percentage of the blob box. Re-measured for the cat-eared blob: the ears
+// occupy the top of the box, so the face — and the eyes — sit lower and centred (the old eyeless
+// blob was asymmetric; this one is symmetric). Same pupil size and spacing as before.
+const EYE_Y = 55;
+const EYE_LEFT_X = 37.25;
+const EYE_RIGHT_X = 62.75;
 // Pupil diameter and max travel, as a fraction of `size`. The travel is a touch generous so the
 // gaze reads clearly on BOTH sides — with the logo sitting left of centre, a tiny travel made the
 // rightward look feel static (the pupils just "pointed" right without a visible sweep).
@@ -158,8 +160,8 @@ export default function CurioLogo({
   // A real monocle rings well past the eye, so it's a sizeable fraction of the face.
   const mono = size * 0.42;
   const monocleStyle = {
-    left: '61%',
-    top: '57%',
+    left: '65.25%',
+    top: '58%',
     width: `${mono}px`,
     height: `${mono}px`,
     marginLeft: `${-mono / 2}px`,
