@@ -1,0 +1,296 @@
+/**
+ * Curio design tokens — implements docs/DESIGN.md.
+ *
+ * Monochrome. NO SHADOWS anywhere. Hierarchy comes from 1px
+ * hairlines and whitespace. Depth is implied by surface tone layering, never blur.
+ *
+ * Themes (§2): light is the :root default. Dark ships as two rules — a
+ * `@media (prefers-color-scheme: dark)` block for system preference, and a
+ * `:root[data-theme="dark"]` selector that overrides the media query so a manual
+ * toggle can force dark. `:root[data-theme="light"]` restores light values so
+ * forcing light also wins over the media query.
+ */
+
+:root {
+  /* ===== Color — Light theme (default) — §2 ===== */
+
+  /* Surfaces — from base up */
+  --color-bg: #ffffff; /* app canvas */
+  --color-bg-subtle: #fafafa; /* assistant message zone, panels */
+  --color-bg-muted: #f4f4f5; /* hover fills, code blocks */
+  --color-bg-inset: #ededee; /* pressed / active fills */
+
+  /* Foreground / text levels */
+  --color-fg: #18181b; /* primary text, headings */
+  --color-fg-secondary: #52525b; /* body-secondary, labels */
+  --color-fg-muted: #71717a; /* captions, metadata */
+  --color-fg-faint: #a1a1aa; /* placeholders, disabled */
+
+  /* Borders — hairlines only */
+  --color-border: #e4e4e7; /* default 1px hairline */
+  --color-border-strong: #d4d4d8; /* emphasized separation */
+  --color-border-focus: #3b82f6; /* focus ring color */
+
+  /* Accent — restrained blue */
+  --color-accent: #2563eb; /* links, interactive words, active */
+  --color-accent-hover: #1d4ed8;
+  --color-accent-subtle: #eff4ff; /* accent-tinted fill (selection, active word bg) */
+  --color-accent-fg: #ffffff; /* text on accent */
+
+  /* Data palette — restrained, slightly desaturated colors for DATA ONLY (chart series,
+     bars). The chrome (surfaces, borders, text) stays monochrome; color carries meaning in
+     data viz, never decoration. Tweak freely. */
+  --chart-1: #2563eb;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #db2777;
+
+  /* Curio brand blue — sampled from the mascot. Used for the text selection wash. */
+  --color-curio: #2e9bf7;
+
+  /* Selection — a Curio-blue wash: enough character to read as one solid block,
+     still light enough to keep the text underneath legible. Derived from the brand
+     color so it always matches the logo. */
+  --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);
+
+  /* Focus ring (rgba for layered ring) */
+  --focus-ring: rgba(59, 130, 246, 0.45);
+
+  /* Modal scrim — a flat dim, not a shadow (§5) */
+  --color-scrim: rgba(0, 0, 0, 0.35);
+
+  /* ===== Typography — §3 ===== */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Type scale (rem, 16px base) */
+  --text-xs: 0.75rem; /* 12px — metadata, captions, badges */
+  --text-sm: 0.875rem; /* 14px — secondary UI text, popover body */
+  --text-base: 1rem; /* 16px — chat message body (primary) */
+  --text-md: 1.125rem; /* 18px — comfortable reading option */
+  --text-lg: 1.375rem; /* 22px — panel titles, card headings */
+  --text-xl: 1.75rem; /* 28px — section headers */
+  --text-2xl: 2.25rem; /* 36px — empty-state / hero */
+
+  /* Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line-height */
+  --leading-tight: 1.25;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* Tracking */
+  --tracking-tight: -0.011em; /* headings */
+  --tracking-normal: 0;
+
+  /* Reading measure — cap message columns (§3) */
+  --measure: 65ch;
+
+  /* ===== Spacing scale (4px base grid) — §4 ===== */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4px  */
+  --space-2: 0.5rem; /* 8px  */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.5rem; /* 24px */
+  --space-6: 2rem; /* 32px */
+  --space-7: 3rem; /* 48px */
+  --space-8: 4rem; /* 64px */
+  --space-9: 6rem; /* 96px */
+
+  /* ===== Borders (hairlines only) — §4 ===== */
+  --border-hairline: 1px solid var(--color-border);
+  --border-strong: 1px solid var(--color-border-strong);
+
+  /* ===== Radius (small and subtle) — §4 ===== */
+  --radius-xs: 3px; /* inline chips, badges */
+  --radius-sm: 6px; /* buttons, inputs, popover */
+  --radius-md: 8px; /* cards, click panel */
+  --radius-lg: 12px; /* large containers (rare) */
+  --radius-xl: 16px; /* popover ⇄ modal morph surface, composer pill */
+  --radius-full: 999px; /* pills / avatars */
+
+  /* ===== Motion — §7 ===== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* default, decelerate */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-instant: 80ms; /* micro state (color, bg) */
+  --dur-fast: 120ms; /* hover popover, entity states */
+  --dur-base: 180ms; /* panel/card enter */
+  --dur-slow: 240ms; /* bottom sheet, larger travel */
+}
+
+/* ===== Color — Dark theme — §2 =====
+   Two rules: the media query tracks system preference; the [data-theme="dark"]
+   selector below overrides it so a manual toggle can force dark. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    /* Surfaces */
+    --color-bg: #0a0a0a; /* app canvas */
+    --color-bg-subtle: #111112; /* assistant message zone, panels */
+    --color-bg-muted: #18181b; /* hover fills, code blocks */
+    --color-bg-inset: #202023; /* pressed / active fills */
+
+    /* Foreground / text levels */
+    --color-fg: #f4f4f5; /* primary text */
+    --color-fg-secondary: #a1a1aa; /* body-secondary */
+    --color-fg-muted: #8b8b93; /* captions */
+    --color-fg-faint: #5c5c63; /* placeholders, disabled */
+
+    /* Borders */
+    --color-border: #26262a; /* default hairline */
+    --color-border-strong: #34343a; /* emphasized */
+    --color-border-focus: #3b82f6;
+
+    /* Accent */
+    --color-accent: #60a5fa; /* slightly lighter for dark bg */
+    --color-accent-hover: #93c5fd;
+    --color-accent-subtle: #16233d; /* accent-tinted fill */
+    --color-accent-fg: #0a0a0a;
+
+    /* Data palette — lighter/softer on the dark canvas. */
+    --chart-1: #60a5fa;
+    --chart-2: #2dd4bf;
+    --chart-3: #fbbf24;
+    --chart-4: #a78bfa;
+    --chart-5: #f472b6;
+
+    /* Curio brand blue — a touch brighter so it carries on the dark canvas. */
+    --color-curio: #4aa8ff;
+
+    /* Selection — slightly stronger mix so the wash still reads on black. */
+    --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
+
+    /* Focus ring */
+    --focus-ring: rgba(96, 165, 250, 0.5);
+
+    /* Modal scrim — darker dim for dark theme (§5) */
+    --color-scrim: rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* Manual override: force dark regardless of system preference. */
+:root[data-theme='dark'] {
+  /* Match native controls (textarea caret, scrollbar, selection) to the theme, so toggling
+     doesn't leave the "Read" text box rendering in the old scheme for a beat. */
+  color-scheme: dark;
+
+  --color-bg: #0a0a0a;
+  --color-bg-subtle: #111112;
+  --color-bg-muted: #18181b;
+  --color-bg-inset: #202023;
+
+  --color-fg: #f4f4f5;
+  --color-fg-secondary: #a1a1aa;
+  --color-fg-muted: #8b8b93;
+  --color-fg-faint: #5c5c63;
+
+  --color-border: #26262a;
+  --color-border-strong: #34343a;
+  --color-border-focus: #3b82f6;
+
+  --color-accent: #60a5fa;
+  --color-accent-hover: #93c5fd;
+  --color-accent-subtle: #16233d;
+  --color-accent-fg: #0a0a0a;
+
+  --chart-1: #60a5fa;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #f472b6;
+
+  --color-curio: #4aa8ff;
+  --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
+
+  --focus-ring: rgba(96, 165, 250, 0.5);
+
+  --color-scrim: rgba(0, 0, 0, 0.55);
+}
+
+/* Manual override: force light so it wins over the media query too. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafa;
+  --color-bg-muted: #f4f4f5;
+  --color-bg-inset: #ededee;
+
+  --color-fg: #18181b;
+  --color-fg-secondary: #52525b;
+  --color-fg-muted: #71717a;
+  --color-fg-faint: #a1a1aa;
+
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-border-focus: #3b82f6;
+
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-subtle: #eff4ff;
+  --color-accent-fg: #ffffff;
+
+  --chart-1: #2563eb;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #db2777;
+
+  --color-curio: #2e9bf7;
+  --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);
+
+  --focus-ring: rgba(59, 130, 246, 0.45);
+
+  --color-scrim: rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Base — §3 ===== */
+:root {
+  color-scheme: light dark;
+}
+
+/* Flipping the theme swaps every color token at once. Without this, elements with
+   `transition-colors` would ANIMATE from the old color to the new one — most are monochrome so
+   it's subtle, but the accent-blue send button visibly cross-fades between its two blues, reading
+   as a "blue flash". While the toggle applies (one frame, see useTheme), we kill all transitions
+   so the theme switch is instant and crisp. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
+html {
+  /* Enable Inter's optical niceties (§3) */
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
+/* Native drag-selection: one continuous accent-tinted band (not choppy per-word
+   boxes), so even mid-drag a phrase reads as a single unit while reading/copying stay
+   unhindered (§8). */
+::selection {
+  background-color: var(--color-selection);
+  color: var(--color-fg);
+}

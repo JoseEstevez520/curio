@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+/* Real Inter, embedded */
+@font-face { font-family:'Inter'; font-weight:400; font-display:swap; src:url('brandkit/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-weight:500; font-display:swap; src:url('brandkit/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-weight:600; font-display:swap; src:url('brandkit/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family:'Inter'; font-weight:700; font-display:swap; src:url('brandkit/fonts/inter-700.woff2') format('woff2'); }
+</style>
+<link rel="stylesheet" href="brandkit/tokens.css" />
+<style>
+/* ---- Real Curio tokens in use (from tokens.css) ---- */
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin:0; background: var(--color-bg); color: var(--color-fg);
+  font-family: var(--font-sans); -webkit-font-smoothing: antialiased;
+  display:flex; gap:64px; align-items:center; justify-content:center;
+  min-height:100vh; padding:60px;
+}
+
+/* ===== Real mascot (CurioLogo) — body PNG + CSS eyes + monocle ===== */
+.curio-logo { position: relative; width: 140px; height: 140px; }
+.curio-logo img { width:100%; height:100%; display:block; }
+.curio-eye { position:absolute; }
+.curio-pupil {
+  position:relative; width:100%; height:100%; border-radius:9999px;
+  background: radial-gradient(circle at 38% 35%, #333 0%, #111 60%, #000 100%);
+}
+.curio-pupil::after {
+  content:''; position:absolute; top:16%; left:19%; width:28%; height:28%;
+  border-radius:9999px;
+  background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,255,255,.5));
+}
+/* eye sockets: EYE_Y=55, LX=37.25, RX=62.75, pupil ratio .105 of 140 = 14.7px */
+.eye-l, .eye-r { width:14.7px; height:14.7px; margin-left:-7.35px; margin-top:-7.35px; top:55%; }
+.eye-l { left:37.25%; } .eye-r { left:62.75%; }
+/* monocle: gold ring over right eye, left 65.25% top 58%, size .42*140=58.8px */
+.curio-monocle {
+  position:absolute; left:65.25%; top:58%; width:58.8px; height:58.8px;
+  margin-left:-29.4px; margin-top:-29.4px;
+  border:3px solid #d4af37; border-radius:9999px; pointer-events:none;
+}
+.curio-monocle::after {
+  content:''; position:absolute; top:90%; left:46%; width:8%; height:44%;
+  background:#d4af37; border-radius:2px; transform-origin:top center; transform:rotate(20deg);
+}
+
+/* ===== Real "See more" panel look ===== */
+.panel {
+  width: 560px; max-height: 640px; display:flex; flex-direction:column;
+  overflow:hidden; border-radius:16px; border:1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.panel header {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  padding:12px 20px; border-bottom:1px solid var(--color-border);
+}
+.panel h2 { margin:0; font-size:var(--text-lg); font-weight:600; line-height:1.35; color:var(--color-fg); }
+.panel .x { color:var(--color-fg-muted); font-size:20px; line-height:1; cursor:pointer; }
+.panel .body { padding:16px 20px; color:var(--color-fg-secondary); font-size:var(--text-base); line-height:1.6; overflow:auto; scrollbar-width:none; }
+.panel .body::-webkit-scrollbar { display:none; }
+.panel h3.term { font-weight:600; color:var(--color-fg); margin:0 0 8px; }
+.panel p { margin:0 0 16px; }
+.card { border:1px solid var(--color-border); border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+.card .h { font-weight:600; color:var(--color-fg); }
+.card .h em { color:var(--color-fg-muted); font-weight:400; font-style:italic; margin-left:6px; font-size:.9em; }
+.stat .big { font-size:2rem; font-weight:700; color:var(--color-fg); line-height:1.1; }
+.stat .lbl { color:var(--color-fg-secondary); font-size:var(--text-sm); margin-top:4px; }
+.cmp-title { font-size:var(--text-sm); color:var(--color-fg-secondary); margin:0 0 8px; }
+.cmp { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.cmp .col { border:1px solid var(--color-border); border-radius:12px; padding:12px 14px; }
+.cmp .col b { color:var(--color-fg); }
+.cmp ul { margin:8px 0 0; padding-left:18px; } .cmp li { margin:4px 0; font-size:var(--text-sm); }
+.composer { margin:6px 20px 16px; border-radius:9999px; background:var(--color-bg-muted); color:var(--color-fg-faint); padding:12px 18px; font-size:var(--text-sm); }
+
+/* label */
+.stage { position:absolute; top:24px; left:24px; font-size:12px; color:var(--color-fg-muted); letter-spacing:.04em; }
+.wm { position:absolute; bottom:24px; left:24px; font-weight:700; letter-spacing:-0.02em; font-size:var(--text-lg); }
+</style>
+</head>
+<body>
+  <div class="stage">FIDELITY CHECK · tokens + Inter + mascota reales</div>
+
+  <!-- mascot, inspecting (monocle on) -->
+  <div class="curio-logo">
+    <img src="brandkit/curio-body.png" alt="" />
+    <div class="curio-eye eye-l"><div class="curio-pupil"></div></div>
+    <div class="curio-eye eye-r"><div class="curio-pupil"></div></div>
+    <div class="curio-monocle"></div>
+  </div>
+
+  <!-- reconstructed See more panel -->
+  <div class="panel">
+    <header>
+      <h2>heliocentric</h2>
+      <div class="x">&times;</div>
+    </header>
+    <div class="body">
+      <h3 class="term">Heliocentric</h3>
+      <p>A model of the solar system with the Sun at its center, around which all planets — including Earth — orbit. Astronomically, it is the opposite of the geocentric model, which places a stationary Earth at the center of everything.</p>
+      <div class="card"><div class="h">Heliocentric <em>adjective</em></div>
+        <div style="margin-top:6px">Sun-centered; describing a system in which the Sun is the central body and other objects revolve around it.</div>
+      </div>
+      <div class="card stat"><div class="big">16th c.</div><div class="lbl">Century when Copernicus reframed the model as a scientific theory, displacing geocentrism.</div></div>
+      <div class="cmp-title">Heliocentric vs. Geocentric</div>
+      <div class="cmp">
+        <div class="col"><b>Heliocentric</b><ul><li>Sun at center</li><li>Earth is a planet in orbit</li><li>Retrograde loops explained naturally</li></ul></div>
+        <div class="col"><b>Geocentric</b><ul><li>Earth at center</li><li>Everything orbits Earth</li><li>Retrograde loops required elaborate epicycles</li></ul></div>
+      </div>
+    </div>
+    <div class="composer">Ask anything…</div>
+  </div>
+
+  <div class="wm">Curio</div>
+</body>
+</html>

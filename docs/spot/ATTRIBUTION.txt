@@ -1,0 +1,42 @@
+Curio 30s spot — audio credits
+================================
+
+MUSIC — NONE in the current render (SFX-only).
+  "Digital Lemonade" (Kevin MacLeod) was removed at the owner's request.
+  The final music track will be chosen and muxed later.
+
+  Pipeline is ready to drop in a track:
+    1. Put the chosen file at  curio-spot/music.mp3
+    2. The build step decodes it to awork/music.wav
+    3. mix.py auto-detects it and adds it as a LOW bed (peak ~0.13) with
+       SIDECHAIN DUCKING — the music dips (to ~55-60%, i.e. ~ -5 to -6 dB) under
+       each meaningful SFX and fades back over ~1 s. No code changes needed.
+  Whatever track is chosen, record its title / artist / source / license here.
+
+SFX (all from the HyperFrames /media-use bundled SFX library — royalty-free, cleared for use)
+  Library: <skills>/media-use/audio/assets/sfx
+  Design principle: sparse & "invisible" — SFX only where they mean something.
+  Files used and where:
+    sparkle.mp3        — hook shimmer (0.40s); soft shimmer as the calm turn line resolves (13.60s)
+    click.mp3          — ONE soft click on each REAL click: pain word-click x2 (4.26s, 7.76s),
+                         Curio word-click (17.0s), "See more" click (18.20s)
+    key-press.mp3      — typewriter, one per character but VERY low (barely perceptible ticks)
+    whoosh.mp3         — movement/transitions: browser covers the chat (4.6s, 8.0s, 10.02s),
+                         the crossfade handoff to light (12.35s), the popover->panel morph (18.35s)
+    whoosh-short.mp3   — browser slides back (6.70s, 9.60s); tabs sliding in during the build;
+                         strike swipe on the crossed-out payoff line (25.40s)
+    impact-bass-2.mp3  — soft landing swell under the morph (18.50s)
+    pop.mp3            — monocle pops on (19.50s)
+    ping.mp3           — the ONE "ding": the Gen UI reveal (22.50s)
+    chime.mp3          — warm confirm on "Curio rewards it." (26.05s); soft closing chime (28.05s)
+
+  Removed / reduced in this pass (less-is-more):
+    - key clicks made barely-there (were prominent)
+    - removed redundant UI ticks: paste/search ticks, entity-illuminate tick,
+      geocentric tick, breadcrumb tick, Gen-UI bar tick, and the per-cycle results ding
+    - removed the riser and the bass smash (the chaos->calm is now a plain crossfade)
+
+MIX / LEVELS
+  SFX sit as the whole program for now (no music). Peaks normalized to ~ -3.0 dBFS, no clipping.
+  Each SFX also carries a duck trigger (time + depth) so the music bed, once added, ducks under it.
+  Built with mix.py (numpy) -> mixed.wav (44.1 kHz stereo); muxed into curio-spot.mp4 via ffmpeg.
