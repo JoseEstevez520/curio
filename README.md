@@ -163,8 +163,8 @@ Flip to **Read**, paste an article, and the same engine works on any text — Ma
 
 <div align="center">
 
-<img src="docs/media/read-light.png" alt="Read mode — a pasted article as a reading surface where every word is clickable (light theme)" width="49%" />
-<img src="docs/media/read-dark.png" alt="The same reading in the dark theme" width="49%" />
+<img src="docs/media/read-light.png" alt="Read mode with Gen UI — a book's opening re-expressed as a heading, prose, a stat card, a definition and a callout (light theme)" width="49%" />
+<img src="docs/media/read-dark.png" alt="The same Gen UI reading in the dark theme" width="49%" />
 
 </div>
 
