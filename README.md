@@ -66,12 +66,6 @@ read  →  hover a word (it lights up)  →  click
 | **Light & dark** | Follows your system, or force it by hand. |
 | **A living mascot** | Breathes, follows the cursor, travels from hero to header when the chat starts, and dons a monocle while it inspects a term. |
 
-<div align="center">
-
-<img src="docs/media/mascot-morph.gif" alt="The mascot travels from the hero to the header when the conversation starts" width="60%" />
-
-</div>
-
 The panel is composed from components, and it is explorable — click a word inside it (here **geocentric**), walk one level deeper, and a breadcrumb tracks where your curiosity went:
 
 <div align="center">
