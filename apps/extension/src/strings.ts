@@ -39,6 +39,14 @@ export interface ExtStrings extends CoreStrings {
   cloudSaved: string;
   cloudNeedsConfig: string;
   cloudDenied: string;
+  /** "Describe images" toggle (popup) — shown only when the active model can see. */
+  describeImagesLabel: string;
+  /** Provisional title / term for an image pick (modal header). */
+  imageLabel: string;
+  /** Friendly message when the image can't be read from the canvas (CORS-tainted). */
+  imageCorsError: string;
+  /** Hint appended to the context on "see more" to coax a fuller image description. */
+  imageMoreHint: string;
 }
 
 type PopupOnly = Omit<ExtStrings, keyof CoreStrings>;
@@ -69,6 +77,11 @@ const POPUP: Record<Locale, PopupOnly> = {
     cloudSaved: 'Saved ✓',
     cloudNeedsConfig: 'Enter an endpoint URL and a model id.',
     cloudDenied: 'Access to that endpoint was denied.',
+    describeImagesLabel: 'Describe images',
+    imageLabel: 'Image',
+    imageCorsError:
+      "This image can't be read from another site (CORS). Try an image hosted on this page.",
+    imageMoreHint: 'Describe this image in more detail, covering its notable elements.',
   },
   es: {
     active: 'Activo',
@@ -95,6 +108,11 @@ const POPUP: Record<Locale, PopupOnly> = {
     cloudSaved: 'Guardado ✓',
     cloudNeedsConfig: 'Introduce la URL del endpoint y un ID de modelo.',
     cloudDenied: 'Se denegó el acceso a ese endpoint.',
+    describeImagesLabel: 'Describir imágenes',
+    imageLabel: 'Imagen',
+    imageCorsError:
+      'Esta imagen no se puede leer desde otro sitio (CORS). Prueba con una imagen alojada en esta página.',
+    imageMoreHint: 'Describe esta imagen con más detalle, cubriendo sus elementos destacados.',
   },
 };
 

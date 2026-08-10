@@ -1,7 +1,14 @@
 /* eslint-disable react-refresh/only-export-components -- popup entry point, not an HMR module */
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { LOCALES, toLocale, DEFAULT_LOCALE, type OllamaModel, type Locale } from '@curio/core';
+import {
+  LOCALES,
+  toLocale,
+  DEFAULT_LOCALE,
+  ollamaModelNameSuggestsVision,
+  type OllamaModel,
+  type Locale,
+} from '@curio/core';
 import { STORAGE, type Brain, type BrainPref, type StatusResult } from './messages';
 import { t } from './strings';
 import './popup.css';
@@ -21,6 +28,7 @@ function Popup() {
   const [brain, setBrain] = useState<Brain | 'checking'>('checking');
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [model, setModel] = useState('');
+  const [describeImages, setDescribeImages] = useState(false);
 
   // Cloud (bring-your-own-key) settings.
   const [brainPref, setBrainPref] = useState<BrainPref>('auto');
@@ -54,11 +62,13 @@ function Popup() {
         STORAGE.cloudBaseUrl,
         STORAGE.cloudApiKey,
         STORAGE.cloudModel,
+        STORAGE.describeImages,
       ])
       .then((st) => {
         setEnabled(!!st[STORAGE.enabled]);
         setLocale(toLocale(st[STORAGE.locale]));
         if (st[STORAGE.model]) setModel(st[STORAGE.model]);
+        setDescribeImages(!!st[STORAGE.describeImages]);
         setBrainPref(st[STORAGE.brain] === 'cloud' ? 'cloud' : 'auto');
         setCloudBaseUrl(st[STORAGE.cloudBaseUrl] ?? '');
         setCloudApiKey(st[STORAGE.cloudApiKey] ?? '');
@@ -71,6 +81,30 @@ function Popup() {
     const next = !enabled;
     setEnabled(next);
     chrome.storage.local.set({ [STORAGE.enabled]: next });
+  };
+
+  // Whether the active model can SEE: cloud is assumed multimodal, Ollama depends on the picked
+  // model's name, and the browser's Gemini Nano vision is still experimental (treated as no).
+  const modelSees =
+    brain === 'cloud' ? true : brain === 'ollama' ? ollamaModelNameSuggestsVision(model) : false;
+
+  // Keep the flag honest: once the brain is resolved, if the model can't see, the image feature
+  // can't work — turn it off so the content script never sends images to a text-only brain. Guard
+  // the transient states ('checking', or Ollama before its model name has loaded) so we never wipe
+  // a valid stored flag just because status hasn't settled yet.
+  useEffect(() => {
+    if (brain === 'checking') return;
+    if (brain === 'ollama' && !model) return;
+    if (!modelSees && describeImages) {
+      setDescribeImages(false);
+      chrome.storage.local.set({ [STORAGE.describeImages]: false });
+    }
+  }, [brain, model, modelSees, describeImages]);
+
+  const toggleDescribeImages = () => {
+    const next = !describeImages;
+    setDescribeImages(next);
+    chrome.storage.local.set({ [STORAGE.describeImages]: next });
   };
 
   const pickLocale = (next: Locale) => {
@@ -237,6 +271,20 @@ function Popup() {
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {modelSees && (
+        <div className="row">
+          <label style={{ marginBottom: 0 }}>{s.describeImagesLabel}</label>
+          <button
+            type="button"
+            aria-pressed={describeImages}
+            className={`toggle ${describeImages ? 'on' : ''}`}
+            onClick={toggleDescribeImages}
+          >
+            {describeImages ? s.active : s.disabled}
+          </button>
         </div>
       )}
 

@@ -17,11 +17,22 @@ export interface GenerateRequest {
   conversation?: string;
   fallbackText?: string;
 }
+export interface DescribeImageRequest {
+  kind: 'describeImage';
+  /** The captured image as a data URL (PNG). */
+  image: string;
+  /** Nearby page text (alt + surrounding block) for disambiguation. */
+  context?: string;
+}
 export interface StatusRequest {
   kind: 'status';
 }
 
-export type CurioRequest = DescribeRequest | GenerateRequest | StatusRequest;
+export type CurioRequest =
+  | DescribeRequest
+  | GenerateRequest
+  | DescribeImageRequest
+  | StatusRequest;
 
 /**
  * Which brain the extension is using: the browser's built-in AI, local Ollama, a cloud
@@ -47,6 +58,7 @@ export type CurioResponse<T> = { ok: true; data: T } | { ok: false; error: strin
 
 export type DescribeResult = CurioResponse<string>;
 export type GenerateResult = CurioResponse<Envelope>;
+export type DescribeImageResult = CurioResponse<string>;
 export type StatusResult = CurioResponse<StatusData>;
 
 /** Storage keys shared across background / content / popup. */
@@ -56,6 +68,8 @@ export const STORAGE = {
   describeModel: 'curio:describeModel',
   /** The language Curio speaks in this browser: UI strings + the model's output. */
   locale: 'curio:locale',
+  /** Whether clicking an image asks the (vision-capable) model to describe it. */
+  describeImages: 'curio:describeImages',
   /** Brain preference: 'auto' (built-in AI → Ollama) or 'cloud'. See {@link BrainPref}. */
   brain: 'curio:brain',
   /** Cloud (OpenAI-compatible) endpoint base URL, e.g. https://api.groq.com/openai/v1. */

@@ -14,6 +14,7 @@ import {
   configureOllama,
   createBrain,
   describeWith,
+  describeImageWith,
   generateEnvelopeWith,
   listModels,
   pingOllama,
@@ -119,6 +120,12 @@ chrome.runtime.onMessage.addListener((msg: CurioRequest, _sender, sendResponse) 
 
       if (msg.kind === 'describe') {
         const text = await describeWith(provider, msg.term, msg.context, msg.conversation, locale);
+        sendResponse({ ok: true, data: text });
+        return;
+      }
+
+      if (msg.kind === 'describeImage') {
+        const text = await describeImageWith(provider, msg.image, msg.context, locale);
         sendResponse({ ok: true, data: text });
         return;
       }
