@@ -23,15 +23,11 @@
 
 ## At a glance
 
-```text
-read  →  hover a word (it lights up)  →  click
-                                           │
-                     ┌─────────────────────┴─────────────────────┐
-                     ▼                                            ▼
-             one-sentence glance                       "See more" → composed panel
-                                                          ├── click a word inside → go deeper (breadcrumb)
-                                                          └── ask a follow-up → answered in place
-```
+1. **Read** — hover a word and it quietly lights up.
+2. **Click** — a one-sentence glance appears in place.
+3. **"See more"** — the glance grows into a composed panel.
+   - Click a word inside it to go deeper, with a breadcrumb back.
+   - Ask a follow-up — answered in place, still composed.
 
 <div align="center">
 
