@@ -9,6 +9,8 @@
     "dev": "npm -w @curio/web run dev",
     "build": "npm -w @curio/web run build",
     "build:ext": "npm -w @curio/extension run build",
+    "dev:landing": "npm -w @curio/landing run dev",
+    "build:landing": "npm -w @curio/landing run build",
     "preview": "npm -w @curio/web run preview",
     "typecheck": "npm -w @curio/web run typecheck",
     "lint": "eslint .",

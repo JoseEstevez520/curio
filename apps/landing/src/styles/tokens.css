@@ -1,0 +1,157 @@
+/**
+ * Curio design tokens — same source as apps/web/src/styles/tokens.css (docs/DESIGN.md).
+ * The landing page must look like Curio, so it shares the exact tokens, not a copy that drifts.
+ *
+ * Monochrome. NO SHADOWS anywhere. Hierarchy comes from 1px hairlines and whitespace.
+ */
+
+:root {
+  /* ===== Color — Light theme (default) — §2 ===== */
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafa;
+  --color-bg-muted: #f4f4f5;
+  --color-bg-inset: #ededee;
+
+  --color-fg: #18181b;
+  --color-fg-secondary: #52525b;
+  --color-fg-muted: #71717a;
+  --color-fg-faint: #a1a1aa;
+
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-border-focus: #3b82f6;
+
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-subtle: #eff4ff;
+  --color-accent-fg: #ffffff;
+
+  --color-curio: #2e9bf7;
+  --color-selection: color-mix(in srgb, var(--color-curio) 32%, transparent);
+
+  --focus-ring: rgba(59, 130, 246, 0.45);
+  --color-scrim: rgba(0, 0, 0, 0.35);
+
+  /* ===== Typography — §3 ===== */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  --tracking-tight: -0.011em;
+  --tracking-normal: 0;
+
+  --measure: 65ch;
+
+  /* ===== Spacing scale (4px base grid) — §4 ===== */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ===== Radius (small and subtle) — §4 ===== */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  /* ===== Motion — §7 ===== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-instant: 80ms;
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
+}
+
+/* The landing page defaults to light regardless of the visitor's system theme (no
+   prefers-color-scheme branch, unlike apps/web) — but the moon toggle can still force dark,
+   using the exact same override values as the app. */
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0a0a0a;
+  --color-bg-subtle: #111112;
+  --color-bg-muted: #18181b;
+  --color-bg-inset: #202023;
+
+  --color-fg: #f4f4f5;
+  --color-fg-secondary: #a1a1aa;
+  --color-fg-muted: #8b8b93;
+  --color-fg-faint: #5c5c63;
+
+  --color-border: #26262a;
+  --color-border-strong: #34343a;
+  --color-border-focus: #3b82f6;
+
+  --color-accent: #60a5fa;
+  --color-accent-hover: #93c5fd;
+  --color-accent-subtle: #16233d;
+  --color-accent-fg: #0a0a0a;
+
+  --color-curio: #4aa8ff;
+  --color-selection: color-mix(in srgb, var(--color-curio) 38%, transparent);
+
+  --focus-ring: rgba(96, 165, 250, 0.5);
+  --color-scrim: rgba(0, 0, 0, 0.55);
+}
+
+/* Suppress transitions for one frame during the theme swap, so nothing cross-fades between
+   themes (same technique as apps/web's useTheme). */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
+html {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
+::selection {
+  background-color: var(--color-selection);
+  color: var(--color-fg);
+}
