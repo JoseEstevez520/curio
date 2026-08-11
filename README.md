@@ -1,7 +1,3 @@
-<div align="center">
-
-<img src="docs/media/curio.png" alt="Curio" width="128" height="128" />
-
 # Curio
 
 **Read. Wonder about a word. Click it — the answer is right there, in context.**
@@ -9,27 +5,21 @@
 [![React](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev)
-<img src="https://img.shields.io/badge/local--first-Ollama-20b9c5" alt="Local-first via Ollama" />
-<img src="https://img.shields.io/badge/brain-bring--your--own--key-8b7cff" alt="Bring your own OpenAI-compatible key" />
 
-<br />
-
-<img src="docs/media/hero-light.png" alt="Curio — empty state, light theme" width="49%" />
-<img src="docs/media/hero-dark.png" alt="Curio — empty state, dark theme" width="49%" />
-
-</div>
-
----
-
-**Curio** is a local-first reading companion. Read a reply from an LLM (or paste any article), click a word — or select a phrase — and a full explanation appears **in place, in context**. The word never leaves the sentence it lives in, so "Mercury" in a chemistry paragraph is not "Mercury" next to "planet". Nothing is underlined at rest: curiosity is met on the click, never advertised.
-
-> **Use it when you read to learn and don't want to leave the text to look things up.**
+**Curio** is a reading companion. Read a reply from an LLM (or paste any article), click a word — or select a phrase — and a full explanation appears **in place, in context**. The word never leaves the sentence it lives in, so "Mercury" in a chemistry paragraph is not "Mercury" next to "planet". Nothing is underlined at rest: curiosity is met on the click, never advertised. Works with an API key, Ollama, or whatever you've got.
 
 ## Why Curio?
 
 | In context, in place | Curiosity, not clutter | Composed, not dumped |
 | :--- | :--- | :--- |
 | Every word is explained against its own sentence — click or select, and the answer opens inline. No tab-hopping. | Nothing is flagged or underlined. The page reads as prose; a word only lights up under your cursor. | "See more" grows into a panel the model **builds** from a validated component catalog, never a wall of text. |
+
+<div align="center">
+
+<img src="docs/media/hero-light.png" alt="Curio — empty state, light theme" width="49%" />
+<img src="docs/media/hero-dark.png" alt="Curio — empty state, dark theme" width="49%" />
+
+</div>
 
 ## At a glance
 
@@ -109,12 +99,12 @@ npm install
 npm run dev            # http://localhost:5173
 ```
 
-Then pick a brain:
+Then pick a brain — pluggable, either works:
 
 | Brain | Setup | Notes |
 | :--- | :--- | :--- |
-| **Ollama (local, default)** | `ollama serve` then `ollama pull llama3.2:3b` | No keys, works offline. The dev server proxies `/ollama`, so no CORS and no `OLLAMA_ORIGINS`. |
 | **Cloud (bring-your-own-key)** | Set the endpoint + key in `apps/web/.env.local` | Any OpenAI-compatible API. **[Groq](https://groq.com)** recommended for speed (makes Gen UI snappy). |
+| **Ollama (local)** | `ollama serve` then `ollama pull llama3.2:3b` | No keys, works offline. The dev server proxies `/ollama`, so no CORS and no `OLLAMA_ORIGINS`. |
 
 ```ini
 # apps/web/.env.local — gitignored, never committed
@@ -172,7 +162,7 @@ Flip to **Read**, paste an article, and the same engine works on any text — Ma
 
 - **Not a dictionary.** It explains a word *as used here*, reading the surrounding sentence — not a generic definition.
 - **Not a link farm.** Nothing is underlined or flagged at rest; the text reads as prose.
-- **Not cloud-only.** Local-first via Ollama; a cloud key is optional, lives only in your browser, and is never committed.
+- **Not locked to one brain.** An OpenAI-compatible cloud key or local Ollama, your call — a key lives only in your browser and is never committed.
 - **Not a markup generator.** The model fills a validated component catalog; it never writes raw HTML into the page.
 
 ## Design & philosophy
