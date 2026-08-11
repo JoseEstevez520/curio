@@ -125,6 +125,8 @@ The same click-to-explain, on any web page (Manifest V3). It picks a brain by it
 npm run build:ext      # then load apps/extension/dist as an unpacked extension
 ```
 
+**Using the extension** — build, load it unpacked in `chrome://extensions`, pick a brain in the popup, enable it (Alt+C toggles), then select any word/phrase on any page. Requirements per brain (Gemini Nano vs Ollama vs cloud) and honest limits are in [`docs/extension.md`](docs/extension.md).
+
 ## How it works
 
 At the core is a **brain seam**: the whole engine talks to an abstract `LlmProvider`, with interchangeable implementations behind it — **Ollama** (local), **OpenAI-compatible** (cloud), and the browser's **Gemini Nano** (extension). Switching brains never serves a cached answer from a different one: the cache key includes the model's identity and the language.
