@@ -200,4 +200,4 @@ Work happens in **small slices** (one slice = one commit) and `main` stays demoa
 
 ## License
 
-Not settled yet (**MIT** is on the table for an open POC — the owner's call). Until a `LICENSE` file lands, all rights reserved by default.
+Curio is open source under the [MIT License](LICENSE).
